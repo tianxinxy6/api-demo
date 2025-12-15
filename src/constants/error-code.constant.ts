@@ -1,0 +1,37 @@
+export enum ErrorCode {
+
+  // system
+  ErrInternalServer = '10000:Internal server error',
+  ErrInvalidParam = '10001:Invalid params',
+  ErrUnauthorized = '10002:Unauthorized error',
+  ErrNotFound = '10003:Not found',
+  ErrUnknown = '10004:Unknown',
+  ErrDeadlineExceeded = '10005:Deadline exceeded',
+  ErrAccessDenied = '10006:Access denied',
+  ErrLimitExceed = '10007:Beyond limit',
+  ErrMethodNotAllowed = '10008:Method not allowed',
+  ErrSignParam = '10011:Invalid sign',
+  ErrValidation = '10012:Validation failed',
+  ErrDatabase = '10013:Database error',
+  ErrToken = '10014:Gen token error',
+  ErrInvalidToken = '10015:Invalid token',
+  ErrTokenTimeout = '10016:Token timeout',
+  ErrTooManyRequests = '10017:Too many request',
+  ErrInvalidTransaction = '10018:Invalid transaction',
+  ErrEncrypt = '10019:Encrypting the user password error',
+  ErrServiceUnavailable = '10020:Service Unavailable',
+  ErrRepeatOperation = '10021:Repeat Operation',
+  ErrDataNotFound = '10022:Data Not Found',
+
+  // user
+  ErrUsernameNotFound = '20101:用户名不存在哦',
+  ErrPhoneNotFound = '20102:手机号不存在哦',
+  ErrUserTokenExpired = '20103:登录过期了,请重新登录',
+  ErrUserOffline = '20104:您已离线，请重连',
+  ErrUserFrozen = '20105:账号已被冻结',
+  ErrUserNoSelf = '20106:不可以操作自己哦',
+  ErrUserExisted = '20107:用户名已存在哦',
+  ErrPhoneExisted = '20108:手机号已存在哦',
+  ErrPasswordNotMatch = '20109:密码错误',
+  ErrActionNotSelf = '20110:不可以操作自己哦',
+}
