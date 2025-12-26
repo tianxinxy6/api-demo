@@ -2,9 +2,10 @@ import { registerAs } from '@nestjs/config';
 import { RedisOptions } from 'ioredis';
 import { env, envNumber } from '@/global/env';
 
-export default registerAs(
-  'redis',
-  (): RedisOptions => ({
+export default registerAs('redis', (): RedisOptions => {
+  const appName = env('APP_NAME', 'wallet-api');
+
+  return {
     host: env('REDIS_HOST', 'localhost'),
     port: envNumber('REDIS_PORT', 6379),
     password: env('REDIS_PASSWORD', undefined),
@@ -22,8 +23,8 @@ export default registerAs(
     family: 4, // IPv4
     keepAlive: 30000, // 30 seconds
 
-    // 键前缀
-    keyPrefix: env('REDIS_KEY_PREFIX', ''),
+    // 关键：添加命名空间前缀，避免不同环境的 Key 碰撞
+    keyPrefix: env('REDIS_KEY_PREFIX', `${appName}:`),
 
     enableOfflineQueue: true,
 
@@ -32,5 +33,5 @@ export default registerAs(
       const targetError = 'READONLY';
       return err.message.includes(targetError);
     },
-  }),
-);
+  };
+});

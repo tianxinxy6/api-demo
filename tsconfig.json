@@ -16,14 +16,20 @@
     "baseUrl": "./",
     "incremental": true,
     "skipLibCheck": true,
-    "strictNullChecks": true,
+    "strictNullChecks": false,
     "forceConsistentCasingInFileNames": true,
+    "strict": false,
     "noImplicitAny": false,
     "strictBindCallApply": false,
+    "strictFunctionTypes": false,
+    "strictPropertyInitialization": false,
+    "noUncheckedIndexedAccess": false,
+    "noImplicitOverride": false,
+    "noPropertyAccessFromIndexSignature": false,
     "paths": {
       "@/*": ["./src/*"]
     },
-    "noFallthroughCasesInSwitch": false
+    "noFallthroughCasesInSwitch": true
   },
   "exclude": ["node_modules", "scripts", "dist"]
 }

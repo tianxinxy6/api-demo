@@ -19,7 +19,7 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
   private readonly defaultTTL = 3600; // 默认1小时过期
 
   constructor(private readonly configService: ConfigService) {
-    const redisConfig = this.configService.get<RedisOptions>('redis')!;
+    const redisConfig = this.configService.get<RedisOptions>('redis');
     this.redis = new Redis(redisConfig);
 
     // 监听连接事件

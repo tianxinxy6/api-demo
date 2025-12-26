@@ -1,22 +1,25 @@
-import { HttpModule } from '@nestjs/axios'
-import { Global, Module } from '@nestjs/common'
-import { ScheduleModule } from '@nestjs/schedule'
-import { ThrottlerModule } from '@nestjs/throttler'
+import { HttpModule } from '@nestjs/axios';
+import { Global, Module } from '@nestjs/common';
+import { ScheduleModule } from '@nestjs/schedule';
+import { ThrottlerModule } from '@nestjs/throttler';
 
-import { AppCacheModule } from './cache/cache.module'
-import { DatabaseModule } from './database/database.module'
-import { WinstonModule } from 'nest-winston'
-import { ConfigService } from '@nestjs/config'
-import { ClsModule } from 'nestjs-cls'
-import { FastifyRequest } from 'fastify'
+import { AppCacheModule } from './cache/cache.module';
+import { DatabaseModule } from './database/database.module';
+import { WinstonModule } from 'nest-winston';
+import { ConfigService } from '@nestjs/config';
+import { ClsModule } from 'nestjs-cls';
+import { FastifyRequest } from 'fastify';
+
+// 导入新的服务
+import { ConfigService as AppConfigService } from './config/config.service';
+import { WalletService } from './services/wallet.service';
 
 @Global()
 @Module({
   imports: [
     // 日志模块
     WinstonModule.forRootAsync({
-      useFactory: (configService: ConfigService) =>
-        configService.get('logger')!,
+      useFactory: (configService: ConfigService) => configService.get('logger'),
       inject: [ConfigService],
     }),
     // 启用 CLS 上下文
@@ -26,10 +29,12 @@ import { FastifyRequest } from 'fastify'
       interceptor: {
         mount: true,
         setup: (cls, context) => {
-          const req = context.switchToHttp().getRequest<FastifyRequest<{ Params: { id?: string } }>>()
+          const req = context
+            .switchToHttp()
+            .getRequest<FastifyRequest<{ Params: { id?: string } }>>();
           if (req.params?.id && req.body) {
             // 供自定义参数验证器(UniqueConstraint)使用
-            cls.set('operateId', Number.parseInt(req.params.id))
+            cls.set('operateId', Number.parseInt(req.params.id));
           }
         },
       },
@@ -50,6 +55,7 @@ import { FastifyRequest } from 'fastify'
     // database
     DatabaseModule,
   ],
-  exports: [HttpModule, AppCacheModule, DatabaseModule],
+  providers: [AppConfigService, WalletService],
+  exports: [HttpModule, AppCacheModule, DatabaseModule, AppConfigService, WalletService],
 })
-export class SharedModule { }
+export class SharedModule {}

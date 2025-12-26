@@ -1,5 +1,4 @@
 export enum ErrorCode {
-
   // system
   ErrInternalServer = '10000:Internal server error',
   ErrInvalidParam = '10001:Invalid params',

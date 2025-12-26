@@ -2,7 +2,6 @@ import { registerAs } from '@nestjs/config';
 import { WinstonModuleOptions } from 'nest-winston';
 import * as winston from 'winston';
 import { env } from '@/global/env';
-import { isProd } from '@/global/env';
 
 export default registerAs('logger', (): WinstonModuleOptions => {
   const logLevel = env('LOG_LEVEL', 'info');
@@ -28,7 +27,7 @@ export default registerAs('logger', (): WinstonModuleOptions => {
   ];
 
   // 生产环境添加文件输出
-  if (isProd) {
+  if (process.env.NODE_ENV === 'production') {
     transports.push(
       new winston.transports.File({
         filename: 'logs/error.log',

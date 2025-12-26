@@ -1,21 +1,38 @@
 declare global {
+  /**
+   * 认证用户信息接口
+   */
   interface IAuthUser {
-    uid: number
-    pv: number
-    /** 过期时间 */
-    exp?: number
-    /** 签发时间 */
-    iat?: number
+    /** 用户ID */
+    uid: number;
   }
 
+  interface IChainToken { 
+    code: string; 
+    contractAddress: string, 
+    decimals: number 
+  }
+
+  /**
+   * API 响应基础接口
+   */
   export interface IBaseResponse<T = any> {
-    message: string
-    code: number
-    data?: T
+    /** 响应消息 */
+    message: string;
+    /** 状态码 */
+    code: number;
+    /** 响应数据 */
+    data?: T;
   }
 
+  /**
+   * 列表响应数据接口
+   */
   export interface IListRespData<T = any> {
-    items: T[]
+    /** 列表项 */
+    items: T[];
+    /** 下一页游标 */
+    nextCursor?: number;
   }
 }
 

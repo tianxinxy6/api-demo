@@ -1,6 +1,5 @@
 import {
   ExecutionContext,
-  Inject,
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
@@ -11,8 +10,7 @@ import { ExtractJwt } from 'passport-jwt';
 
 import { BusinessException } from '@/common/exceptions/biz.exception';
 import { AuthStrategy, PUBLIC_KEY } from '../auth.constant';
-import { TokenService } from '../services/token.service';
-import appConfig from '@/config/app.config';
+import { TokenBlacklistService } from '@/modules/auth/services/token-blacklist.service';
 import { ErrorCode } from '@/constants/error-code.constant';
 
 // https://docs.nestjs.com/recipes/passport#implement-protected-route-and-jwt-strategy-guards
@@ -22,8 +20,7 @@ export class JwtAuthGuard extends AuthGuard(AuthStrategy.JWT) {
 
   constructor(
     private reflector: Reflector,
-    private tokenService: TokenService,
-    @Inject('APP_CONFIG') private appConfig,
+    private tokenBlacklistService: TokenBlacklistService,
   ) {
     super();
   }
@@ -50,6 +47,13 @@ export class JwtAuthGuard extends AuthGuard(AuthStrategy.JWT) {
       throw new UnauthorizedException('请先登录');
     }
 
+    // 检查 Token 是否有效（包含黑名单和批量撤销检查）
+    const isValidToken = await this.tokenBlacklistService.isTokenValid(token);
+    if (!isValidToken) {
+      throw new UnauthorizedException('Token 已失效，请重新登录');
+    }
+
+    // 通过 Passport JWT 策略进行验证
     let result: any = false;
     try {
       result = await super.canActivate(context);
@@ -60,17 +64,12 @@ export class JwtAuthGuard extends AuthGuard(AuthStrategy.JWT) {
       throw err;
     }
 
-    // 验证 token 有效性
-    const user: IAuthUser | null = await this.tokenService.verify(token);
-    if (!user) {
-      throw new BusinessException(ErrorCode.ErrInvalidToken);
-    }
-
-    request.user = user;
+    // super.canActivate 成功后，用户信息已经通过 JWT 策略的 validate 方法设置到 request.user 中
+    // 无需再次调用 tokenService.verify 验证
     return result;
   }
 
-  handleRequest(err, user) {
+  override handleRequest(err, user) {
     // You can throw an exception based on either "info" or "err" arguments
     if (err || !user) throw err || new UnauthorizedException();
 

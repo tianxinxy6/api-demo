@@ -47,7 +47,7 @@ class EnvironmentVariables {
   PORT: number = 3000;
 
   @IsString()
-  APP_NAME: string = 'store-chat';
+  APP_NAME: string = 'chain_wallet'; // 与 package.json 保持一致
 
   @IsString()
   APP_VERSION: string = '1.0.0';
@@ -58,26 +58,26 @@ class EnvironmentVariables {
   DATABASE_URL?: string;
 
   @IsEnum(DatabaseType)
-  DATABASE_TYPE: DatabaseType = DatabaseType.Postgres;
+  DATABASE_TYPE: DatabaseType = DatabaseType.MySQL;
 
   @IsString()
   DATABASE_HOST: string = 'localhost';
 
   @IsNumber()
   @Transform(({ value }) => parseInt(value, 10))
-  DATABASE_PORT: number = 5432;
+  DATABASE_PORT: number = 3306; // MySQL 默认端口
 
   @IsOptional()
   @IsString()
-  DATABASE_USERNAME?: string;
+  DATABASE_USERNAME?: string = 'root'; // 提供默认值
 
   @IsOptional()
   @IsString()
-  DATABASE_PASSWORD?: string;
+  DATABASE_PASSWORD?: string = ''; // 提供默认值
 
   @IsOptional()
   @IsString()
-  DATABASE_NAME?: string;
+  DATABASE_NAME?: string = 'chain_wallet'; // 提供默认值
 
   // Redis配置
   @IsString()

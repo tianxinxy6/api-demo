@@ -2,19 +2,27 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
 import { UserEntity } from '@/entities/user.entity';
-import { UserService } from './user.service';
-import { UserController } from './user.controller';
+import { UserWalletEntity } from '@/entities/user-wallet.entity';
+import { UserWalletLogEntity } from '@/entities/user-wallet-log.entity';
+import { UserWalletAddressEntity } from '@/entities/user-wallet-address.entity';
+import { UserService } from './services/user.service';
+import { WalletService } from './services/wallet.service';
+import { ChainAddressService } from './services/chain-address.service';
+import { UserController } from './controllers/user.controller';
 import { AppCacheModule } from '@/shared/cache/cache.module';
+import { WalletController } from './controllers/wallet.controller';
+import { SharedModule } from '@/shared/shared.module';
 
-const providers = [UserService];
+const providers = [UserService, WalletService, ChainAddressService];
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([UserEntity]),
+    TypeOrmModule.forFeature([UserEntity, UserWalletEntity, UserWalletLogEntity, UserWalletAddressEntity]),
     AppCacheModule,
+    SharedModule,
   ],
-  controllers: [UserController],
+  controllers: [UserController, WalletController],
   providers: [...providers],
   exports: [...providers],
 })
-export class UserModule {}
+export class UserModule { }

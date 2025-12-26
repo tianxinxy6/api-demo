@@ -17,7 +17,7 @@ export interface CacheOptions {
 @Injectable()
 export class CacheService {
   private readonly logger = new Logger(CacheService.name);
-  private readonly defaultPrefix = 'app:';
+  private readonly defaultPrefix = 'cache:';
 
   constructor(@Inject(CACHE_MANAGER) private cacheManager: Cache) {}
 
@@ -100,7 +100,10 @@ export class CacheService {
   async clear(): Promise<void> {
     try {
       // 获取所有存储并清空
-      if ('stores' in this.cacheManager && Array.isArray(this.cacheManager.stores)) {
+      if (
+        'stores' in this.cacheManager &&
+        Array.isArray(this.cacheManager.stores)
+      ) {
         await Promise.all(
           this.cacheManager.stores.map((store) =>
             store.clear?.().catch(() => null),
@@ -157,7 +160,10 @@ export class CacheService {
       const value = await this.get(key, options);
       return value !== null;
     } catch (error) {
-      this.logger.error(`Failed to check cache existence for key: ${key}`, error);
+      this.logger.error(
+        `Failed to check cache existence for key: ${key}`,
+        error,
+      );
       return false;
     }
   }

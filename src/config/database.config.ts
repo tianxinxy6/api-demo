@@ -1,7 +1,6 @@
 import { registerAs } from '@nestjs/config';
 import { TypeOrmModuleOptions } from '@nestjs/typeorm';
 import { env, envNumber } from '@/global/env';
-import { isDev, isProd } from '@/global/env';
 
 export default registerAs(
   'database',
@@ -11,7 +10,7 @@ export default registerAs(
     port: envNumber('DATABASE_PORT', 3306),
     username: env('DATABASE_USERNAME', 'root'),
     password: env('DATABASE_PASSWORD', ''),
-    database: env('DATABASE_NAME', 'store_chat'),
+    database: env('DATABASE_NAME', 'chain_wallet'), // 与应用名称保持一致
 
     // 连接池配置
     extra: {
@@ -20,17 +19,14 @@ export default registerAs(
     },
 
     // 实体配置
-    entities: [__dirname + '/../**/*.entity{.ts,.js}'],
+    entities: [__dirname + '/../modules/**/entities/*.entity{.ts,.js}'],
     migrations: [__dirname + '/../migrations/*{.ts,.js}'],
 
     // 开发环境配置
     // 如果为true，自动载入的模型将同步（默认：false）
     // 警告：设置 synchronize: true 不能被用于生产环境，否则您可能会丢失生产环境数据
-    synchronize: isDev && !isProd, // 仅在开发环境启用自动同步
-    logging: isDev ? ['error', 'warn'] : ['error'], // 生产环境只记录错误
-
-    // 生产环境配置
-    ssl: isProd ? { rejectUnauthorized: false } : false,
+    synchronize: env('NODE_ENV') === 'development', // 只在开发环境启用自动同步
+    logging: ['error', 'warn'], // 只记录错误和警告日志
 
     // 自动加载实体
     autoLoadEntities: true,

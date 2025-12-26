@@ -1,6 +1,6 @@
-export const RESPONSE_SUCCESS_CODE = 0
+export const RESPONSE_SUCCESS_CODE = 0;
 
-export const RESPONSE_SUCCESS_MSG = 'ok'
+export const RESPONSE_SUCCESS_MSG = 'ok';
 
 /**
  * @description:  contentType
