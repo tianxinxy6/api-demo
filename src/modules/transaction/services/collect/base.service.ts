@@ -2,7 +2,7 @@ import { Logger } from '@nestjs/common';
 import { DataSource, QueryRunner } from 'typeorm';
 import { ChainService } from '@/modules/chain/services/chain.service';
 import { ChainEntity } from '@/entities/chain.entity';
-import { BaseTransactionEntity } from '@/common/entities/base-transaction.entity';
+import { BaseTransactionEntity } from '@/entities/txs/base.entity';
 import { ChainAddressService } from '@/modules/user/services/chain-address.service';
 import { DatabaseService } from '@/shared/database/database.service';
 import { TransactionStatus } from '@/constants';

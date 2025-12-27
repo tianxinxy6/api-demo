@@ -8,15 +8,15 @@ import {
   ApiOperation,
   ApiResponse,
 } from '@nestjs/swagger';
-import { DepositService } from './services/deposit.service';
-import { QueryDepositDto } from './dto/deposit.dto';
-import { DepositOrder } from './model/deposit.model';
+import { DepositService } from '../services/deposit.service';
+import { QueryDepositDto } from '../dto/deposit.dto';
+import { DepositOrder } from '../model/deposit.model';
 import { AuthUser } from '@/common/decorators/auth-user.decorator';
 import { ApiSecurityAuth } from '@/common/decorators/swagger.decorator';
 
 @ApiTags('充值记录')
 @ApiSecurityAuth()
-@Controller('deposits')
+@Controller('deposit')
 export class DepositController {
   constructor(private readonly depositService: DepositService) {}
 
@@ -28,11 +28,11 @@ export class DepositController {
     type: DepositOrder,
     isArray: true,
   })
-  async getMyDepositOrders(
+  async getMyOrders(
     @AuthUser() user: IAuthUser,
     @Query() queryDto: QueryDepositDto,
   ): Promise<IListRespData> {
-    const result = await this.depositService.getUserDepositOrders(user.uid, queryDto);
+    const result = await this.depositService.getUserOrders(user.uid, queryDto);
     return result;
   }
 }

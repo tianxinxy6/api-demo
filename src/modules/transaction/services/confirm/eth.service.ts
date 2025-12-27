@@ -2,12 +2,12 @@ import { Injectable } from '@nestjs/common';
 import { BaseConfirmService } from './base.service';
 import { EthUtil } from '@/utils/eth.util';
 import { ChainEntity } from '@/entities/chain.entity';
-import { TransactionEthEntity } from '@/entities/transaction-eth.entity';
 import { ChainService } from '@/modules/chain/services/chain.service';
 import { DepositService } from '@/modules/order/services/deposit.service';
 import { DatabaseService } from '@/shared/database/database.service';
 import { EthCollectService } from '../collect/eth.service';
-import { BaseTransactionEntity } from '@/common/entities/base-transaction.entity';
+import { BaseTransactionEntity } from '@/entities/txs/base.entity';
+import { TransactionEthEntity } from '@/entities/txs/deposit/transaction-eth.entity';
 
 /**
  * ETH 交易确认服务

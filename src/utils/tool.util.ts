@@ -58,3 +58,44 @@ export const hashString = (str: string, seed = 0): number => {
 
 export const uniqueSlash = (path: string) =>
   path.replace(/(https?:\/)|(\/)+/g, '$1$2');
+
+/**
+ * 生成 20 位唯一订单号
+ * 格式：时间戳（13位）+ 随机数（7位）
+ * @returns 20位数字字符串订单号
+ * 
+ * @example
+ * generateOrderNo() // '17035123456781234567'
+ */
+export function generateOrderNo(): string {
+  // 获取当前时间戳（13位）
+  const timestamp = Date.now().toString();
+  
+  // 生成7位随机数字
+  const randomNum = Math.floor(Math.random() * 10000000).toString().padStart(7, '0');
+  
+  return timestamp + randomNum;
+}
+
+/**
+ * 将 wei 转换为 ether（适用于以太坊）
+ * @param wei wei 单位的字符串
+ * @param decimals 小数位数，默认 18
+ * @returns 格式化后的数字字符串
+ */
+export function formatTokenAmount(wei: string, decimals: number = 18): string {
+  const weiBigInt = BigInt(wei);
+  const divisor = BigInt(10 ** decimals);
+  
+  const integerPart = weiBigInt / divisor;
+  const remainder = weiBigInt % divisor;
+  
+  if (remainder === BigInt(0)) {
+    return integerPart.toString();
+  } else {
+    const fractionalPart = remainder.toString().padStart(decimals, '0');
+    // 移除尾随零
+    const trimmedFractional = fractionalPart.replace(/0+$/, '');
+    return `${integerPart.toString()}.${trimmedFractional}`;
+  }
+}

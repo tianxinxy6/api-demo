@@ -1,12 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { BaseConfirmService } from './base.service';
 import { TronUtil } from '@/utils/tron.util';
-import { TransactionTronEntity } from '@/entities/transaction-tron.entity';
 import { ChainService } from '@/modules/chain/services/chain.service';
 import { DepositService } from '@/modules/order/services/deposit.service';
 import { DatabaseService } from '@/shared/database/database.service';
 import { TronCollectService } from '../collect/tron.service';
-import { BaseTransactionEntity } from '@/common/entities/base-transaction.entity';
+import { BaseTransactionEntity } from '@/entities/txs/base.entity';
+import { TransactionTronEntity } from '@/entities/txs/deposit/transaction-tron.entity';
 
 /**
  * TRON 交易确认服务

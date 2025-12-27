@@ -147,6 +147,165 @@ export class WalletService {
   }
 
   /**
+   * 冻结用户钱包余额（可用余额转冻结余额）
+   * @param queryRunner 事务查询器
+   * @param params 冻结参数
+   */
+  async freezeBalance(
+    queryRunner: QueryRunner,
+    params: editBalanceParams,
+  ): Promise<UserWalletEntity> {
+    const { userId, tokenId, amount } = params;
+    const freezeAmount = BigInt(amount);
+    if (freezeAmount <= 0) {
+      throw new Error('冻结金额必须大于0');
+    }
+
+    // 原子操作：减少可用余额，增加冻结余额
+    const updateResult = await queryRunner.manager
+      .createQueryBuilder()
+      .update(UserWalletEntity)
+      .set({
+        balance: () => `CAST(balance AS DECIMAL(30,0)) - ${freezeAmount.toString()}`,
+        frozenBalance: () => `CAST(frozen_balance AS DECIMAL(30,0)) + ${freezeAmount.toString()}`,
+      })
+      .where('userId = :userId AND tokenId = :tokenId', { userId, tokenId })
+      .andWhere(`CAST(balance AS DECIMAL(30,0)) - ${freezeAmount.toString()} >= 0`)
+      .execute();
+
+    if (updateResult.affected === 0) {
+      const existingWallet = await queryRunner.manager.findOne(UserWalletEntity, {
+        where: { userId, tokenId },
+      });
+
+      if (!existingWallet) {
+        throw new NotFoundException('钱包记录不存在');
+      } else {
+        throw new NotFoundException('余额不足');
+      }
+    }
+
+    const userWallet = await queryRunner.manager.findOne(UserWalletEntity, {
+      where: { userId, tokenId },
+    });
+    if (!userWallet) {
+      throw new Error('钱包记录更新异常');
+    }
+
+    return userWallet;
+  }
+
+  /**
+   * 解冻用户钱包余额（冻结余额转可用余额）
+   * @param queryRunner 事务查询器
+   * @param params 解冻参数
+   */
+  async unfreezeBalance(
+    queryRunner: QueryRunner,
+    params: editBalanceParams,
+  ): Promise<UserWalletEntity> {
+    const { userId, tokenId, amount } = params;
+    const unfreezeAmount = BigInt(amount);
+    if (unfreezeAmount <= 0) {
+      throw new Error('解冻金额必须大于0');
+    }
+
+    // 原子操作：减少冻结余额，增加可用余额
+    const updateResult = await queryRunner.manager
+      .createQueryBuilder()
+      .update(UserWalletEntity)
+      .set({
+        balance: () => `CAST(balance AS DECIMAL(30,0)) + ${unfreezeAmount.toString()}`,
+        frozenBalance: () => `CAST(frozen_balance AS DECIMAL(30,0)) - ${unfreezeAmount.toString()}`,
+      })
+      .where('userId = :userId AND tokenId = :tokenId', { userId, tokenId })
+      .andWhere(`CAST(frozen_balance AS DECIMAL(30,0)) - ${unfreezeAmount.toString()} >= 0`)
+      .execute();
+
+    if (updateResult.affected === 0) {
+      const existingWallet = await queryRunner.manager.findOne(UserWalletEntity, {
+        where: { userId, tokenId },
+      });
+
+      if (!existingWallet) {
+        throw new NotFoundException('钱包记录不存在');
+      } else {
+        throw new NotFoundException('冻结余额不足');
+      }
+    }
+
+    const userWallet = await queryRunner.manager.findOne(UserWalletEntity, {
+      where: { userId, tokenId },
+    });
+    if (!userWallet) {
+      throw new Error('钱包记录更新异常');
+    }
+
+    return userWallet;
+  }
+
+  /**
+   * 扣减冻结余额（直接减少冻结余额）
+   * @param queryRunner 事务查询器
+   * @param params 扣减参数
+   */
+  async subFrozenBalance(
+    queryRunner: QueryRunner,
+    params: editBalanceParams,
+  ): Promise<UserWalletEntity> {
+    const { userId, tokenId, amount } = params;
+    const subAmount = BigInt(amount);
+    if (subAmount <= 0) {
+      throw new Error('扣减金额必须大于0');
+    }
+
+    // 原子操作：直接减少冻结余额
+    const updateResult = await queryRunner.manager
+      .createQueryBuilder()
+      .update(UserWalletEntity)
+      .set({
+        frozenBalance: () => `CAST(frozen_balance AS DECIMAL(30,0)) - ${subAmount.toString()}`,
+      })
+      .where('userId = :userId AND tokenId = :tokenId', { userId, tokenId })
+      .andWhere(`CAST(frozen_balance AS DECIMAL(30,0)) - ${subAmount.toString()} >= 0`)
+      .execute();
+
+    if (updateResult.affected === 0) {
+      const existingWallet = await queryRunner.manager.findOne(UserWalletEntity, {
+        where: { userId, tokenId },
+      });
+
+      if (!existingWallet) {
+        throw new NotFoundException('钱包记录不存在');
+      } else {
+        throw new NotFoundException('冻结余额不足');
+      }
+    }
+
+    const userWallet = await queryRunner.manager.findOne(UserWalletEntity, {
+      where: { userId, tokenId },
+    });
+    if (!userWallet) {
+      throw new Error('钱包记录更新异常');
+    }
+
+    const beforeBalance = (BigInt(userWallet.frozenBalance) + subAmount).toString();
+
+    // 创建钱包变动日志（记录为负数表示减少）
+    await this.createWalletLog(
+      queryRunner,
+      {
+        ...params,
+        amount: `-${subAmount.toString()}`, // 日志中记录为负数
+      },
+      beforeBalance,
+      userWallet.frozenBalance,
+    );
+
+    return userWallet;
+  }
+
+  /**
    * 创建钱包变动日志的私有方法
    * @private
    */

@@ -54,12 +54,12 @@ export class TokenService {
     /**
      * 根据代币代码获取合约地址
      */
-    async getAddressByCode(chainId: number, code: string): Promise<string | null> {
+    async getAddressByCode(chainId: number, code: string): Promise<IChainToken | null> {
         if (!code?.trim()) return null;
 
         const tokenData = await this.getChainTokenData(chainId);
         const token = tokenData.find(t => t.code === code.trim());
-        return token?.contractAddress || null;
+        return token || null;
     }
 
     /**

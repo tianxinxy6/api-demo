@@ -1,6 +1,6 @@
 import { ClassSerializerInterceptor, Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { APP_FILTER, APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
+import { APP_FILTER, APP_GUARD, APP_INTERCEPTOR, APP_PIPE } from '@nestjs/core';
 import { ThrottlerGuard } from '@nestjs/throttler';
 
 import config from '@/config';
@@ -18,6 +18,7 @@ import { OrderModule } from './modules/order/order.module';
 import { TransactionModule } from './modules/transaction/transaction.module';
 import { TaskModule } from './modules/cron/cron.module';
 import { SysModule } from './modules/sys/sys.module';
+import { ValidationPipe } from './common/pipes/validation.pipe';
 
 @Module({
   imports: [
@@ -42,6 +43,8 @@ import { SysModule } from './modules/sys/sys.module';
   ],
   providers: [
     { provide: APP_FILTER, useClass: AllExceptionsFilter },
+
+    { provide: APP_PIPE, useClass: ValidationPipe },
 
     { provide: APP_INTERCEPTOR, useClass: ClassSerializerInterceptor },
     { provide: APP_INTERCEPTOR, useClass: TransformInterceptor },

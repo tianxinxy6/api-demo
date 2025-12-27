@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { TokenEntity } from '@/entities/token.entity';
@@ -34,6 +34,37 @@ export class TokenService {
     const token = await this.tokenRepository.findOne({
       where: { 
         code: code.toUpperCase(),
+        status: TokenStatus.ACTIVE 
+      },
+    });
+    if (!token) {
+      return null;
+    }
+
+    // 缓存查询结果
+    await this.cacheService.set(cacheKey, token, { ttl: this.CACHE_TTL });
+
+    return token;
+  }
+
+  /**
+   * 通过代币ID获取代币记录（带缓存）
+   * @param id 代币ID
+   * @returns 代币实体
+   */
+  async getTokenById(id: number): Promise<TokenEntity> {
+    const cacheKey = `${TokenService.CACHE_PREFIX}id:${id}`;
+    
+    // 尝试从缓存获取
+    const cachedToken = await this.cacheService.get<TokenEntity>(cacheKey);
+    if (cachedToken) {
+      return cachedToken;
+    }
+
+    // 缓存未命中，从数据库查询
+    const token = await this.tokenRepository.findOne({
+      where: { 
+        id,
         status: TokenStatus.ACTIVE 
       },
     });

@@ -1,15 +1,14 @@
 import { Injectable } from '@nestjs/common';
 import { ethers } from 'ethers';
-import { ChainEntity } from '@/entities/chain.entity';
 import { ChainType, TransactionStatus } from '@/constants';
-import { BaseTransactionEntity } from '@/common/entities/base-transaction.entity';
+import { BaseTransactionEntity } from '@/entities/txs/base.entity';
 import { BaseCollectService } from './base.service';
-import { TransactionCollectEthEntity } from '@/entities/transaction-collect-eth.entity';
 import { ChainService } from '@/modules/chain/services/chain.service';
 import { ChainAddressService } from '@/modules/user/services/chain-address.service';
 import { SysWalletAddressService } from '@/modules/sys/services/sys-wallet.service';
 import { DataSource } from 'typeorm';
 import { DatabaseService } from '@/shared/database/database.service';
+import { TransactionCollectEthEntity } from '@/entities/txs/collect/transaction-eth.entity';
 
 /**
  * ETH 归集服务

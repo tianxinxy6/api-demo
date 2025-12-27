@@ -11,11 +11,11 @@ export class UserRegisterDto {
   @ApiProperty({ example: 'john_doe', description: '用户名' })
   username: string;
 
-  @StringField({ minLength: 8, maxLength: 100 })
+  @StringField({ minLength: 6, maxLength: 100 })
   @ApiProperty({ example: 'password123', description: '密码' })
   password: string;
 
-  @StringField({ minLength: 8, maxLength: 100 })
+  @StringField({ minLength: 6, maxLength: 100 })
   @IsRepeat('password', { message: '确认密码与密码不一致' })
   @ApiProperty({ example: 'password123', description: '确认密码' })
   confirmPassword: string;
@@ -33,7 +33,7 @@ export class UserLoginDto {
   @ApiProperty({ example: 'john_doe', description: '用户名' })
   username: string;
 
-  @StringField({ minLength: 8, maxLength: 100 })
+  @StringField({ minLength: 6, maxLength: 100 })
   @ApiProperty({ example: 'password123', description: '密码' })
   password: string;
 }

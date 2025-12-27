@@ -1,15 +1,14 @@
 import { Injectable } from '@nestjs/common';
-import { ChainEntity } from '@/entities/chain.entity';
 import { ChainType, TransactionStatus } from '@/constants';
 import { TronUtil } from '@/utils/tron.util';
 import { BaseCollectService } from './base.service';
-import { TransactionCollectTronEntity } from '@/entities/transaction-collect-tron.entity';
-import { BaseTransactionEntity } from '@/common/entities/base-transaction.entity';
+import { BaseTransactionEntity } from '@/entities/txs/base.entity';
 import { ChainService } from '@/modules/chain/services/chain.service';
 import { ChainAddressService } from '@/modules/user/services/chain-address.service';
 import { SysWalletAddressService } from '@/modules/sys/services/sys-wallet.service';
 import { DataSource } from 'typeorm';
 import { DatabaseService } from '@/shared/database/database.service';
+import { TransactionCollectTronEntity } from '@/entities/txs/collect/transaction-tron.entity';
 
 /**
  * TRON 归集服务
@@ -43,7 +42,7 @@ export class TronCollectService extends BaseCollectService {
     );
   }
 
-  protected buildEntity(): BaseTransactionEntity {
+  protected buildEntity(): TransactionCollectTronEntity {
     return new TransactionCollectTronEntity();
   }
 

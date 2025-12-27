@@ -3,13 +3,13 @@ import { EthUtil } from '@/utils/eth.util';
 import { ChainType } from '@/constants';
 import { BaseScanService } from './base.service';
 import { ChainTransaction, ContractInfo } from '../../transaction.constant';
-import { TransactionEthEntity } from '@/entities/transaction-eth.entity';
 import { ChainService } from '@/modules/chain/services/chain.service';
 import { ChainAddressService } from '@/modules/user/services/chain-address.service';
 import { TokenService } from '@/modules/chain/services/token.service';
 import { ConfigService } from '@/shared/config/config.service';
 import { DepositService } from '@/modules/order/services/deposit.service';
 import { DatabaseService } from '@/shared/database/database.service';
+import { TransactionEthEntity } from '@/entities/txs/deposit/transaction-eth.entity';
 
 // 定义交易类型
 const TYPE_ETH_TRANSFER = 'ETH_TRANSFER';

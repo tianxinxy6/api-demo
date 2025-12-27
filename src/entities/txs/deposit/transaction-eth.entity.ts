@@ -1,5 +1,5 @@
 import { Entity } from 'typeorm';
-import { BaseTransactionEntity } from '../common/entities/base-transaction.entity';
+import { BaseTransactionEntity } from '../base.entity';
 
 /**
  * 以太坊交易记录表

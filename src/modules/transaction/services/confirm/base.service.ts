@@ -1,7 +1,7 @@
 import { Logger } from '@nestjs/common';
 import { ChainService } from '@/modules/chain/services/chain.service';
 import { ChainEntity } from '@/entities/chain.entity';
-import { BaseTransactionEntity } from '@/common/entities/base-transaction.entity';
+import { BaseTransactionEntity } from '@/entities/txs/base.entity';
 import { DepositService } from '@/modules/order/services/deposit.service';
 import { DatabaseService } from '@/shared/database/database.service';
 import { TransactionStatus } from '@/constants';

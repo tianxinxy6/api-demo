@@ -2,7 +2,6 @@ import { Injectable } from '@nestjs/common';
 import { TronUtil } from '@/utils/tron.util';
 import { ChainType } from '@/constants';
 import { BaseScanService } from './base.service';
-import { TransactionTronEntity } from '@/entities/transaction-tron.entity';
 import { ChainTransaction, ContractInfo } from '../../transaction.constant';
 import { ChainService } from '@/modules/chain/services/chain.service';
 import { ChainAddressService } from '@/modules/user/services/chain-address.service';
@@ -10,6 +9,7 @@ import { TokenService } from '@/modules/chain/services/token.service';
 import { ConfigService } from '@/shared/config/config.service';
 import { DepositService } from '@/modules/order/services/deposit.service';
 import { DatabaseService } from '@/shared/database/database.service';
+import { TransactionTronEntity } from '@/entities/txs/deposit/transaction-tron.entity';
 
 const TYPE_TRX_TRANSFER = 'TRX_TRANSFER';
 const TYPE_TRC20_TRANSFER = 'TRC20_TRANSFER';

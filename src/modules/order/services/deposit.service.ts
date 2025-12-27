@@ -6,7 +6,7 @@ import { WalletService } from '@/modules/user/services/wallet.service';
 import { QueryDepositDto } from '../dto/deposit.dto';
 import { DepositOrder } from '../model/deposit.model';
 import { DepositStatus, WalletLogType } from '@/constants';
-import { BaseTransactionEntity } from '@/common/entities/base-transaction.entity';
+import { BaseTransactionEntity } from '@/entities/txs/base.entity';
 import { TokenService } from '@/modules/sys/services/token.service';
 
 @Injectable()
@@ -113,7 +113,7 @@ export class DepositService {
   /**
    * 获取用户充值记录
    */
-  async getUserDepositOrders(userId: number, queryDto: QueryDepositDto): Promise<IListRespData> {
+  async getUserOrders(userId: number, queryDto: QueryDepositDto): Promise<IListRespData> {
     const queryBuilder = this.depositRepository.createQueryBuilder('deposit');
 
     // 强制过滤当前用户
@@ -145,15 +145,17 @@ export class DepositService {
       queryBuilder.andWhere('deposit.id < :cursor', { cursor: queryDto.cursor });
     }
 
+    const limit = queryDto.limit || 20;
+
     // 排序和限制
     queryBuilder
       .orderBy('deposit.id', 'DESC')
-      .limit(queryDto.limit || 20);
+      .limit(limit);
 
     const deposits = await queryBuilder.getMany();
 
     // 计算下一个游标
-    const nextCursor = deposits.length > 0 ? deposits[deposits.length - 1].id : null;
+    const nextCursor = deposits.length == limit ? deposits[deposits.length - 1].id : null;
 
     return {
       items: deposits.map(deposit => this.mapToModel(deposit)),
@@ -180,11 +182,12 @@ export class DepositService {
    * 将实体转换为响应模型
    */
   private mapToModel(deposit: OrderDepositEntity): DepositOrder {
-    return {
+    return new DepositOrder({
       id: deposit.id,
       userId: deposit.userId,
       chainId: deposit.chainId,
       token: deposit.token,
+      decimals: deposit.decimals,
       amount: deposit.amount,
       hash: deposit.hash,
       confirmBlock: deposit.confirmBlock,
@@ -194,6 +197,6 @@ export class DepositService {
       blockNumber: deposit.blockNumber,
       failureReason: deposit.failureReason,
       createdAt: deposit.createdAt,
-    };
+    });
   }
 }

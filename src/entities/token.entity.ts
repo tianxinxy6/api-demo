@@ -6,6 +6,12 @@ import {
 import { TokenStatus } from '@/constants';
 import { CommonEntity } from '@/common/entities/common.entity';
 
+type FeeConfig = {
+  rate: number; // 手续费率，万分比表示
+  min: number; // 最小手续费
+  max: number; // 最大手续费
+};
+
 /**
  * 平台代币配置表
  */
@@ -28,6 +34,10 @@ export class TokenEntity extends CommonEntity {
 
   @Column({ comment: '精度位数', type: 'tinyint' })
   decimals: number;
+
+  // 手续费 json 字符串，定义 type
+  @Column({ comment: '提现手续费配置', name: 'withdraw_fee', type: 'json', nullable: true })
+  withdrawFee?: FeeConfig;
 
   @Column({
     comment: '状态',

@@ -1,13 +1,13 @@
-import { IsOptional, IsNumber, IsString, IsEnum, IsDateString } from 'class-validator';
+import { IsOptional, IsNumber, IsString, IsEnum } from 'class-validator';
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import { DepositStatus } from '@/constants';
-import { CursorDto } from '@/common/dto/cursor.dto';
+import { DateDto } from '@/common/dto/date.dto';
 
 /**
  * 查询充值记录DTO
  */
-export class QueryDepositDto extends CursorDto {
+export class QueryDepositDto extends DateDto {
   @ApiPropertyOptional({ description: '区块链ID', example: 1 })
   @IsOptional()
   @IsNumber({}, { message: '区块链ID必须是数字' })
@@ -28,14 +28,4 @@ export class QueryDepositDto extends CursorDto {
   @IsEnum(DepositStatus, { message: '订单状态值无效' })
   @Type(() => Number)
   status?: DepositStatus;
-
-  @ApiPropertyOptional({ description: '开始时间', example: '2025-12-12 10:00:00' })
-  @IsOptional()
-  @IsDateString({}, { message: '开始时间格式不正确' })
-  startDate?: string;
-
-  @ApiPropertyOptional({ description: '结束时间', example: '2025-12-12 18:00:00' })
-  @IsOptional()
-  @IsDateString({}, { message: '结束时间格式不正确' })
-  endDate?: string;
 }

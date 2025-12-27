@@ -6,7 +6,7 @@ import { ConfigService } from '@/shared/config/config.service';
 import { ChainEntity } from '@/entities/chain.entity';
 import { sleep } from 'tronweb/utils';
 import { ChainTransaction } from '../../transaction.constant';
-import { BaseTransactionEntity } from '@/common/entities/base-transaction.entity';
+import { BaseTransactionEntity } from '@/entities/txs/base.entity';
 import { TransactionStatus } from '@/constants';
 import { DepositService } from '@/modules/order/services/deposit.service';
 import { DatabaseService } from '@/shared/database/database.service';
