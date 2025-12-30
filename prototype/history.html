@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>History</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f9fafb; }
+        .tab-active {
+            color: #1f2937;
+            border-bottom: 2px solid #2563eb;
+        }
+    </style>
+</head>
+<body class="pb-20">
+    <!-- Header -->
+    <div class="bg-white sticky top-0 z-10 border-b border-gray-100">
+        <div class="px-5 pt-6 pb-2">
+            <h2 class="text-xl font-bold text-gray-800">交易记录</h2>
+        </div>
+        <!-- Tabs -->
+        <div class="flex px-5 gap-6 text-sm font-medium text-gray-500">
+            <button class="pb-3 tab-active">全部</button>
+            <button class="pb-3 hover:text-gray-800">充值</button>
+            <button class="pb-3 hover:text-gray-800">提现</button>
+            <button class="pb-3 hover:text-gray-800">其他</button>
+        </div>
+    </div>
+
+    <!-- List -->
+    <div class="px-5 mt-4 space-y-4">
+        
+        <!-- Item 1: Deposit Success -->
+        <div class="flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center text-green-600">
+                    <i class="fas fa-arrow-down"></i>
+                </div>
+                <div>
+                    <h4 class="font-bold text-gray-800 text-sm">充值 USDT</h4>
+                    <p class="text-xs text-gray-400">2023-10-24 14:30</p>
+                </div>
+            </div>
+            <div class="text-right">
+                <h4 class="font-bold text-green-600 text-sm">+500.00</h4>
+                <p class="text-xs text-green-500">已完成</p>
+            </div>
+        </div>
+
+        <!-- Item 2: Withdraw Pending -->
+        <div class="flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600">
+                    <i class="fas fa-paper-plane"></i>
+                </div>
+                <div>
+                    <h4 class="font-bold text-gray-800 text-sm">提现 USDT</h4>
+                    <p class="text-xs text-gray-400">2023-10-23 09:15</p>
+                </div>
+            </div>
+            <div class="text-right">
+                <h4 class="font-bold text-gray-800 text-sm">-1,200.00</h4>
+                <p class="text-xs text-orange-500">审核中</p>
+            </div>
+        </div>
+
+        <!-- Item 3: Deposit Failed -->
+        <div class="flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center text-red-600">
+                    <i class="fas fa-exclamation"></i>
+                </div>
+                <div>
+                    <h4 class="font-bold text-gray-800 text-sm">充值 USDT</h4>
+                    <p class="text-xs text-gray-400">2023-10-20 18:45</p>
+                </div>
+            </div>
+            <div class="text-right">
+                <h4 class="font-bold text-gray-400 text-sm">0.00</h4>
+                <p class="text-xs text-red-500">失败</p>
+            </div>
+        </div>
+
+         <!-- Item 4: Deposit Success -->
+         <div class="flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center text-green-600">
+                    <i class="fas fa-arrow-down"></i>
+                </div>
+                <div>
+                    <h4 class="font-bold text-gray-800 text-sm">充值 TRX</h4>
+                    <p class="text-xs text-gray-400">2023-10-19 11:20</p>
+                </div>
+            </div>
+            <div class="text-right">
+                <h4 class="font-bold text-green-600 text-sm">+2000.00</h4>
+                <p class="text-xs text-green-500">已完成</p>
+            </div>
+        </div>
+
+    </div>
+</body>
+</html>

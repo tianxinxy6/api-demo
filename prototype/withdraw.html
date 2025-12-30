@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Withdraw</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f9fafb; }
+    </style>
+</head>
+<body class="pb-20">
+    <!-- Header -->
+    <div class="bg-white px-5 pt-6 pb-4 sticky top-0 z-10 flex items-center gap-4 border-b border-gray-100">
+        <a href="home.html" class="text-gray-600 hover:text-gray-900">
+            <i class="fas fa-arrow-left text-lg"></i>
+        </a>
+        <h2 class="text-xl font-bold text-gray-800">提现 USDT</h2>
+    </div>
+
+    <!-- Form -->
+    <div class="px-5 mt-6 space-y-6">
+        
+        <!-- Address Input -->
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">提现地址</label>
+            <div class="relative">
+                <input type="text" placeholder="输入或粘贴钱包地址" class="w-full bg-white border border-gray-200 rounded-xl py-3 pl-4 pr-12 text-sm focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500">
+                <button class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
+                    <i class="fas fa-qrcode"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Network Selector -->
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">转账网络</label>
+            <div class="relative">
+                <select class="w-full bg-white border border-gray-200 rounded-xl py-3 pl-4 pr-10 text-sm appearance-none focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500">
+                    <option>TRC20 (Tron)</option>
+                    <option>ERC20 (Ethereum)</option>
+                </select>
+                <div class="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-gray-500">
+                    <i class="fas fa-chevron-down text-xs"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- Amount Input -->
+        <div>
+            <div class="flex justify-between mb-2">
+                <label class="block text-sm font-medium text-gray-700">提现数量</label>
+                <span class="text-xs text-gray-500">可用: 12,450.80 USDT</span>
+            </div>
+            <div class="relative">
+                <input type="number" placeholder="最小提现 10" class="w-full bg-white border border-gray-200 rounded-xl py-3 pl-4 pr-16 text-sm focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500">
+                <div class="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-2">
+                    <span class="text-xs font-bold text-gray-400">USDT</span>
+                    <button class="text-xs font-bold text-blue-600 hover:text-blue-700">全部</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Summary -->
+        <div class="bg-gray-50 rounded-xl p-4 space-y-2">
+            <div class="flex justify-between text-sm">
+                <span class="text-gray-500">网络手续费</span>
+                <span class="font-medium text-gray-800">1.00 USDT</span>
+            </div>
+            <div class="flex justify-between text-sm">
+                <span class="text-gray-500">实际到账</span>
+                <span class="font-bold text-gray-900 text-lg">0.00 USDT</span>
+            </div>
+        </div>
+
+        <!-- Submit Button -->
+        <button class="w-full bg-blue-600 text-white font-bold py-3.5 rounded-xl shadow-lg shadow-blue-200 hover:bg-blue-700 active:scale-95 transition-all">
+            确认提现
+        </button>
+
+    </div>
+</body>
+</html>

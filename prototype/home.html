@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f9fafb; }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+</head>
+<body class="pb-20">
+    <!-- Header -->
+    <div class="bg-white px-5 pt-6 pb-4 flex justify-between items-center sticky top-0 z-10">
+        <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-full bg-gray-200 overflow-hidden">
+                <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Felix" alt="avatar" class="w-full h-full object-cover">
+            </div>
+            <div>
+                <p class="text-xs text-gray-500">欢迎回来 👋</p>
+                <h2 class="font-bold text-gray-800">User888</h2>
+            </div>
+        </div>
+        <div class="relative">
+            <i class="far fa-bell text-xl text-gray-600"></i>
+            <span class="absolute -top-1 -right-1 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-white"></span>
+        </div>
+    </div>
+
+    <!-- Balance Card -->
+    <div class="px-5 mt-2">
+        <div class="bg-gradient-to-r from-blue-600 to-blue-800 rounded-2xl p-6 text-white shadow-lg shadow-blue-200">
+            <p class="text-blue-100 text-sm mb-1">总资产估值 (USDT)</p>
+            <h1 class="text-3xl font-bold mb-4">12,450.80</h1>
+            <div class="flex gap-4">
+                <div class="bg-white/20 backdrop-blur-sm rounded-lg px-3 py-1.5 text-xs flex items-center gap-1">
+                    <i class="fas fa-arrow-up"></i> +2.5%
+                </div>
+                <div class="bg-white/20 backdrop-blur-sm rounded-lg px-3 py-1.5 text-xs flex items-center gap-1">
+                    +$350.20
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="px-5 mt-6">
+        <div class="flex justify-between">
+            <a href="deposit.html" class="flex flex-col items-center gap-2 group">
+                <div class="w-12 h-12 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center text-xl shadow-sm group-active:scale-95 transition-transform">
+                    <i class="fas fa-arrow-down"></i>
+                </div>
+                <span class="text-xs font-medium text-gray-600">充值</span>
+            </a>
+            <a href="withdraw.html" class="flex flex-col items-center gap-2 group">
+                <div class="w-12 h-12 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center text-xl shadow-sm group-active:scale-95 transition-transform">
+                    <i class="fas fa-paper-plane"></i>
+                </div>
+                <span class="text-xs font-medium text-gray-600">提现</span>
+            </a>
+            <a href="#" class="flex flex-col items-center gap-2 group">
+                <div class="w-12 h-12 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center text-xl shadow-sm group-active:scale-95 transition-transform">
+                    <i class="fas fa-exchange-alt"></i>
+                </div>
+                <span class="text-xs font-medium text-gray-600">闪兑</span>
+            </a>
+            <a href="#" class="flex flex-col items-center gap-2 group">
+                <div class="w-12 h-12 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center text-xl shadow-sm group-active:scale-95 transition-transform">
+                    <i class="fas fa-headset"></i>
+                </div>
+                <span class="text-xs font-medium text-gray-600">客服</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- Market List -->
+    <div class="px-5 mt-8">
+        <div class="flex justify-between items-center mb-4">
+            <h3 class="font-bold text-gray-800">市场行情</h3>
+            <a href="#" class="text-xs text-blue-600 font-medium">查看全部</a>
+        </div>
+        
+        <div class="space-y-4">
+            <!-- Item 1 -->
+            <div class="flex items-center justify-between bg-white p-4 rounded-xl shadow-sm border border-gray-50">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-full bg-orange-100 flex items-center justify-center">
+                        <i class="fab fa-bitcoin text-orange-500 text-xl"></i>
+                    </div>
+                    <div>
+                        <h4 class="font-bold text-gray-800">BTC</h4>
+                        <p class="text-xs text-gray-500">Bitcoin</p>
+                    </div>
+                </div>
+                <div class="text-right">
+                    <h4 class="font-bold text-gray-800">$42,350.00</h4>
+                    <p class="text-xs text-green-500 font-medium">+1.2%</p>
+                </div>
+            </div>
+
+            <!-- Item 2 -->
+            <div class="flex items-center justify-between bg-white p-4 rounded-xl shadow-sm border border-gray-50">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center">
+                        <i class="fab fa-ethereum text-gray-600 text-xl"></i>
+                    </div>
+                    <div>
+                        <h4 class="font-bold text-gray-800">ETH</h4>
+                        <p class="text-xs text-gray-500">Ethereum</p>
+                    </div>
+                </div>
+                <div class="text-right">
+                    <h4 class="font-bold text-gray-800">$2,250.00</h4>
+                    <p class="text-xs text-red-500 font-medium">-0.5%</p>
+                </div>
+            </div>
+
+            <!-- Item 3 -->
+            <div class="flex items-center justify-between bg-white p-4 rounded-xl shadow-sm border border-gray-50">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center">
+                        <span class="font-bold text-green-600 text-xs">USDT</span>
+                    </div>
+                    <div>
+                        <h4 class="font-bold text-gray-800">USDT</h4>
+                        <p class="text-xs text-gray-500">Tether</p>
+                    </div>
+                </div>
+                <div class="text-right">
+                    <h4 class="font-bold text-gray-800">$1.00</h4>
+                    <p class="text-xs text-gray-400 font-medium">0.0%</p>
+                </div>
+            </div>
+             <!-- Item 4 -->
+             <div class="flex items-center justify-between bg-white p-4 rounded-xl shadow-sm border border-gray-50">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center">
+                        <span class="font-bold text-red-600 text-xs">TRX</span>
+                    </div>
+                    <div>
+                        <h4 class="font-bold text-gray-800">TRX</h4>
+                        <p class="text-xs text-gray-500">Tron</p>
+                    </div>
+                </div>
+                <div class="text-right">
+                    <h4 class="font-bold text-gray-800">$0.105</h4>
+                    <p class="text-xs text-green-500 font-medium">+0.8%</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

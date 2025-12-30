@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f9fafb; }
+    </style>
+</head>
+<body class="pb-20">
+    <!-- Header Profile -->
+    <div class="bg-white px-5 pt-8 pb-6 mb-2">
+        <div class="flex items-center gap-4 mb-6">
+            <div class="w-16 h-16 rounded-full bg-gray-200 overflow-hidden border-2 border-white shadow-md">
+                <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Felix" alt="avatar" class="w-full h-full object-cover">
+            </div>
+            <div>
+                <h2 class="text-xl font-bold text-gray-800">User888</h2>
+                <p class="text-sm text-gray-500">UID: 88888888</p>
+                <div class="mt-1 inline-flex items-center gap-1 px-2 py-0.5 rounded bg-green-100 text-green-700 text-xs font-medium">
+                    <i class="fas fa-check-circle"></i> 已认证
+                </div>
+            </div>
+        </div>
+        
+        <!-- Stats -->
+        <div class="flex justify-between bg-gray-50 rounded-xl p-4">
+            <div class="text-center flex-1 border-r border-gray-200">
+                <h4 class="font-bold text-gray-800">12</h4>
+                <p class="text-xs text-gray-500">本月交易</p>
+            </div>
+            <div class="text-center flex-1">
+                <h4 class="font-bold text-gray-800">VIP 1</h4>
+                <p class="text-xs text-gray-500">会员等级</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Menu -->
+    <div class="px-5 space-y-3">
+        
+        <div class="bg-white rounded-xl overflow-hidden shadow-sm border border-gray-50">
+            <a href="#" class="flex items-center justify-between p-4 hover:bg-gray-50 transition-colors border-b border-gray-50">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <span class="text-sm font-medium text-gray-700">安全中心</span>
+                </div>
+                <i class="fas fa-chevron-right text-gray-300 text-xs"></i>
+            </a>
+            <a href="#" class="flex items-center justify-between p-4 hover:bg-gray-50 transition-colors border-b border-gray-50">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-full bg-purple-50 text-purple-600 flex items-center justify-center">
+                        <i class="fas fa-address-book"></i>
+                    </div>
+                    <span class="text-sm font-medium text-gray-700">地址簿</span>
+                </div>
+                <i class="fas fa-chevron-right text-gray-300 text-xs"></i>
+            </a>
+            <a href="#" class="flex items-center justify-between p-4 hover:bg-gray-50 transition-colors">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-full bg-orange-50 text-orange-600 flex items-center justify-center">
+                        <i class="fas fa-cog"></i>
+                    </div>
+                    <span class="text-sm font-medium text-gray-700">通用设置</span>
+                </div>
+                <i class="fas fa-chevron-right text-gray-300 text-xs"></i>
+            </a>
+        </div>
+
+        <div class="bg-white rounded-xl overflow-hidden shadow-sm border border-gray-50">
+            <a href="#" class="flex items-center justify-between p-4 hover:bg-gray-50 transition-colors border-b border-gray-50">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-full bg-green-50 text-green-600 flex items-center justify-center">
+                        <i class="fas fa-headset"></i>
+                    </div>
+                    <span class="text-sm font-medium text-gray-700">帮助中心</span>
+                </div>
+                <i class="fas fa-chevron-right text-gray-300 text-xs"></i>
+            </a>
+            <a href="#" class="flex items-center justify-between p-4 hover:bg-gray-50 transition-colors">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-full bg-gray-100 text-gray-600 flex items-center justify-center">
+                        <i class="fas fa-info"></i>
+                    </div>
+                    <span class="text-sm font-medium text-gray-700">关于我们</span>
+                </div>
+                <i class="fas fa-chevron-right text-gray-300 text-xs"></i>
+            </a>
+        </div>
+
+        <button class="w-full bg-white text-red-500 font-medium py-3.5 rounded-xl shadow-sm border border-gray-100 hover:bg-red-50 transition-colors">
+            退出登录
+        </button>
+
+    </div>
+</body>
+</html>

@@ -1,0 +1,762 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Sky Wallet</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            background-color: #f3f4f6;
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+        }
+        
+        /* Mobile Frame Simulation for Desktop */
+        .mobile-frame {
+            width: 100%;
+            height: 100%;
+            background: #f9fafb;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        
+        @media (min-width: 450px) {
+            .mobile-frame {
+                max-width: 430px;
+                max-height: 932px;
+                height: 90vh;
+                border-radius: 40px;
+                border: 8px solid #1f2937;
+                box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            }
+        }
+
+        /* Page Content Area */
+        .page-content {
+            flex: 1;
+            overflow-y: auto;
+            background: #f9fafb;
+            padding-bottom: 80px; /* Space for bottom nav */
+            -ms-overflow-style: none;  /* IE and Edge */
+            scrollbar-width: none;  /* Firefox */
+        }
+        .page-content::-webkit-scrollbar {
+            display: none;
+        }
+
+        /* Sub-pages (Deposit/Withdraw) cover the bottom nav */
+        .sub-page {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #f9fafb;
+            z-index: 50;
+            overflow-y: auto;
+            display: none;
+        }
+        .sub-page.active {
+            display: block;
+            animation: slideIn 0.2s ease-out;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(100%); }
+            to { transform: translateX(0); }
+        }
+
+        /* Navigation */
+        .nav-item {
+            transition: all 0.2s;
+        }
+        .nav-item.active {
+            color: #2563eb;
+        }
+        .nav-item.active i {
+            transform: translateY(-2px);
+        }
+
+        /* Utility */
+        .tab-active {
+            background-color: #eff6ff;
+            color: #2563eb;
+            border-color: #2563eb;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="mobile-frame">
+        <!-- Status Bar Placeholder -->
+        <div class="h-10 bg-white w-full flex justify-between items-center px-6 text-xs font-medium text-gray-900 select-none z-20 border-b border-gray-100 shrink-0">
+            <span>9:41</span>
+            <div class="flex gap-1.5 items-center">
+                <i class="fas fa-signal"></i>
+                <i class="fas fa-wifi"></i>
+                <i class="fas fa-battery-full text-lg"></i>
+            </div>
+        </div>
+
+        <!-- ================= PAGES ================= -->
+
+        <!-- 1. HOME PAGE -->
+        <div id="page-home" class="page-content">
+            <!-- Header -->
+            <div class="bg-white px-5 pt-6 pb-4 flex justify-between items-center sticky top-0 z-10">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-full bg-gray-200 overflow-hidden">
+                        <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Felix" alt="avatar" class="w-full h-full object-cover">
+                    </div>
+                    <div>
+                        <p class="text-xs text-gray-500">欢迎回来 👋</p>
+                        <h2 class="font-bold text-gray-800">User888</h2>
+                    </div>
+                </div>
+                <div class="relative">
+                    <i class="far fa-bell text-xl text-gray-600"></i>
+                    <span class="absolute -top-1 -right-1 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-white"></span>
+                </div>
+            </div>
+
+            <!-- Balance Card -->
+            <div class="px-5 mt-2">
+                <div class="bg-gradient-to-r from-blue-600 to-blue-800 rounded-2xl p-6 text-white shadow-lg shadow-blue-200">
+                    <p class="text-blue-100 text-sm mb-1">总资产估值 (USDT)</p>
+                    <h1 class="text-3xl font-bold mb-4">12,450.80</h1>
+                    <div class="flex gap-4">
+                        <div class="bg-white/20 backdrop-blur-sm rounded-lg px-3 py-1.5 text-xs flex items-center gap-1">
+                            <i class="fas fa-arrow-up"></i> +2.5%
+                        </div>
+                        <div class="bg-white/20 backdrop-blur-sm rounded-lg px-3 py-1.5 text-xs flex items-center gap-1">
+                            +$350.20
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="px-5 mt-6">
+                <div class="flex justify-between">
+                    <button onclick="showSubPage('page-deposit')" class="flex flex-col items-center gap-2 group">
+                        <div class="w-12 h-12 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center text-xl shadow-sm group-active:scale-95 transition-transform">
+                            <i class="fas fa-arrow-down"></i>
+                        </div>
+                        <span class="text-xs font-medium text-gray-600">充值</span>
+                    </button>
+                    <button onclick="showSubPage('page-withdraw')" class="flex flex-col items-center gap-2 group">
+                        <div class="w-12 h-12 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center text-xl shadow-sm group-active:scale-95 transition-transform">
+                            <i class="fas fa-paper-plane"></i>
+                        </div>
+                        <span class="text-xs font-medium text-gray-600">提现</span>
+                    </button>
+                    <button onclick="showPage('page-swap', document.getElementById('nav-swap'))" class="flex flex-col items-center gap-2 group">
+                        <div class="w-12 h-12 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center text-xl shadow-sm group-active:scale-95 transition-transform">
+                            <i class="fas fa-exchange-alt"></i>
+                        </div>
+                        <span class="text-xs font-medium text-gray-600">闪兑</span>
+                    </button>
+                    <button class="flex flex-col items-center gap-2 group">
+                        <div class="w-12 h-12 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center text-xl shadow-sm group-active:scale-95 transition-transform">
+                            <i class="fas fa-headset"></i>
+                        </div>
+                        <span class="text-xs font-medium text-gray-600">客服</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Market List -->
+            <div class="px-5 mt-8">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="font-bold text-gray-800">市场行情</h3>
+                    <button class="text-xs text-blue-600 font-medium">查看全部</button>
+                </div>
+                
+                <div class="space-y-4">
+                    <!-- Item 1 -->
+                    <div class="flex items-center justify-between bg-white p-4 rounded-xl shadow-sm border border-gray-50">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-full bg-orange-100 flex items-center justify-center">
+                                <i class="fab fa-bitcoin text-orange-500 text-xl"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-gray-800">BTC</h4>
+                                <p class="text-xs text-gray-500">Bitcoin</p>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <h4 class="font-bold text-gray-800">$42,350.00</h4>
+                            <p class="text-xs text-green-500 font-medium">+1.2%</p>
+                        </div>
+                    </div>
+
+                    <!-- Item 2 -->
+                    <div class="flex items-center justify-between bg-white p-4 rounded-xl shadow-sm border border-gray-50">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center">
+                                <i class="fab fa-ethereum text-gray-600 text-xl"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-gray-800">ETH</h4>
+                                <p class="text-xs text-gray-500">Ethereum</p>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <h4 class="font-bold text-gray-800">$2,250.00</h4>
+                            <p class="text-xs text-red-500 font-medium">-0.5%</p>
+                        </div>
+                    </div>
+
+                    <!-- Item 3 -->
+                    <div class="flex items-center justify-between bg-white p-4 rounded-xl shadow-sm border border-gray-50">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center">
+                                <span class="font-bold text-green-600 text-xs">USDT</span>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-gray-800">USDT</h4>
+                                <p class="text-xs text-gray-500">Tether</p>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <h4 class="font-bold text-gray-800">$1.00</h4>
+                            <p class="text-xs text-gray-400 font-medium">0.0%</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 2. WALLET PAGE -->
+        <div id="page-wallet" class="page-content hidden">
+            <!-- Header -->
+            <div class="bg-white px-5 pt-6 pb-4 sticky top-0 z-10 border-b border-gray-100">
+                <h2 class="text-xl font-bold text-gray-800">我的资产</h2>
+            </div>
+
+            <!-- Total Balance -->
+            <div class="px-5 py-6 bg-white mb-2">
+                <p class="text-gray-500 text-sm mb-1">总资产 (USDT)</p>
+                <div class="flex items-end gap-2 mb-4">
+                    <h1 class="text-3xl font-bold text-gray-900">12,450.80</h1>
+                    <span class="text-gray-400 text-sm mb-1">≈ ¥89,645.76</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <label class="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox" value="" class="sr-only peer">
+                        <div class="w-9 h-5 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-blue-600"></div>
+                        <span class="ml-2 text-sm font-medium text-gray-500">隐藏小额资产</span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Asset List -->
+            <div class="px-5 mt-4 space-y-3">
+                <!-- USDT -->
+                <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-50 flex justify-between items-center">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center">
+                            <span class="font-bold text-green-600 text-xs">USDT</span>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-gray-800">USDT</h4>
+                            <p class="text-xs text-gray-500">Tether</p>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <h4 class="font-bold text-gray-800">12,000.00</h4>
+                        <p class="text-xs text-gray-400">≈ $12,000.00</p>
+                    </div>
+                </div>
+
+                <!-- TRX -->
+                <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-50 flex justify-between items-center">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center">
+                            <span class="font-bold text-red-600 text-xs">TRX</span>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-gray-800">TRX</h4>
+                            <p class="text-xs text-gray-500">Tron</p>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <h4 class="font-bold text-gray-800">4,200.00</h4>
+                        <p class="text-xs text-gray-400">≈ $441.00</p>
+                    </div>
+                </div>
+
+                <!-- ETH -->
+                <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-50 flex justify-between items-center">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center">
+                            <i class="fab fa-ethereum text-gray-600 text-xl"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-gray-800">ETH</h4>
+                            <p class="text-xs text-gray-500">Ethereum</p>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <h4 class="font-bold text-gray-800">0.0043</h4>
+                        <p class="text-xs text-gray-400">≈ $9.80</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3. SWAP PAGE -->
+        <div id="page-swap" class="page-content hidden">
+            <!-- Header -->
+            <div class="bg-white px-5 pt-6 pb-4 sticky top-0 z-10 border-b border-gray-100">
+                <h2 class="text-xl font-bold text-gray-800">闪兑</h2>
+            </div>
+
+            <!-- Swap Card -->
+            <div class="px-5 mt-6">
+                <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 relative">
+                    <!-- From -->
+                    <div class="bg-gray-50 rounded-xl p-4 mb-2">
+                        <div class="flex justify-between mb-2">
+                            <span class="text-xs text-gray-500">支付</span>
+                            <span class="text-xs text-gray-500">余额: 12,450.80</span>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <input type="number" placeholder="0.00" class="bg-transparent text-2xl font-bold text-gray-800 w-full focus:outline-none" value="1000">
+                            <button class="flex items-center gap-2 bg-white rounded-full px-3 py-1.5 shadow-sm border border-gray-200 shrink-0">
+                                <div class="w-6 h-6 rounded-full bg-green-100 flex items-center justify-center">
+                                    <span class="font-bold text-green-600 text-[10px]">USDT</span>
+                                </div>
+                                <span class="text-sm font-bold text-gray-700">USDT</span>
+                                <i class="fas fa-chevron-down text-xs text-gray-400"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Swap Icon -->
+                    <div class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-10">
+                        <div class="w-10 h-10 bg-white rounded-full shadow-md border border-gray-100 flex items-center justify-center text-blue-600">
+                            <i class="fas fa-arrow-down"></i>
+                        </div>
+                    </div>
+
+                    <!-- To -->
+                    <div class="bg-gray-50 rounded-xl p-4 mt-2">
+                        <div class="flex justify-between mb-2">
+                            <span class="text-xs text-gray-500">获得 (预估)</span>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <input type="number" placeholder="0.00" class="bg-transparent text-2xl font-bold text-gray-800 w-full focus:outline-none" value="0.0236" readonly>
+                            <button class="flex items-center gap-2 bg-white rounded-full px-3 py-1.5 shadow-sm border border-gray-200 shrink-0">
+                                <div class="w-6 h-6 rounded-full bg-orange-100 flex items-center justify-center">
+                                    <i class="fab fa-bitcoin text-orange-500 text-sm"></i>
+                                </div>
+                                <span class="text-sm font-bold text-gray-700">BTC</span>
+                                <i class="fas fa-chevron-down text-xs text-gray-400"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Rate Info -->
+                <div class="flex justify-between items-center px-2 mt-4 text-xs text-gray-500">
+                    <span>参考汇率</span>
+                    <span class="font-medium text-gray-800">1 BTC ≈ 42,350.00 USDT</span>
+                </div>
+                <div class="flex justify-between items-center px-2 mt-2 text-xs text-gray-500">
+                    <span>手续费 (0.1%)</span>
+                    <span class="font-medium text-gray-800">1.00 USDT</span>
+                </div>
+
+                <!-- Action Button -->
+                <button class="w-full mt-8 bg-blue-600 text-white font-bold py-3.5 rounded-xl shadow-lg shadow-blue-200 hover:bg-blue-700 active:scale-95 transition-all">
+                    立即兑换
+                </button>
+            </div>
+        </div>
+
+        <!-- 4. HISTORY PAGE -->
+        <div id="page-history" class="page-content hidden">
+            <!-- Header -->
+            <div class="bg-white sticky top-0 z-10 border-b border-gray-100">
+                <div class="px-5 pt-6 pb-2">
+                    <h2 class="text-xl font-bold text-gray-800">交易记录</h2>
+                </div>
+                <!-- Tabs -->
+                <div class="flex px-5 gap-6 text-sm font-medium text-gray-500">
+                    <button class="pb-3 tab-active">全部</button>
+                    <button class="pb-3 hover:text-gray-800">充值</button>
+                    <button class="pb-3 hover:text-gray-800">提现</button>
+                    <button class="pb-3 hover:text-gray-800">转账</button>
+                </div>
+            </div>
+
+            <!-- List -->
+            <div class="px-5 mt-4 space-y-4">
+                <!-- Item 1 -->
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center text-green-600">
+                            <i class="fas fa-arrow-down"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-gray-800 text-sm">充值 USDT</h4>
+                            <p class="text-xs text-gray-400">2023-10-24 14:30</p>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <h4 class="font-bold text-green-600 text-sm">+500.00</h4>
+                        <p class="text-xs text-green-500">已完成</p>
+                    </div>
+                </div>
+                <!-- Item 2 -->
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600">
+                            <i class="fas fa-paper-plane"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-gray-800 text-sm">提现 USDT</h4>
+                            <p class="text-xs text-gray-400">2023-10-23 09:15</p>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <h4 class="font-bold text-gray-800 text-sm">-1,200.00</h4>
+                        <p class="text-xs text-orange-500">审核中</p>
+                    </div>
+                </div>
+                <!-- Item 3 -->
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center text-red-600">
+                            <i class="fas fa-exclamation"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-gray-800 text-sm">充值 USDT</h4>
+                            <p class="text-xs text-gray-400">2023-10-20 18:45</p>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <h4 class="font-bold text-gray-400 text-sm">0.00</h4>
+                        <p class="text-xs text-red-500">失败</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 5. PROFILE PAGE -->
+        <div id="page-profile" class="page-content hidden">
+            <!-- Header Profile -->
+            <div class="bg-white px-5 pt-8 pb-6 mb-2">
+                <div class="flex items-center gap-4 mb-6">
+                    <div class="w-16 h-16 rounded-full bg-gray-200 overflow-hidden border-2 border-white shadow-md">
+                        <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Felix" alt="avatar" class="w-full h-full object-cover">
+                    </div>
+                    <div>
+                        <h2 class="text-xl font-bold text-gray-800">User888</h2>
+                        <p class="text-sm text-gray-500">UID: 88888888</p>
+                        <div class="mt-1 inline-flex items-center gap-1 px-2 py-0.5 rounded bg-green-100 text-green-700 text-xs font-medium">
+                            <i class="fas fa-check-circle"></i> 已认证
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Stats -->
+                <div class="flex justify-between bg-gray-50 rounded-xl p-4">
+                    <div class="text-center flex-1 border-r border-gray-200">
+                        <h4 class="font-bold text-gray-800">12</h4>
+                        <p class="text-xs text-gray-500">本月交易</p>
+                    </div>
+                    <div class="text-center flex-1">
+                        <h4 class="font-bold text-gray-800">VIP 1</h4>
+                        <p class="text-xs text-gray-500">会员等级</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Menu -->
+            <div class="px-5 space-y-3">
+                <div class="bg-white rounded-xl overflow-hidden shadow-sm border border-gray-50">
+                    <button class="w-full flex items-center justify-between p-4 hover:bg-gray-50 transition-colors border-b border-gray-50">
+                        <div class="flex items-center gap-3">
+                            <div class="w-8 h-8 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center">
+                                <i class="fas fa-shield-alt"></i>
+                            </div>
+                            <span class="text-sm font-medium text-gray-700">安全中心</span>
+                        </div>
+                        <i class="fas fa-chevron-right text-gray-300 text-xs"></i>
+                    </button>
+                    <button class="w-full flex items-center justify-between p-4 hover:bg-gray-50 transition-colors border-b border-gray-50">
+                        <div class="flex items-center gap-3">
+                            <div class="w-8 h-8 rounded-full bg-purple-50 text-purple-600 flex items-center justify-center">
+                                <i class="fas fa-address-book"></i>
+                            </div>
+                            <span class="text-sm font-medium text-gray-700">地址簿</span>
+                        </div>
+                        <i class="fas fa-chevron-right text-gray-300 text-xs"></i>
+                    </button>
+                    <button class="w-full flex items-center justify-between p-4 hover:bg-gray-50 transition-colors">
+                        <div class="flex items-center gap-3">
+                            <div class="w-8 h-8 rounded-full bg-orange-50 text-orange-600 flex items-center justify-center">
+                                <i class="fas fa-cog"></i>
+                            </div>
+                            <span class="text-sm font-medium text-gray-700">通用设置</span>
+                        </div>
+                        <i class="fas fa-chevron-right text-gray-300 text-xs"></i>
+                    </button>
+                </div>
+
+                <button class="w-full bg-white text-red-500 font-medium py-3.5 rounded-xl shadow-sm border border-gray-100 hover:bg-red-50 transition-colors">
+                    退出登录
+                </button>
+            </div>
+        </div>
+
+        <!-- ================= SUB PAGES (OVERLAYS) ================= -->
+
+        <!-- DEPOSIT PAGE -->
+        <div id="page-deposit" class="sub-page">
+            <!-- Header -->
+            <div class="bg-white px-5 pt-6 pb-4 sticky top-0 z-10 flex items-center gap-4 border-b border-gray-100">
+                <button onclick="goBack()" class="text-gray-600 hover:text-gray-900">
+                    <i class="fas fa-arrow-left text-lg"></i>
+                </button>
+                <h2 class="text-xl font-bold text-gray-800">充值 USDT</h2>
+            </div>
+
+            <!-- Chain Selector -->
+            <div class="px-5 mt-6">
+                <p class="text-sm text-gray-500 mb-2">选择充值网络</p>
+                <div class="grid grid-cols-2 gap-3">
+                    <button onclick="switchChain('TRC20')" id="btn-trc20" class="tab-active border rounded-lg py-3 font-medium text-sm transition-colors">
+                        TRC20
+                    </button>
+                    <button onclick="switchChain('ERC20')" id="btn-erc20" class="border border-gray-200 text-gray-600 rounded-lg py-3 font-medium text-sm hover:bg-gray-50 transition-colors">
+                        ERC20
+                    </button>
+                </div>
+            </div>
+
+            <!-- QR Code Area -->
+            <div class="px-5 mt-8 flex flex-col items-center">
+                <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100">
+                    <img id="qr-code" src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=T9yD14Nj9j7xAB4dbGeiX9h8unk5xhGwk1" alt="QR Code" class="w-48 h-48">
+                </div>
+                <p class="mt-4 text-sm text-gray-500">仅向此地址充值 USDT</p>
+            </div>
+
+            <!-- Address Area -->
+            <div class="px-5 mt-6">
+                <div class="bg-white rounded-xl p-4 border border-gray-100 shadow-sm">
+                    <p class="text-xs text-gray-400 mb-1">充值地址</p>
+                    <div class="flex items-center justify-between gap-2">
+                        <p id="address-text" class="font-mono text-sm text-gray-800 break-all">T9yD14Nj9j7xAB4dbGeiX9h8unk5xhGwk1</p>
+                        <button onclick="copyAddress()" class="text-blue-600 hover:text-blue-700 p-2">
+                            <i class="far fa-copy text-lg"></i>
+                        </button>
+                    </div>
+                </div>
+                <button class="w-full mt-4 bg-white border border-gray-200 text-gray-700 font-medium py-3 rounded-xl hover:bg-gray-50 transition-colors">
+                    保存二维码
+                </button>
+            </div>
+
+            <!-- Info -->
+            <div class="px-5 mt-8 pb-10">
+                <div class="bg-blue-50 rounded-xl p-4">
+                    <div class="flex gap-3">
+                        <i class="fas fa-info-circle text-blue-500 mt-0.5"></i>
+                        <div class="text-xs text-blue-800 space-y-1">
+                            <p>• 最小充值金额：<span class="font-bold">10 USDT</span>，小于该金额将无法入账。</p>
+                            <p id="confirm-text">• 预计到账时间：<span class="font-bold">19 个网络确认</span> (约 1 分钟)。</p>
+                            <p>• 请勿向此地址充值任何非 USDT 资产，否则将无法找回。</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- WITHDRAW PAGE -->
+        <div id="page-withdraw" class="sub-page">
+            <!-- Header -->
+            <div class="bg-white px-5 pt-6 pb-4 sticky top-0 z-10 flex items-center gap-4 border-b border-gray-100">
+                <button onclick="goBack()" class="text-gray-600 hover:text-gray-900">
+                    <i class="fas fa-arrow-left text-lg"></i>
+                </button>
+                <h2 class="text-xl font-bold text-gray-800">提现 USDT</h2>
+            </div>
+
+            <!-- Form -->
+            <div class="px-5 mt-6 space-y-6 pb-10">
+                <!-- Address Input -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">提现地址</label>
+                    <div class="relative">
+                        <input type="text" placeholder="输入或粘贴钱包地址" class="w-full bg-white border border-gray-200 rounded-xl py-3 pl-4 pr-12 text-sm focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500">
+                        <button class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
+                            <i class="fas fa-qrcode"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Network Selector -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">转账网络</label>
+                    <div class="relative">
+                        <select class="w-full bg-white border border-gray-200 rounded-xl py-3 pl-4 pr-10 text-sm appearance-none focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500">
+                            <option>TRC20 (Tron)</option>
+                            <option>ERC20 (Ethereum)</option>
+                        </select>
+                        <div class="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-gray-500">
+                            <i class="fas fa-chevron-down text-xs"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Amount Input -->
+                <div>
+                    <div class="flex justify-between mb-2">
+                        <label class="block text-sm font-medium text-gray-700">提现数量</label>
+                        <span class="text-xs text-gray-500">可用: 12,450.80 USDT</span>
+                    </div>
+                    <div class="relative">
+                        <input type="number" placeholder="最小提现 10" class="w-full bg-white border border-gray-200 rounded-xl py-3 pl-4 pr-16 text-sm focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500">
+                        <div class="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-2">
+                            <span class="text-xs font-bold text-gray-400">USDT</span>
+                            <button class="text-xs font-bold text-blue-600 hover:text-blue-700">全部</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Summary -->
+                <div class="bg-gray-50 rounded-xl p-4 space-y-2">
+                    <div class="flex justify-between text-sm">
+                        <span class="text-gray-500">网络手续费</span>
+                        <span class="font-medium text-gray-800">1.00 USDT</span>
+                    </div>
+                    <div class="flex justify-between text-sm">
+                        <span class="text-gray-500">实际到账</span>
+                        <span class="font-bold text-gray-900 text-lg">0.00 USDT</span>
+                    </div>
+                </div>
+
+                <!-- Submit Button -->
+                <button class="w-full bg-blue-600 text-white font-bold py-3.5 rounded-xl shadow-lg shadow-blue-200 hover:bg-blue-700 active:scale-95 transition-all">
+                    确认提现
+                </button>
+            </div>
+        </div>
+
+        <!-- ================= BOTTOM NAVIGATION ================= -->
+        <div class="h-20 bg-white border-t border-gray-100 flex justify-around items-center pb-4 px-2 z-40 absolute bottom-0 w-full">
+            <button onclick="showPage('page-home', this)" class="nav-item active flex flex-col items-center justify-center w-16 h-full text-blue-600">
+                <i class="fas fa-home text-xl mb-1"></i>
+                <span class="text-[10px] font-medium">首页</span>
+            </button>
+            <button onclick="showPage('page-wallet', this)" class="nav-item flex flex-col items-center justify-center w-16 h-full text-gray-400 hover:text-blue-500">
+                <i class="fas fa-wallet text-xl mb-1"></i>
+                <span class="text-[10px] font-medium">资产</span>
+            </button>
+            <button id="nav-swap" onclick="showPage('page-swap', this)" class="nav-item flex flex-col items-center justify-center w-14 h-14 rounded-full bg-blue-600 text-white shadow-lg -mt-8 hover:bg-blue-700 hover:scale-105 transition-transform">
+                <i class="fas fa-exchange-alt text-xl"></i>
+            </button>
+            <button onclick="showPage('page-history', this)" class="nav-item flex flex-col items-center justify-center w-16 h-full text-gray-400 hover:text-blue-500">
+                <i class="fas fa-clock text-xl mb-1"></i>
+                <span class="text-[10px] font-medium">记录</span>
+            </button>
+            <button onclick="showPage('page-profile', this)" class="nav-item flex flex-col items-center justify-center w-16 h-full text-gray-400 hover:text-blue-500">
+                <i class="fas fa-user text-xl mb-1"></i>
+                <span class="text-[10px] font-medium">我的</span>
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // Navigation Logic
+        function showPage(pageId, btnElement) {
+            // Hide all main pages
+            const pages = ['page-home', 'page-wallet', 'page-swap', 'page-history', 'page-profile'];
+            pages.forEach(id => {
+                document.getElementById(id).classList.add('hidden');
+            });
+
+            // Show selected page
+            document.getElementById(pageId).classList.remove('hidden');
+
+            // Update Nav Styling
+            const navItems = document.querySelectorAll('.nav-item');
+            navItems.forEach(item => {
+                // Reset styles
+                if (item.classList.contains('bg-blue-600')) {
+                    // Middle button (Swap)
+                } else {
+                    item.classList.remove('active', 'text-blue-600');
+                    item.classList.add('text-gray-400');
+                }
+            });
+
+            // Set active style
+            if (btnElement && !btnElement.classList.contains('bg-blue-600')) {
+                btnElement.classList.remove('text-gray-400');
+                btnElement.classList.add('active', 'text-blue-600');
+            }
+        }
+
+        // Sub-page Logic (Deposit/Withdraw)
+        function showSubPage(pageId) {
+            document.getElementById(pageId).classList.add('active');
+        }
+
+        function goBack() {
+            const subPages = document.querySelectorAll('.sub-page');
+            subPages.forEach(page => {
+                page.classList.remove('active');
+            });
+        }
+
+        // Deposit Page Logic
+        const addresses = {
+            'TRC20': 'T9yD14Nj9j7xAB4dbGeiX9h8unk5xhGwk1',
+            'ERC20': '0x71C7656EC7ab88b098defB751B7401B5f6d8976F'
+        };
+        const confirms = {
+            'TRC20': '19 个网络确认 (约 1 分钟)',
+            'ERC20': '12 个网络确认 (约 3 分钟)'
+        };
+
+        function switchChain(chain) {
+            const btnTrc = document.getElementById('btn-trc20');
+            const btnErc = document.getElementById('btn-erc20');
+            
+            if (chain === 'TRC20') {
+                btnTrc.className = 'tab-active border rounded-lg py-3 font-medium text-sm transition-colors';
+                btnErc.className = 'border border-gray-200 text-gray-600 rounded-lg py-3 font-medium text-sm hover:bg-gray-50 transition-colors';
+            } else {
+                btnErc.className = 'tab-active border rounded-lg py-3 font-medium text-sm transition-colors';
+                btnTrc.className = 'border border-gray-200 text-gray-600 rounded-lg py-3 font-medium text-sm hover:bg-gray-50 transition-colors';
+            }
+
+            const addr = addresses[chain];
+            document.getElementById('address-text').innerText = addr;
+            document.getElementById('qr-code').src = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${addr}`;
+            document.getElementById('confirm-text').innerHTML = `• 预计到账时间：<span class="font-bold">${confirms[chain]}</span>。`;
+        }
+
+        function copyAddress() {
+            const text = document.getElementById('address-text').innerText;
+            navigator.clipboard.writeText(text).then(() => {
+                alert('地址已复制');
+            });
+        }
+    </script>
+</body>
+</html>
