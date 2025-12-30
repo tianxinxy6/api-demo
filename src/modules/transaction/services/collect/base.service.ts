@@ -179,7 +179,7 @@ export abstract class BaseCollectService {
      * @param address 地址
      * @param contractAddress 合约地址（代币）
      */
-    protected abstract getBalance(address: string, contractAddress?: string): Promise<string>;
+    protected abstract getBalance(address: string, contractAddress?: string): Promise<bigint>;
 
     /**
      * 执行归集交易 - 子类实现

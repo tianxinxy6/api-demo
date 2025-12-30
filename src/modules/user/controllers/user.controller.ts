@@ -14,7 +14,11 @@ import { ApiSecurityAuth } from '@/common/decorators/swagger.decorator';
 import { AuthUser } from '@/common/decorators/auth-user.decorator';
 import { UserService } from '../services/user.service';
 import { UserProfileResponse } from '../model';
-import { ChangePasswordDto, UpdateUserDto } from '../dto/user.dto';
+import { 
+  ChangePasswordDto, 
+  UpdateUserDto, 
+  SetPasswordDto
+} from '../dto/user.dto';
 
 @ApiTags('User - 用户管理')
 @ApiSecurityAuth()
@@ -59,6 +63,47 @@ export class UserController {
     @Body() dto: ChangePasswordDto,
   ) {
     await this.userService.changePassword(
+      user.uid,
+      dto.oldPassword,
+      dto.newPassword,
+      dto.confirmPassword,
+    );
+
+    return;
+  }
+
+  /**
+   * 设置交易密码
+   */
+  @Put('transfer-password')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: '设置交易密码' })
+  @ApiResponse({ status: 200, description: '交易密码设置成功' })
+  async setTransferPassword(
+    @AuthUser() user: IAuthUser,
+    @Body() dto: SetPasswordDto,
+  ) {
+    await this.userService.setTransferPassword(
+      user.uid,
+      dto.password,
+      dto.confirmPassword,
+    );
+
+    return;
+  }
+
+  /**
+   * 修改提现密码
+   */
+  @Post('transfer-password')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: '修改交易密码' })
+  @ApiResponse({ status: 200, description: '交易密码修改成功' })
+  async changeWithdrawPassword(
+    @AuthUser() user: IAuthUser,
+    @Body() dto: ChangePasswordDto,
+  ) {
+    await this.userService.changeTransferPassword(
       user.uid,
       dto.oldPassword,
       dto.newPassword,

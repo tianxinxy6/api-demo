@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { ScanTask } from './tasks/scan.task';
 import { ConfirmTask } from './tasks/confirm.task';
+import { WithdrawTask } from './tasks/withdraw.task';
 import { TransactionModule } from '../transaction/transaction.module';
 
 /**
@@ -17,6 +18,7 @@ import { TransactionModule } from '../transaction/transaction.module';
     // 定时任务
     ScanTask,
     ConfirmTask,
+    WithdrawTask,
   ],
 })
 export class TaskModule {}

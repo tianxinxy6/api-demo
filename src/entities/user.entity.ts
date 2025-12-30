@@ -14,6 +14,10 @@ export class UserEntity extends CommonDEntity {
   @Exclude()
   password: string;
 
+  @Column({ comment: '交易密码哈希值', name: 'trans_password', nullable: true })
+  @Exclude()
+  transPassword?: string;
+
   @Column({ comment: '昵称', default: '' })
   nickname: string;
 

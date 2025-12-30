@@ -44,6 +44,16 @@ export abstract class BaseTransactionEntity extends CommonEntity {
   hash: string;
 
   @Column({
+    comment: 'Gas费用',
+    name: 'gas_fee',
+    type: 'decimal',
+    precision: 18,
+    scale: 0,
+    nullable: true,
+  })
+  gasFee?: string;
+
+  @Column({
     comment: '交易状态',
     type: 'tinyint',
     default: TransactionStatus.PENDING,

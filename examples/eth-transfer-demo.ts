@@ -92,11 +92,9 @@ class EthTransferDemo {
     
     const checkAddress = EthUtil.fromPrivateKey(SENDER_PRIVATE_KEY).address 
 
-    this.ethUtil.getBalance(checkAddress)
-      .then((balanceInfo) => {
-        console.log('✅ 余额查询结果：');
-        console.log(`   余额 (Wei): ${balanceInfo.balance}`);
-        console.log(`   余额 (ETH): ${balanceInfo.balanceEth} ETH\n`);
+    this.ethUtil.getETHBalance(checkAddress)
+      .then((balance) => {
+        console.log(`   余额 (ETH): ${balance} ETH\n`);
         callback();
       })
       .catch((error) => {

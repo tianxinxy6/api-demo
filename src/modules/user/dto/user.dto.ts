@@ -72,6 +72,31 @@ export class ChangePasswordDto {
 }
 
 /**
+ * 设置密码 DTO
+ */
+export class SetPasswordDto {
+  @ApiProperty({
+    description: '交易密码',
+    example: '123456',
+    minLength: 6,
+    maxLength: 32,
+  })
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(6, { message: '密码长度不能少于6位' })
+  @MaxLength(32, { message: '密码长度不能超过32位' })
+  password: string;
+
+  @ApiProperty({
+    description: '确认密码',
+    example: '123456',
+  })
+  @IsString()
+  @IsNotEmpty()
+  confirmPassword: string;
+}
+
+/**
  * 更新用户信息 DTO
  */
 export class UpdateUserDto {

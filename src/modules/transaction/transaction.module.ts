@@ -17,6 +17,10 @@ import { TransactionEthEntity } from '@/entities/txs/deposit/transaction-eth.ent
 import { TransactionTronEntity } from '@/entities/txs/deposit/transaction-tron.entity';
 import { TransactionCollectEthEntity } from '@/entities/txs/collect/transaction-eth.entity';
 import { TransactionCollectTronEntity } from '@/entities/txs/collect/transaction-tron.entity';
+import { TransactionOutEthEntity } from '@/entities/txs/withdraw/transaction-eth.entity';
+import { TransactionOutTronEntity } from '@/entities/txs/withdraw/transaction-tron.entity';
+import { EthWithdrawService } from './services/withdraw/eth.service';
+import { TronWithdrawService } from './services/withdraw/tron.service';
 
 @Module({
   imports: [
@@ -25,6 +29,8 @@ import { TransactionCollectTronEntity } from '@/entities/txs/collect/transaction
       TransactionTronEntity,
       TransactionCollectEthEntity,
       TransactionCollectTronEntity,
+      TransactionOutEthEntity,
+      TransactionOutTronEntity,
       ChainEntity
     ]),
     OrderModule,
@@ -43,6 +49,9 @@ import { TransactionCollectTronEntity } from '@/entities/txs/collect/transaction
     // 归集服务
     EthCollectService,
     TronCollectService,
+    // 提现服务
+    EthWithdrawService,
+    TronWithdrawService,
   ],
   exports: [
     // 扫描服务
@@ -54,6 +63,9 @@ import { TransactionCollectTronEntity } from '@/entities/txs/collect/transaction
     // 归集服务
     EthCollectService,
     TronCollectService,
+    // 提现服务
+    EthWithdrawService,
+    TronWithdrawService,
   ],
 })
 export class TransactionModule {}

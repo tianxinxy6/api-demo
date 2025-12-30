@@ -1,3 +1,4 @@
+import { TronWeb } from 'tronweb';
 import { TronUtil } from '../src/utils/tron.util';
 
 /**

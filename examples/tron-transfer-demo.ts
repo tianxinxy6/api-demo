@@ -110,11 +110,9 @@ class TronTransferDemo {
 
         console.log(`   查询地址: ${checkAddress}`);
 
-        this.tronUtil.getBalance(checkAddress)
-            .then((balanceInfo) => {
-                console.log('✅ 余额查询结果：');
-                console.log(`   余额 (SUN): ${balanceInfo.balance.toString()}`);
-                console.log(`   余额 (TRX): ${balanceInfo.balanceTrx} TRX\n`);
+        this.tronUtil.getTRXBalance(checkAddress)
+            .then((balance) => {
+                console.log(`   余额 (TRX): ${balance} TRX\n`);
                 callback();
             })
             .catch((error) => {
@@ -181,12 +179,12 @@ class TronTransferDemo {
         console.log(`   金额: ${amountInTrx} TRX`);
 
         // 1. 查询当前余额
-        this.tronUtil.getBalance(this.walletAddress)
-            .then((balanceInfo) => {
-                console.log(`   当前余额: ${balanceInfo.balanceTrx} TRX`);
+        this.tronUtil.getTRXBalance(this.walletAddress)
+            .then((balance) => {
+                console.log(`   当前余额: ${balance} TRX`);
 
                 const amountInSun = Number(TronUtil.toSun(amountInTrx));
-                if (balanceInfo.balance < BigInt(amountInSun)) {
+                if (balance < BigInt(amountInSun)) {
                     throw new Error('余额不足');
                 }
 

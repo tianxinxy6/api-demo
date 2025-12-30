@@ -449,11 +449,8 @@ class EthSepoliaDemoFixed {
 
     try {
       // 获取余额信息
-      const balanceInfo = await this.ethUtil.getBalance(TARGET_ADDRESS);
-      console.log('余额信息:');
-      console.log(`  地址: ${balanceInfo.address}`);
-      console.log(`  余额: ${balanceInfo.balance} Wei`);
-      console.log(`  余额 (ETH): ${balanceInfo.balanceEth} ETH`);
+      const balance = await this.ethUtil.getETHBalance(TARGET_ADDRESS);
+      console.log('余额信息:', balance);
 
       // 获取交易计数（nonce）
       const transactionCount = await this.ethUtil.getTransactionCount(TARGET_ADDRESS);

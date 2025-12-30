@@ -9,6 +9,7 @@ import { SysWalletAddressService } from '@/modules/sys/services/sys-wallet.servi
 import { DataSource } from 'typeorm';
 import { DatabaseService } from '@/shared/database/database.service';
 import { TransactionCollectEthEntity } from '@/entities/txs/collect/transaction-eth.entity';
+import { EthGasInfo, EthUtil } from '@/utils';
 
 /**
  * ETH 归集服务
@@ -19,7 +20,7 @@ export class EthCollectService extends BaseCollectService {
   protected readonly chainCode = 'ETH';
   protected readonly chainType = ChainType.ETH;
 
-  private provider: ethers.JsonRpcProvider;
+  private ethUtil: EthUtil;
 
   constructor(
     chainService: ChainService,
@@ -37,18 +38,11 @@ export class EthCollectService extends BaseCollectService {
     );
   }
 
-  // ERC20 ABI
-  private readonly ERC20_ABI = [
-    'function transfer(address to, uint256 amount) returns (bool)',
-    'function balanceOf(address account) view returns (uint256)',
-    'function decimals() view returns (uint8)',
-  ];
-
   /**
    * 初始化 ETH 连接
    */
   protected async init(): Promise<void> {
-    this.provider = new ethers.JsonRpcProvider(this.chain.rpcUrl);
+    this.ethUtil = new EthUtil(this.chain.rpcUrl);
   }
 
   protected buildEntity(): BaseTransactionEntity {
@@ -58,13 +52,12 @@ export class EthCollectService extends BaseCollectService {
   /**
    * 获取余额
    */
-  protected async getBalance(address: string, contract?: string): Promise<string> {
+  protected async getBalance(address: string, contract?: string): Promise<bigint> {
     try {
       if (contract) {
-        const erc20 = new ethers.Contract(contract, this.ERC20_ABI, this.provider);
-        return (await erc20.balanceOf(address)).toString();
+        return await this.ethUtil.getERC20Balance(address, contract);
       }
-      return (await this.provider.getBalance(address)).toString();
+      return await this.ethUtil.getETHBalance(address);
     } catch (error) {
       this.logger.error(`Get balance failed for ${address}:`, error.message);
       throw error;
@@ -83,7 +76,7 @@ export class EthCollectService extends BaseCollectService {
   protected async executeCollect(tx: BaseTransactionEntity, privateKey: string): Promise<void> {
     try {
       // 3. 创建带私钥的 wallet
-      const wallet = new ethers.Wallet(privateKey, this.provider);
+      const wallet = this.ethUtil.getWallet(privateKey);
 
       // 4. 如果是 ERC20 代币，需要检查 gas 费
       if (tx.contract) {
@@ -110,21 +103,10 @@ export class EthCollectService extends BaseCollectService {
       const totalAmount = await this.getBalance(wallet.address);
 
       // 获取 gas 价格
-      const feeData = await this.provider.getFeeData();
-      const gasPrice = feeData.gasPrice;
-
-      // 估算转账所需的 gas（先用最大金额估算）
-      const gasLimit = await this.provider.estimateGas({
-        from: wallet.address,
-        to: this.collectAddress,
-        value: BigInt(totalAmount),
-      });
-
-      // 计算 gas 费
-      const gasFee = gasLimit * gasPrice;
+      const gasInfo = await this.ethUtil.estimateGas(wallet.address, this.collectAddress, totalAmount);
 
       // 计算实际转账金额（总额 - gas 费）
-      const amount = BigInt(totalAmount) - gasFee;
+      const amount = totalAmount - gasInfo.gasFee;
       if (amount <= 0n) {
         return;
       }
@@ -133,14 +115,14 @@ export class EthCollectService extends BaseCollectService {
       wallet.sendTransaction({
         to: this.collectAddress,
         value: amount,
-        gasLimit,
-        gasPrice,
+        gasLimit: gasInfo.gasLimit,
+        gasPrice: gasInfo.gasPrice,
       }).then((tx: ethers.TransactionResponse) => {
         // 创建归集交易记录
-        const txEntity = this.buildCollectEntity(relTx) as TransactionCollectEthEntity;
+        const txEntity = this.buildCollectEntity(relTx);
         txEntity.hash = tx.hash;
         txEntity.amount = amount.toString();
-        txEntity.gasFee = gasFee.toString();
+        txEntity.gasFee = gasInfo.gasFee.toString();
         this.saveTx(txEntity, relTx).then((txId: number) => {
           this.waitTx(tx, txId, callback);
         });
@@ -157,44 +139,45 @@ export class EthCollectService extends BaseCollectService {
    * 归集 ERC20
    */
   private async collectERC20Token(
-    wallet: ethers.Wallet, 
+    wallet: ethers.Wallet,
     relTx: BaseTransactionEntity,
     callback: (txID: number, data: any) => void
   ): Promise<void> {
     try {
-      const contract = new ethers.Contract(relTx.contract, this.ERC20_ABI, wallet);
-      const estimatedGas = await contract.transfer.estimateGas(
+      const gasInfo = await this.ethUtil.estimateERC20Gas(
+        wallet.address,
+        relTx.contract!,
         this.collectAddress,
         BigInt(relTx.amount)
       );
 
-      const feeData = await this.provider.getFeeData();
-      const gasPrice = feeData.gasPrice;
-      const gasFee = estimatedGas * gasPrice;
-      const ethBalance = await this.provider.getBalance(wallet.address);
+      const ethBalance = await this.ethUtil.getETHBalance(wallet.address);
 
-      this.logger.debug(`Estimated gas: ${estimatedGas}, gas price: ${gasPrice}, gas fee: ${gasFee}, ETH balance: ${ethBalance}`);
+      this.logger.debug(`Estimated gas: ${gasInfo.gasLimit}, gas price: ${gasInfo.gasPrice}, gas fee: ${gasInfo.gasFee}, ETH balance: ${ethBalance}`);
 
       // 如果 ETH 不足，先转 gas
-      if (ethBalance < gasFee) {
-        return await this.fundGas(wallet.address, gasFee - ethBalance, (from: string, txHash: string, status: number) => {
-          const txEntity = new TransactionCollectEthEntity();
-          txEntity.hash = txHash;
-          txEntity.from = from;
-          txEntity.to = wallet.address;
-          txEntity.amount = gasFee.toString();
-          txEntity.gasFee = gasFee.toString();
-          txEntity.status = TransactionStatus.PENDING;
-          if (status === 1) {
-            txEntity.status = TransactionStatus.CONFIRMED;
-            this.transferERC20(wallet, relTx, estimatedGas, gasPrice, gasFee, callback);
-          }
-          this.saveGasTx(txEntity, relTx);
-        });
+      if (ethBalance < gasInfo.gasFee) {
+        return await this.fundGas(
+          wallet.address,
+          gasInfo.gasFee - ethBalance,
+          (from: string, txHash: string, status: number) => {
+            const txEntity = new TransactionCollectEthEntity();
+            txEntity.hash = txHash;
+            txEntity.from = from;
+            txEntity.to = wallet.address;
+            txEntity.amount = gasInfo.gasFee.toString();
+            txEntity.gasFee = gasInfo.gasFee.toString();
+            txEntity.status = TransactionStatus.PENDING;
+            if (status === 1) {
+              txEntity.status = TransactionStatus.CONFIRMED;
+              this.transferERC20(wallet, relTx, gasInfo, callback);
+            }
+            this.saveGasTx(txEntity, relTx);
+          });
       }
 
       // ETH 足够，直接转 ERC20
-      return await this.transferERC20(wallet, relTx, estimatedGas, gasPrice, gasFee, callback);
+      return await this.transferERC20(wallet, relTx, gasInfo, callback);
     } catch (error) {
       this.logger.error(`Collect ERC20 failed:`, error.message);
       return;
@@ -207,13 +190,11 @@ export class EthCollectService extends BaseCollectService {
   private async transferERC20(
     wallet: ethers.Wallet,
     relTx: BaseTransactionEntity,
-    estimatedGas: bigint,
-    gasPrice: bigint,
-    gasFee: bigint,
+    gasInfo: EthGasInfo,
     callback: (txID: number, data: any) => void
   ): Promise<void> {
     try {
-      const contract = new ethers.Contract(relTx.contract, this.ERC20_ABI, wallet);
+      const contract = this.ethUtil.getContract(relTx.contract!, wallet);
       // 获取当前余额（已经是最小单位，无需转换）
       const amount = await contract.balanceOf(wallet.address);
       if (amount === 0n) {
@@ -221,25 +202,21 @@ export class EthCollectService extends BaseCollectService {
         return;
       }
 
-      contract.transfer(
-        this.collectAddress,
-        amount,
-        {
-          gasLimit: estimatedGas,
-          gasPrice,
-        }
-      ).then((tx: ethers.ContractTransactionResponse) => {
+      contract.transfer(this.collectAddress, amount, {
+        gasLimit: gasInfo.gasLimit,
+        gasPrice: gasInfo.gasPrice,
+      }).then((tx: ethers.ContractTransactionResponse) => {
         // 创建归集交易记录
         const txEntity = this.buildCollectEntity(relTx) as TransactionCollectEthEntity;
         txEntity.hash = tx.hash;
         txEntity.amount = amount.toString();
-        txEntity.gasFee = gasFee.toString();
+        txEntity.gasFee = gasInfo.gasFee.toString();
         this.saveTx(txEntity, relTx).then((txId: number) => {
           this.waitTx(tx, txId, callback);
         });
       }).catch((error) => {
-          this.logger.error(`Transfer ERC20 transaction failed:`, error.message);
-        });
+        this.logger.error(`Transfer ERC20 transaction failed:`, error.message);
+      });
     } catch (error) {
       this.logger.error(`Transfer ERC20 failed:`, error.message);
       return;
@@ -261,8 +238,9 @@ export class EthCollectService extends BaseCollectService {
         return;
       }
 
-      const wallet = new ethers.Wallet(feePrivateKey, this.provider);
-      const balance = await this.provider.getBalance(wallet.address);
+      const ethUtil = new EthUtil(this.chain.rpcUrl, feePrivateKey);
+      const wallet = ethUtil.getWallet();
+      const balance = await ethUtil.getETHBalance(wallet.address);
       if (balance < gasFee) {
         this.logger.error(`Gas fee not enough: ${ethers.formatEther(gasFee)} ETH`);
         return;

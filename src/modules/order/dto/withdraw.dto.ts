@@ -30,6 +30,11 @@ export class CreateWithdrawDto {
   @IsNotEmpty({ message: '提现地址不能为空' })
   @IsString({ message: '提现地址必须是字符串' })
   toAddress: string;
+
+  @ApiProperty({ description: '交易密码', example: '123456' })
+  @IsNotEmpty({ message: '交易密码不能为空' })
+  @IsString({ message: '交易密码必须是字符串' })
+  transPassword: string;
 }
 
 /**

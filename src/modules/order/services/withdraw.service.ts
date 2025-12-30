@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, QueryRunner, DataSource } from 'typeorm';
 import { OrderWithdrawEntity } from '@/entities/order-withdraw.entity';
 import { WalletService } from '@/modules/user/services/wallet.service';
+import { UserService } from '@/modules/user/services/user.service';
 import { TokenService } from '@/modules/sys/services/token.service';
 import { TokenService as ChainTokenService } from '@/modules/chain/services/token.service';
 import { CreateWithdrawDto, QueryWithdrawDto } from '../dto/withdraw.dto';
@@ -16,6 +17,7 @@ export class WithdrawService {
         @InjectRepository(OrderWithdrawEntity)
         private readonly withdrawRepository: Repository<OrderWithdrawEntity>,
         private readonly walletService: WalletService,
+        private readonly userService: UserService,
         private readonly tokenService: TokenService,
         private readonly chainTokenService: ChainTokenService,
         private readonly dataSource: DataSource,
@@ -30,6 +32,9 @@ export class WithdrawService {
         await queryRunner.startTransaction();
 
         try {
+            // 0. 验证交易密码
+            await this.userService.verifyTransferPassword(userId, dto.transPassword);
+
             // 需要重复提现判断
             const exist = await this.withdrawRepository.findOne({
                 where: {
@@ -89,6 +94,7 @@ export class WithdrawService {
                 chainId: dto.chainId,
                 token: token.code,
                 decimals: token.decimals,
+                contract: chainToken.contractAddress,
                 to: dto.toAddress,
                 amount: amount.toString(),
                 fee: fee.toString(),
@@ -108,6 +114,33 @@ export class WithdrawService {
         } finally {
             await queryRunner.release();
         }
+    }
+
+    /**
+     * 获取待处理的提现订单
+     * 供定时任务调用，查询已审核待转账的订单
+     */
+    async getPendingWithdraws(chainId: number, limit: number = 10): Promise<OrderWithdrawEntity[]> {
+        return await this.withdrawRepository.find({
+            where: {
+                chainId,
+                status: WithdrawalStatus.APPROVED,
+            },
+            take: limit,
+            order: {
+                id: 'ASC',
+            },
+        });
+    }
+
+    /**
+     * 更新提现订单状态为处理中
+     */
+    async editStatus(orderId: number, status: WithdrawalStatus): Promise<void> {
+        await this.withdrawRepository.update(
+            { id: orderId },
+            { status },
+        );
     }
 
     /**
@@ -205,46 +238,34 @@ export class WithdrawService {
     /**
      * 提现失败
      */
-    async fail(orderId: number, failureReason: string): Promise<void> {
-        const queryRunner = this.dataSource.createQueryRunner();
-        await queryRunner.connect();
-        await queryRunner.startTransaction();
+    async fail(queryRunner: QueryRunner, orderId: number, failureReason: string): Promise<void> {
+        // 1. 查找订单
+        const order = await queryRunner.manager.findOne(OrderWithdrawEntity, {
+            where: { id: orderId },
+        });
+        if (!order) {
+            throw new NotFoundException('提现订单不存在');
+        }
 
-        try {
-            // 1. 查找订单
-            const order = await queryRunner.manager.findOne(OrderWithdrawEntity, {
-                where: { id: orderId },
+        // 2. 更新订单状态
+        await queryRunner.manager.update(OrderWithdrawEntity, { id: orderId }, {
+            status: WithdrawalStatus.FAILED,
+            failureReason,
+            finishedAt: new Date(),
+            updatedAt: new Date(),
+        });
+
+        // 3. 解冻用户余额
+        const token = await this.tokenService.getTokenByCode(order.token);
+        if (token) {
+            await this.walletService.unfreezeBalance(queryRunner, {
+                userId: order.userId,
+                tokenId: token.id,
+                amount: order.amount,
+                decimals: token.decimals,
+                type: WalletLogType.WITHDRAWAL,
+                remark: '提现失败',
             });
-            if (!order) {
-                throw new NotFoundException('提现订单不存在');
-            }
-
-            // 2. 更新订单状态
-            await queryRunner.manager.update(OrderWithdrawEntity, { id: orderId }, {
-                status: WithdrawalStatus.FAILED,
-                failureReason,
-                updatedAt: new Date(),
-            });
-
-            // 3. 解冻用户余额
-            const token = await this.tokenService.getTokenByCode(order.token);
-            if (token) {
-                await this.walletService.unfreezeBalance(queryRunner, {
-                    userId: order.userId,
-                    tokenId: token.id,
-                    amount: order.amount,
-                    decimals: token.decimals,
-                    type: WalletLogType.WITHDRAWAL,
-                    remark: '提现失败',
-                });
-            }
-
-            await queryRunner.commitTransaction();
-        } catch (error) {
-            await queryRunner.rollbackTransaction();
-            throw error;
-        } finally {
-            await queryRunner.release();
         }
     }
 

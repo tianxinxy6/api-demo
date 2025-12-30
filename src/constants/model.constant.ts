@@ -20,7 +20,7 @@ export enum Status {
  */
 export enum SysWalletType {
   Fee = 1, // 手续费钱包（用于支付gas/能量）
-  Widthdrawal = 2, // 提现钱包（用于用户提现）
+  Widthdraw = 2, // 提现钱包（用于用户提现）
 }
 
 // ============= 区块链相关 =============
@@ -125,4 +125,13 @@ export enum WithdrawalStatus {
   SETTLED = 4, // 已结算（最终状态）
   CANCELLED = 5, // 已取消
   FAILED = 6, // 失败（链上被拒）
+}
+
+/**
+ * 转账订单状态
+ */
+export enum TransferStatus {
+  PENDING = 0, // 待处理
+  SUCCESS = 1, // 转账成功
+  FAILED = 2, // 转账失败
 }

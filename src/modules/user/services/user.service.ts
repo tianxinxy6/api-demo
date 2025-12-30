@@ -297,6 +297,124 @@ export class UserService {
   }
 
   /**
+   * 设置提现密码
+   */
+  async setTransferPassword(
+    userId: number,
+    password: string,
+    confirmPassword: string,
+  ): Promise<void> {
+    // 验证密码和确认密码是否一致
+    if (password !== confirmPassword) {
+      throw new BadRequestException('交易密码和确认密码不一致');
+    }
+
+    // 获取用户信息
+    const user = await this.userRepository.findOne({
+      where: { id: userId },
+      select: ['id', 'transPassword'],
+    });
+
+    if (!user) {
+      throw new NotFoundException('用户不存在');
+    }
+
+    // 检查是否已设置提现密码
+    if (user.transPassword) {
+      throw new BadRequestException('已设置交易密码，请使用修改功能');
+    }
+
+    // 加密提现密码
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    // 更新提现密码
+    await this.userRepository.update(userId, {
+      transPassword: hashedPassword,
+    });
+
+    // 清除缓存
+    await this.cacheService.del(`${this.CACHE_PREFIX}${userId}`);
+  }
+
+  /**
+   * 修改提现密码
+   */
+  async changeTransferPassword(
+    userId: number,
+    oldPassword: string,
+    newPassword: string,
+    confirmPassword: string,
+  ): Promise<void> {
+    // 验证新密码和确认密码是否一致
+    if (newPassword !== confirmPassword) {
+      throw new BadRequestException('新提现密码和确认密码不一致');
+    }
+
+    // 获取用户信息（包括提现密码）
+    const user = await this.userRepository.findOne({
+      where: { id: userId },
+      select: ['id', 'transPassword'],
+    });
+
+    if (!user) {
+      throw new NotFoundException('用户不存在');
+    }
+
+    if (!user.transPassword) {
+      throw new BadRequestException('尚未设置交易密码，请先设置');
+    }
+
+    // 验证当前提现密码
+    const isOldPasswordValid = await bcrypt.compare(oldPassword, user.transPassword);
+    if (!isOldPasswordValid) {
+      throw new UnauthorizedException('当前交易密码错误');
+    }
+
+    // 检查新密码是否与当前密码相同
+    const isSamePassword = await bcrypt.compare(newPassword, user.transPassword);
+    if (isSamePassword) {
+      throw new BadRequestException('新交易密码不能与当前交易密码相同');
+    }
+
+    // 加密新交易密码
+    const hashedNewPassword = await bcrypt.hash(newPassword, 10);
+
+    // 更新交易密码
+    await this.userRepository.update(userId, {
+      transPassword: hashedNewPassword,
+    });
+
+    // 清除缓存
+    await this.cacheService.del(`${this.CACHE_PREFIX}${userId}`);
+  }
+
+  /**
+   * 验证用户的交易密码
+   * @param userId 用户ID
+   * @param password 待验证的交易密码
+   * @throws BadRequestException 如果未设置交易密码
+   * @throws BadRequestException 如果交易密码错误
+   * @throws NotFoundException 如果用户不存在
+   */
+  async verifyTransferPassword(userId: number, password: string): Promise<void> {
+    // 获取用户信息（包括交易密码）
+    const user = await this.findUserById(userId);
+    if (!user) {
+      throw new NotFoundException('用户不存在');
+    }
+
+    if (!user.transPassword) {
+      throw new BadRequestException('请先设置交易密码');
+    }
+
+    // 验证密码
+    const isPasswordValid = await bcrypt.compare(password, user.transPassword);
+    if (!isPasswordValid) {
+      throw new BadRequestException('交易密码错误');
+    }
+  }
+
+  /**
    * 判断用户名是否存在
    */
   async exist(username: string): Promise<boolean> {

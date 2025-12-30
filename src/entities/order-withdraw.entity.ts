@@ -30,6 +30,9 @@ export class OrderWithdrawEntity extends OperatorEntity {
   @Column({ comment: '代币代码', length: 50 })
   token: string;
 
+  @Column({ comment: '代币合约地址', length: 50, nullable: true })
+  contract?: string;
+
   @Column({ comment: '精度位数', type: 'tinyint' })
   decimals: number;
 

@@ -1,3 +1,4 @@
+import { Contract } from 'ethers';
 import { TronWeb, Types } from 'tronweb';
 
 export interface TronAddressInfo {
@@ -19,6 +20,10 @@ export interface TronBalanceInfo {
 export class TronUtil {
   private tronWeb: TronWeb;
 
+  // TRON 资源消耗常量（固定值）
+  private readonly TRX_BANDWIDTH = 270; // TRX 转账固定消耗
+  private readonly TRC20_BANDWIDTH = 350; // TRC20 转账固定消耗
+
   constructor(nodeUrl: string, privateKey?: string) {
     this.tronWeb = new TronWeb({
       fullHost: nodeUrl,
@@ -32,7 +37,7 @@ export class TronUtil {
   static async generate(): Promise<TronAddressInfo> {
     try {
       const account = await TronWeb.createAccount();
-      
+
       return {
         address: account.address.base58,
         publicKey: account.publicKey,
@@ -122,23 +127,20 @@ export class TronUtil {
     }
   }
 
+  async getContract(contract: string): Promise<Types.ContractInstance<Types.ContractAbiInterface>> {
+    return await this.tronWeb.contract().at(contract);
+  }
+
   /**
    * 获取地址余额
    */
-  async getBalance(address: string): Promise<TronBalanceInfo> {
-    try {
-      const balance = await this.tronWeb.trx.getBalance(address);
-      const balanceBigInt = BigInt(balance);
-      const balanceTrxResult = TronWeb.fromSun(Number(balanceBigInt));
+  async getTRXBalance(address: string): Promise<number> {
+    return await this.tronWeb.trx.getBalance(address);
+  }
 
-      return {
-        address,
-        balance: balanceBigInt,
-        balanceTrx: typeof balanceTrxResult === 'string' ? balanceTrxResult : String(balanceTrxResult),
-      };
-    } catch (error) {
-      throw new Error(`Failed to get TRON balance: ${error.message}`);
-    }
+  async getTRC20Balance(address: string, contract: string): Promise<number> {
+    const contractInstance = await this.getContract(contract);
+    return await contractInstance.balanceOf(address).call({ from: address });
   }
 
   /**
@@ -193,30 +195,23 @@ export class TronUtil {
         throw new Error('Private key not provided in constructor');
       }
 
-      const fromAddress = this.tronWeb.address.fromPrivateKey(
-        this.tronWeb.defaultPrivateKey,
-      );
-
+      const fromAddress = this.getFromAddress();
       if (!fromAddress) {
         throw new Error('Failed to derive address from private key');
       }
 
-      // 将 TRX 转换为 SUN
-      const amountInSun = TronWeb.toSun(amount);
-      
       // 构建交易
       const transaction = await this.tronWeb.transactionBuilder.sendTrx(
         to,
-        Number(amountInSun),
+        amount,
         fromAddress as string,
       );
 
       // 签名交易
       const signedTx = await this.tronWeb.trx.sign(transaction);
-      
+
       // 广播交易
       const broadcast = await this.tronWeb.trx.sendRawTransaction(signedTx);
-
       if (!broadcast.result) {
         throw new Error(`Transaction failed: ${broadcast.code || 'Unknown error'}`);
       }
@@ -225,6 +220,33 @@ export class TronUtil {
     } catch (error) {
       throw new Error(`Failed to send TRX: ${error.message}`);
     }
+  }
+
+  async sendTrc20(to: string, amount: number, contract: string): Promise<string> {
+    try {
+      if (!this.tronWeb.defaultPrivateKey) {
+        throw new Error('Private key not provided in constructor');
+      }
+
+      const fromAddress = this.getFromAddress();
+      if (!fromAddress) {
+        throw new Error('Failed to derive address from private key');
+      }
+
+      const contractInstance = await this.getContract(contract);
+      return await contractInstance.transfer(
+        to,
+        amount,
+      ).send({
+        from: fromAddress as string,
+      });
+    } catch (error) {
+      throw new Error(`Failed to send TRC20: ${error.message}`);
+    }
+  }
+
+  getFromAddress(): string | false {
+    return this.tronWeb.defaultAddress.base58
   }
 
   /**
@@ -247,17 +269,6 @@ export class TronUtil {
       return await this.tronWeb.trx.getBlock(blockNumber);
     } catch (error) {
       throw new Error(`Failed to get TRON block: ${error.message}`);
-    }
-  }
-
-  /**
-   * 获取当前引用区块参数 - TronWeb 6.x 新功能
-   */
-  async getCurrentRefBlockParams() {
-    try {
-      return await this.tronWeb.trx.getCurrentRefBlockParams();
-    } catch (error) {
-      throw new Error(`Failed to get current ref block params: ${error.message}`);
     }
   }
 
@@ -286,78 +297,6 @@ export class TronUtil {
   }
 
   /**
-   * 签名消息
-   */
-  async signMessage(message: string): Promise<string> {
-    try {
-      if (!this.tronWeb.defaultPrivateKey) {
-        throw new Error('Private key not provided in constructor');
-      }
-      
-      return await this.tronWeb.trx.signMessageV2(message);
-    } catch (error) {
-      throw new Error(`Failed to sign TRON message: ${error.message}`);
-    }
-  }
-
-  /**
-   * 验证消息签名
-   */
-  async verifyMessage(
-    message: string,
-    signature: string,
-    address: string,
-  ): Promise<boolean> {
-    try {
-      const result = await this.tronWeb.trx.verifyMessageV2(message, signature);
-      // verifyMessageV2 返回的是地址字符串，需要与传入的地址比较
-      return typeof result === 'string' ? result.toLowerCase() === address.toLowerCase() : false;
-    } catch (error) {
-      return false;
-    }
-  }
-
-  /**
-   * 签名类型化数据 (EIP-712 风格) - TronWeb 6.x 功能
-   */
-  async signTypedData(
-    domain: Record<string, any>,
-    types: Record<string, any>,
-    message: Record<string, any>,
-  ): Promise<string> {
-    try {
-      if (!this.tronWeb.defaultPrivateKey) {
-        throw new Error('Private key not provided in constructor');
-      }
-      
-      return await this.tronWeb.trx.signTypedData(domain, types, message);
-    } catch (error) {
-      throw new Error(`Failed to sign typed data: ${error.message}`);
-    }
-  }
-
-  /**
-   * 验证类型化数据签名
-   */
-  async verifyTypedData(
-    domain: Record<string, any>,
-    types: Record<string, any>,
-    message: Record<string, any>,
-    signature: string,
-  ): Promise<boolean> {
-    try {
-      return await this.tronWeb.trx.verifyTypedData(
-        domain,
-        types,
-        message,
-        signature,
-      );
-    } catch (error) {
-      return false;
-    }
-  }
-
-  /**
    * 获取 TronWeb 实例（用于高级操作）
    */
   getTronWeb(): TronWeb {
@@ -376,5 +315,62 @@ export class TronUtil {
    */
   setAddress(address: string): void {
     this.tronWeb.setAddress(address);
+  }
+
+  async calculateTrxTransFee(address: string): Promise<bigint> {
+    return await this.calculateTrxFee(address, this.TRX_BANDWIDTH);
+  }
+
+  async calculateTrc20TransFee(address: string): Promise<bigint> {
+    return await this.calculateTrxFee(address, this.TRC20_BANDWIDTH);
+  }
+
+  /**
+     * 计算 TRX 转账所需的手续费
+     * @param address 转账地址
+     * @param balance 地址余额（可选，不传则自动查询）
+     * @returns 实际需要燃烧的 TRX（单位：SUN）
+     */
+  private async calculateTrxFee(
+    address: string,
+    bandwidth: number,
+  ): Promise<bigint> {
+    // 获取账户资源信息
+    const accountResources = await this.tronWeb.trx.getAccountResources(address);
+    const freeNetLimit = accountResources.freeNetLimit || 0;
+    const freeNetUsed = accountResources.freeNetUsed || 0;
+    const availableBandwidth = freeNetLimit - freeNetUsed;
+
+    // 动态获取带宽价格
+    const { bandwidthPrice } = await this.getResourcePrices();
+
+    // 计算需要燃烧的 TRX（如果带宽不足）
+    const bandwidthShortage = availableBandwidth < bandwidth
+      ? bandwidth
+      : 0;
+
+    return BigInt(bandwidthShortage) * bandwidthPrice;
+  }
+
+  /**
+     * 获取链上资源价格
+     */
+  private async getResourcePrices(): Promise<{ energyPrice: bigint; bandwidthPrice: bigint }> {
+    try {
+      const chainParameters = await this.tronWeb.trx.getChainParameters();
+
+      // 从链参数中获取 energy 和 bandwidth 的价格
+      // getEnergyFee: 每个 energy 的价格（单位：SUN）
+      // getTransactionFee: 每个 bandwidth 的价格（单位：SUN）
+      const energyFeeParam = chainParameters.find((p: any) => p.key === 'getEnergyFee');
+      const bandwidthFeeParam = chainParameters.find((p: any) => p.key === 'getTransactionFee');
+
+      const energyPrice = energyFeeParam ? BigInt(energyFeeParam.value) : 100n; // 默认 100 SUN (2025 官方标准)
+      const bandwidthPrice = bandwidthFeeParam ? BigInt(bandwidthFeeParam.value) : 1000n; // 默认 1000 SUN
+
+      return { energyPrice, bandwidthPrice };
+    } catch (error) {
+      return { energyPrice: 100n, bandwidthPrice: 1000n };
+    }
   }
 }

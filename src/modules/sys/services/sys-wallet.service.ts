@@ -79,14 +79,22 @@ export class SysWalletAddressService {
         }
     }
 
+    async getFeeWallet(chainType: ChainType): Promise<string> {
+        return await this.getWallet(chainType, SysWalletType.Fee);
+    }
+
+    async getWithdrawWallet(chainType: ChainType): Promise<string> {
+        return await this.getWallet(chainType, SysWalletType.Widthdraw);
+    }
+
     /**
      * 获取手续费钱包地址的私钥
      */
-    async getFeeWallet(chainType: ChainType): Promise<string> {
+    async getWallet(chainType: ChainType, type: SysWalletType): Promise<string> {
         const address = await this.walletAddressRepository.findOne({
             where: {
                 chainType,
-                type: SysWalletType.Fee,
+                type,
                 status: Status.Enabled,
             },
         });

@@ -14,9 +14,9 @@ export interface EthBalanceInfo {
 }
 
 export interface EthGasInfo {
-  gasPrice: string; // Gwei 格式
-  estimatedGas: string;
-  gasLimit: string;
+  gasPrice: bigint; // Gwei 格式
+  gasFee: bigint;
+  gasLimit: bigint;
 }
 
 /**
@@ -26,11 +26,27 @@ export class EthUtil {
   private provider: ethers.JsonRpcProvider;
   private wallet?: ethers.Wallet;
 
+  // ERC20 ABI
+  static readonly ERC20_ABI = [
+    'function transfer(address to, uint256 amount) returns (bool)',
+    'function balanceOf(address account) view returns (uint256)',
+    'function decimals() view returns (uint8)',
+  ];
+
   constructor(rpcUrl: string, privateKey?: string) {
     this.provider = new ethers.JsonRpcProvider(rpcUrl);
     if (privateKey) {
       this.wallet = new ethers.Wallet(privateKey, this.provider);
     }
+  }
+
+  getWallet(privateKey?: string): ethers.Wallet {
+    if(this.wallet) return this.wallet;
+    return new ethers.Wallet(privateKey, this.provider);
+  }
+
+  getContract(contract: string, wallet?: ethers.Wallet | ethers.JsonRpcProvider): ethers.Contract {
+    return new ethers.Contract(contract, EthUtil.ERC20_ABI, wallet || this.provider);
   }
 
   /**
@@ -39,7 +55,7 @@ export class EthUtil {
   static generate(): EthAddressInfo {
     try {
       const wallet = ethers.Wallet.createRandom();
-      
+
       return {
         address: wallet.address,
         publicKey: wallet.signingKey.publicKey,
@@ -56,7 +72,7 @@ export class EthUtil {
   static fromPrivateKey(privateKey: string): EthAddressInfo {
     try {
       const wallet = new ethers.Wallet(privateKey);
-      
+
       return {
         address: wallet.address,
         publicKey: wallet.signingKey.publicKey,
@@ -104,19 +120,13 @@ export class EthUtil {
   /**
    * 获取地址余额
    */
-  async getBalance(address: string): Promise<EthBalanceInfo> {
-    try {
-      const balanceWei = await this.provider.getBalance(address);
-      const balanceEth = formatEther(balanceWei);
+  async getETHBalance(address: string): Promise<bigint> {
+    return await this.provider.getBalance(address);
+  }
 
-      return {
-        address,
-        balance: balanceWei.toString(),
-        balanceEth,
-      };
-    } catch (error) {
-      throw new Error(`Failed to get ETH balance: ${error.message}`);
-    }
+  async getERC20Balance(address: string, contract: string): Promise<bigint> {
+    const erc20 = new ethers.Contract(contract, EthUtil.ERC20_ABI, this.provider);
+    return await erc20.balanceOf(address);
   }
 
   /**
@@ -136,30 +146,36 @@ export class EthUtil {
   async estimateGas(
     from: string,
     to: string,
-    value: string,
+    value: bigint,
     data: string = '0x'
   ): Promise<EthGasInfo> {
-    try {
-      const tx = {
+    const [gasLimit, feeData] = await Promise.all([
+      this.provider.estimateGas({
         from,
         to,
-        value: parseEther(value),
+        value,
         data,
-      };
+      }),
+      this.provider.getFeeData(),
+    ]);
 
-      const [estimatedGas, feeData] = await Promise.all([
-        this.provider.estimateGas(tx),
-        this.provider.getFeeData(),
-      ]);
+    return {
+      gasPrice: feeData.gasPrice,
+      gasFee: gasLimit * feeData.gasPrice,
+      gasLimit,
+    };
+  }
 
-      return {
-        gasPrice: formatUnits(feeData.gasPrice || 0, 'gwei'),
-        estimatedGas: estimatedGas.toString(),
-        gasLimit: (estimatedGas * BigInt(120) / BigInt(100)).toString(), // 添加20%缓冲
-      };
-    } catch (error) {
-      throw new Error(`Failed to estimate gas: ${error.message}`);
-    }
+  async estimateERC20Gas(
+    from: string,
+    contract: string,
+    to: string,
+    amount: bigint
+  ): Promise<EthGasInfo> {
+    const erc20 = new ethers.Contract(contract, EthUtil.ERC20_ABI, this.provider);
+    const data = erc20.interface.encodeFunctionData('transfer', [to, amount]);
+
+    return await this.estimateGas(from, contract, 0n, data);
   }
 
   /**
@@ -194,7 +210,7 @@ export class EthUtil {
     try {
       // 转换为十六进制格式
       const blockHex = typeof blockNumber === 'string' ? blockNumber : `0x${blockNumber.toString(16)}`;
-      
+
       // 直接使用 JSON-RPC 调用，确保获取完整交易详情
       return await this.provider.send('eth_getBlockByNumber', [blockHex, true]);
     } catch (error) {
@@ -209,18 +225,18 @@ export class EthUtil {
   async batchGetTransactions(txHashes: string[], batchSize: number = 10): Promise<any[]> {
     try {
       const results = [];
-      
+
       for (let i = 0; i < txHashes.length; i += batchSize) {
         const batch = txHashes.slice(i, i + batchSize);
-        
-        const batchPromises = batch.map(hash => 
+
+        const batchPromises = batch.map(hash =>
           this.provider.send('eth_getTransactionByHash', [hash])
         );
-        
+
         const batchResults = await Promise.all(batchPromises);
         results.push(...batchResults);
       }
-      
+
       return results;
     } catch (error) {
       throw new Error(`Failed to batch get transactions: ${error.message}`);
@@ -244,20 +260,20 @@ export class EthUtil {
   static fromWei(wei: string | number | bigint): string {
     try {
       if (wei === null || wei === undefined || wei === '') return '0';
-      
+
       // 统一转换为字符串
       let weiString = wei.toString();
-      
+
       // 处理无效值
       if (weiString === 'NaN' || weiString === 'undefined') {
         return '0';
       }
-      
+
       // 如果是小数，只取整数部分
       if (weiString.includes('.')) {
         weiString = weiString.split('.')[0];
       }
-      
+
       return formatEther(weiString);
     } catch (error) {
       console.warn(`fromWei conversion warning for value: ${wei}`, error.message);
