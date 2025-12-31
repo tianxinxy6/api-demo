@@ -8,7 +8,6 @@ import {
   ApiOperation,
   ApiResponse,
   ApiParam,
-  ApiQuery,
 } from '@nestjs/swagger';
 
 import { ApiSecurityAuth } from '@/common/decorators/swagger.decorator';
@@ -18,7 +17,7 @@ import { ChainType } from '@/constants';
 import { ChainAddressService } from '../services/chain-address.service';
 import { ChainAddressResponse } from '../model';
 
-@ApiTags('chain - 区块链管理')
+@ApiTags('Wallet - 钱包管理')
 @ApiSecurityAuth()
 @Controller('wallet')
 export class WalletController {
@@ -27,54 +26,33 @@ export class WalletController {
   ) {}
 
   /**
-   * 获取用户的所有钱包地址
+   * 获取用户所有区块链地址
    */
   @Get('addresses')
-  @ApiOperation({ 
-    summary: '获取用户钱包地址列表',
-    description: '获取当前用户在所有区块链上的钱包地址列表'
-  })
-  @ApiResponse({ 
-    status: 200, 
-    type: [ChainAddressResponse], 
-    description: '用户钱包地址列表' 
-  })
-  @ApiQuery({ 
-    name: 'chainType', 
-    required: false, 
-    description: '过滤特定区块链类型的地址',
-    enum: ChainType
-  })
-  async getWalletAddresses(
+  @ApiOperation({ summary: '获取所有区块链地址' })
+  @ApiResponse({ status: 200, type: [ChainAddressResponse] })
+  async getAddresses(
     @AuthUser() user: IAuthUser,
   ): Promise<ChainAddressResponse[]> {
-    return await this.chainAddressService.getChainAddresses(user.uid);
+    return this.chainAddressService.getChainAddresses(user.uid);
   }
 
   /**
-   * 获取用户在指定区块链上的地址（如果不存在则自动创建）
+   * 获取或创建指定区块链地址
    */
-  @Get('address/:chainType')
-  @ApiOperation({ 
-    summary: '获取指定区块链的钱包地址',
-    description: '获取用户在指定区块链上的钱包地址，如果不存在则自动创建'
-  })
+  @Get('addresses/:chainType')
+  @ApiOperation({ summary: '获取指定区块链地址（不存在则创建）' })
   @ApiParam({ 
     name: 'chainType', 
-    description: '区块链类型', 
     enum: ChainType,
     example: ChainType.ETH 
   })
-  @ApiResponse({ 
-    status: 200, 
-    type: ChainAddressResponse, 
-    description: '钱包地址信息（如果不存在则自动创建）' 
-  })
+  @ApiResponse({ status: 200, type: ChainAddressResponse })
   @ApiResponse({ status: 400, description: '不支持的区块链类型' })
-  async getWalletAddress(
+  async getOrCreateAddress(
     @AuthUser() user: IAuthUser,
     @Param('chainType', ParseIntPipe) chainType: ChainType,
   ): Promise<ChainAddressResponse> {
-    return await this.chainAddressService.createChainAddress(user.uid, chainType);
+    return this.chainAddressService.createChainAddress(user.uid, chainType);
   }
 }

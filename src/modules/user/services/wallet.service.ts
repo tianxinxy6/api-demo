@@ -1,9 +1,10 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, QueryRunner } from 'typeorm';
 import { UserWalletEntity } from '@/entities/user-wallet.entity';
 import { UserWalletLogEntity } from '@/entities/user-wallet-log.entity';
-import { WalletLogType, WalletStatus } from '@/constants';
+import { WalletLogType, WalletStatus, ErrorCode } from '@/constants';
+import { BusinessException } from '@/common/exceptions/biz.exception';
 
 export interface editBalanceParams {
   userId: number;
@@ -17,10 +18,39 @@ export interface editBalanceParams {
 
 @Injectable()
 export class WalletService {
+  private readonly MAX_AMOUNT = BigInt('115792089237316195423570985008687907853269984665640564039457584007913129639935');
+
   constructor(
     @InjectRepository(UserWalletEntity)
     private readonly userWalletRepository: Repository<UserWalletEntity>,
   ) {}
+
+  /**
+   * 验证金额格式和范围
+   * @private
+   */
+  private validateAmount(amount: string, operation: string): bigint {
+    if (!amount || !/^\d+$/.test(amount)) {
+      throw new BusinessException(ErrorCode.ErrAmountInvalid);
+    }
+
+    let bigIntAmount: bigint;
+    try {
+      bigIntAmount = BigInt(amount);
+    } catch (error) {
+      throw new BusinessException(ErrorCode.ErrAmountInvalid);
+    }
+
+    if (bigIntAmount <= 0n) {
+      throw new BusinessException(ErrorCode.ErrAmountMustPositive);
+    }
+
+    if (bigIntAmount > this.MAX_AMOUNT) {
+      throw new BusinessException(ErrorCode.ErrAmountTooLarge);
+    }
+
+    return bigIntAmount;
+  }
 
   /**
    * 使用原子操作增加用户钱包余额
@@ -32,10 +62,7 @@ export class WalletService {
     params: editBalanceParams,
   ): Promise<UserWalletEntity> {
     const { userId, tokenId, amount } = params;
-    const addAmount = BigInt(amount);
-    if (addAmount <= 0) {
-      throw new Error('增加金额必须大于0');
-    }
+    const addAmount = this.validateAmount(amount, '增加');
 
     // 尝试原子更新现有记录
     const updateResult = await queryRunner.manager
@@ -62,8 +89,8 @@ export class WalletService {
         );
         beforeBalance = '0';
       } catch (error) {
-        // 唯一索引冲突，递归重试
-        return this.addBalance(queryRunner, params);
+        // 唯一索引冲突，直接抛出异常
+        throw new BusinessException(ErrorCode.ErrOperationConflict);
       }
     } else {
       // 更新成功，获取更新后的记录
@@ -71,7 +98,7 @@ export class WalletService {
         where: { userId, tokenId },
       });
       if (!userWallet) {
-        throw new Error('钱包记录更新异常');
+        throw new BusinessException(ErrorCode.ErrWalletUpdateFailed);
       }
 
       beforeBalance = (BigInt(userWallet.balance) - addAmount).toString();
@@ -93,10 +120,7 @@ export class WalletService {
     params: editBalanceParams,
   ): Promise<UserWalletEntity> {
     const { userId, tokenId, amount } = params;
-    const subAmount = BigInt(amount);
-    if (subAmount <= 0) {
-      throw new Error('减少金额必须大于0');
-    }
+    const subAmount = this.validateAmount(amount, '减少');
 
     // 尝试原子更新现有记录，同时检查余额是否足够
     const updateResult = await queryRunner.manager
@@ -116,9 +140,9 @@ export class WalletService {
       });
 
       if (!existingWallet) {
-        throw new NotFoundException('钱包记录不存在');
+        throw new BusinessException(ErrorCode.ErrWalletNotFound);
       } else {
-        throw new NotFoundException('余额不足');
+        throw new BusinessException(ErrorCode.ErrBalanceInsufficient);
       }
     }
 
@@ -127,7 +151,7 @@ export class WalletService {
       where: { userId, tokenId },
     });
     if (!userWallet) {
-      throw new Error('钱包记录更新异常');
+      throw new BusinessException(ErrorCode.ErrWalletUpdateFailed);
     }
 
     const beforeBalance = (BigInt(userWallet.balance) + subAmount).toString();
@@ -156,10 +180,7 @@ export class WalletService {
     params: editBalanceParams,
   ): Promise<UserWalletEntity> {
     const { userId, tokenId, amount } = params;
-    const freezeAmount = BigInt(amount);
-    if (freezeAmount <= 0) {
-      throw new Error('冻结金额必须大于0');
-    }
+    const freezeAmount = this.validateAmount(amount, '冻结');
 
     // 原子操作：减少可用余额，增加冻结余额
     const updateResult = await queryRunner.manager
@@ -179,9 +200,9 @@ export class WalletService {
       });
 
       if (!existingWallet) {
-        throw new NotFoundException('钱包记录不存在');
+        throw new BusinessException(ErrorCode.ErrWalletNotFound);
       } else {
-        throw new NotFoundException('余额不足');
+        throw new BusinessException(ErrorCode.ErrBalanceInsufficient);
       }
     }
 
@@ -189,7 +210,7 @@ export class WalletService {
       where: { userId, tokenId },
     });
     if (!userWallet) {
-      throw new Error('钱包记录更新异常');
+      throw new BusinessException(ErrorCode.ErrWalletUpdateFailed);
     }
 
     return userWallet;
@@ -205,10 +226,7 @@ export class WalletService {
     params: editBalanceParams,
   ): Promise<UserWalletEntity> {
     const { userId, tokenId, amount } = params;
-    const unfreezeAmount = BigInt(amount);
-    if (unfreezeAmount <= 0) {
-      throw new Error('解冻金额必须大于0');
-    }
+    const unfreezeAmount = this.validateAmount(amount, '解冻');
 
     // 原子操作：减少冻结余额，增加可用余额
     const updateResult = await queryRunner.manager
@@ -228,9 +246,9 @@ export class WalletService {
       });
 
       if (!existingWallet) {
-        throw new NotFoundException('钱包记录不存在');
+        throw new BusinessException(ErrorCode.ErrWalletNotFound);
       } else {
-        throw new NotFoundException('冻结余额不足');
+        throw new BusinessException(ErrorCode.ErrFrozenBalanceInsufficient);
       }
     }
 
@@ -238,7 +256,7 @@ export class WalletService {
       where: { userId, tokenId },
     });
     if (!userWallet) {
-      throw new Error('钱包记录更新异常');
+      throw new BusinessException(ErrorCode.ErrWalletUpdateFailed);
     }
 
     return userWallet;
@@ -254,10 +272,7 @@ export class WalletService {
     params: editBalanceParams,
   ): Promise<UserWalletEntity> {
     const { userId, tokenId, amount } = params;
-    const subAmount = BigInt(amount);
-    if (subAmount <= 0) {
-      throw new Error('扣减金额必须大于0');
-    }
+    const subAmount = this.validateAmount(amount, '扣减');
 
     // 原子操作：直接减少冻结余额
     const updateResult = await queryRunner.manager
@@ -276,9 +291,9 @@ export class WalletService {
       });
 
       if (!existingWallet) {
-        throw new NotFoundException('钱包记录不存在');
+        throw new BusinessException(ErrorCode.ErrWalletNotFound);
       } else {
-        throw new NotFoundException('冻结余额不足');
+        throw new BusinessException(ErrorCode.ErrFrozenBalanceInsufficient);
       }
     }
 
@@ -286,7 +301,7 @@ export class WalletService {
       where: { userId, tokenId },
     });
     if (!userWallet) {
-      throw new Error('钱包记录更新异常');
+      throw new BusinessException(ErrorCode.ErrWalletUpdateFailed);
     }
 
     const beforeBalance = (BigInt(userWallet.frozenBalance) + subAmount).toString();

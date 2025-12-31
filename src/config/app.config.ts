@@ -6,7 +6,7 @@ export default registerAs('app', () => ({
   port: envNumber('PORT', 3000),
   name: env('APP_NAME', 'chain-wallet'),
   version: env('APP_VERSION', '1.0.0'),
-  encryptKey: env('ENCRYPT_KEY', 'default_encryption_key_please_change'),
+  encryptionKey: env('ENCRYPTION_KEY', 'default_encryption_key_please_change'),
   swagger: {
     enable: envBoolean('SWAGGER_ENABLE', false),
   },
@@ -22,5 +22,10 @@ export default registerAs('app', () => ({
   throttle: {
     ttl: envNumber('THROTTLE_TTL', 60),
     limit: envNumber('THROTTLE_LIMIT', 10),
+  },
+  vault: {
+    address: env('VAULT_ADDR', 'http://localhost:8200'),
+    token: env('VAULT_TOKEN', 'dev-root-token'),
+    secretPath: env('VAULT_SECRET_PATH', 'secret/data/wallet/privatekeys'),
   },
 }));

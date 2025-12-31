@@ -15,7 +15,10 @@ export class JwtStrategy extends PassportStrategy(Strategy, AuthStrategy.JWT) {
     });
   }
 
+  /**
+   * JWT 验证通过后的回调，返回的数据会被设置到 request.user
+   */
   async validate(payload: IAuthUser): Promise<IAuthUser> {
-    return payload
+    return payload;
   }
 }

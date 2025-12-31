@@ -6,7 +6,6 @@ import {
   Query,
   Param,
   ParseIntPipe,
-  Put,
   Delete,
 } from '@nestjs/common';
 import {
@@ -20,13 +19,16 @@ import { WithdrawOrder } from '../model/withdraw.model';
 import { AuthUser } from '@/common/decorators/auth-user.decorator';
 import { ApiSecurityAuth } from '@/common/decorators/swagger.decorator';
 
-@ApiTags('提现记录')
+/**
+ * 提现订单控制器
+ */
+@ApiTags('Orders - Withdraw')
 @ApiSecurityAuth()
-@Controller('withdraw')
+@Controller('orders/withdraws')
 export class WithdrawController {
   constructor(private readonly withdrawService: WithdrawService) {}
 
-  @Put()
+  @Post()
   @ApiOperation({ summary: '创建提现订单' })
   @ApiResponse({
     status: 201,
@@ -40,7 +42,7 @@ export class WithdrawController {
     return this.withdrawService.create(user.uid, createDto);
   }
 
-  @Delete()
+  @Delete(':orderNo')
   @ApiOperation({ summary: '取消提现订单' })
   @ApiResponse({
     status: 200,
@@ -48,9 +50,9 @@ export class WithdrawController {
   })
   async cancel(
     @AuthUser() user: IAuthUser,
-    @Body() cancelDto: CancelWithdrawDto,
+    @Param('orderNo') orderNo: string,
   ): Promise<void> {
-    return this.withdrawService.cancel(user.uid, cancelDto.orderNo);
+    return this.withdrawService.cancel(user.uid, orderNo);
   }
 
   @Get()

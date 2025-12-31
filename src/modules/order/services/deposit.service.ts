@@ -1,22 +1,32 @@
-import { Injectable, BadRequestException, NotFoundException } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, QueryRunner } from 'typeorm';
 import { OrderDepositEntity } from '@/entities/order-deposit.entity';
 import { WalletService } from '@/modules/user/services/wallet.service';
 import { QueryDepositDto } from '../dto/deposit.dto';
 import { DepositOrder } from '../model/deposit.model';
-import { DepositStatus, WalletLogType } from '@/constants';
+import { DepositStatus, WalletLogType, ErrorCode } from '@/constants';
 import { BaseTransactionEntity } from '@/entities/txs/base.entity';
 import { TokenService } from '@/modules/sys/services/token.service';
+import { BusinessException } from '@/common/exceptions/biz.exception';
 
+/**
+ * 充值订单服务
+ * 职责：
+ * 1. 创建充值订单（由交易扫描服务调用）
+ * 2. 确认充值订单（链上确认后更新状态）
+ * 3. 查询用户充值记录
+ */
 @Injectable()
 export class DepositService {
+  private readonly logger = new Logger(DepositService.name);
+
   constructor(
     @InjectRepository(OrderDepositEntity)
     private readonly depositRepository: Repository<OrderDepositEntity>,
     private readonly walletService: WalletService,
     private readonly tokenService: TokenService,
-  ) { }
+  ) {}
 
   /**
    * 创建充值订单并更新用户钱包 - 使用外部事务
@@ -65,12 +75,14 @@ export class DepositService {
     const depositOrder = await queryRunner.manager.findOne(OrderDepositEntity, {
       where: { hash: transaction.hash },
     });
+    
     if (!depositOrder) {
-      throw new BadRequestException(`Deposit order not found for transaction: ${transaction.hash}`);
+      this.logger.warn(`Deposit order not found for transaction: ${transaction.hash}`);
+      throw new BusinessException(ErrorCode.ErrDepositTransactionNotFound);
     }
 
     if (depositOrder.status !== DepositStatus.PENDING) {
-      // 已经处理过，直接返回
+      this.logger.debug(`Deposit order already processed: ${depositOrder.id}`);
       return;
     }
     
@@ -86,14 +98,16 @@ export class DepositService {
       if (updateResult.affected && updateResult.affected > 0) {
         const token = await this.tokenService.getTokenByCode(depositOrder.token);
         if (!token) {
+          this.logger.error(`Token not found: ${depositOrder.token}`);
           return;
         }
+        
         await this.walletService.addBalance(
           queryRunner,
           {
             userId: depositOrder.userId,
-            tokenId: token.id, // TODO: 需要根据token符号获取对应的tokenId
-            amount: depositOrder.amount, // 直接使用字符串，避免精度丢失
+            tokenId: token.id,
+            amount: depositOrder.amount,
             decimals: token.decimals,
             type: WalletLogType.DEPOSIT,
             orderId: depositOrder.id,
@@ -107,6 +121,8 @@ export class DepositService {
         failureReason: failureReason || 'Transaction failed',
         updatedAt: new Date(),
       });
+      
+      this.logger.warn(`Deposit failed: order=${depositOrder.id}, reason=${failureReason}`);
     }
   }
 
@@ -172,7 +188,7 @@ export class DepositService {
     });
 
     if (!deposit) {
-      throw new NotFoundException('充值订单不存在');
+      throw new BusinessException(ErrorCode.ErrDepositNotFound);
     }
 
     return this.mapToModel(deposit);

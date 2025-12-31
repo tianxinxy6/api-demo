@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { DataSource } from 'typeorm';
-import { ChainType, TransactionStatus } from '@/constants';
+import { ChainType, TransactionStatus, ErrorCode } from '@/constants';
 import { TronUtil } from '@/utils/tron.util';
 import { BaseTransactionEntity } from '@/entities/txs/base.entity';
 import { BaseWithdrawService } from './base.service';
@@ -10,6 +10,7 @@ import { DatabaseService } from '@/shared/database/database.service';
 import { TransactionOutTronEntity } from '@/entities/txs/withdraw/transaction-tron.entity';
 import { OrderWithdrawEntity } from '@/entities/order-withdraw.entity';
 import { WithdrawService } from '@/modules/order/services/withdraw.service';
+import { BusinessException } from '@/common/exceptions/biz.exception';
 
 /**
  * TRON 提现转账服务
@@ -44,12 +45,15 @@ export class TronWithdrawService extends BaseWithdrawService {
 
   /**
    * 初始化 TRON 连接
+   * @param privateKey 私钥
+   * @returns 钱包地址
    */
   protected async init(privateKey: string): Promise<string> {
     this.tronUtil = new TronUtil(this.chain.rpcUrl, privateKey);
     const address = this.tronUtil.getFromAddress();
     if (!address) {
-      throw new Error('Failed to derive address from private key');
+      this.logger.error('Failed to derive address from private key');
+      throw new BusinessException(ErrorCode.ErrTransactionAddressDeriveFailed);
     }
     return address;
   }

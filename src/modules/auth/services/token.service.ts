@@ -1,6 +1,8 @@
-import { Injectable, Logger, UnauthorizedException } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
+import { BusinessException } from '@/common/exceptions/biz.exception';
+import { ErrorCode } from '@/constants';
 
 /**
  * 令牌服务
@@ -49,11 +51,11 @@ export class TokenService {
    */
   async generateRefreshToken(payload: IAuthUser): Promise<string> {
     try {
-      const refreshExpiresIn = this.configService.get('jwt.refreshExpires', 604800);
+      const refreshExpiresIn = this.configService.get('jwt.refreshExpiresIn', '7d');
       // 刷新令牌使用不同的载荷标识
       return await this.jwtService.signAsync(
         { ...payload, type: 'refresh' }, 
-        { expiresIn: `${refreshExpiresIn}s` }
+        { expiresIn: refreshExpiresIn }
       );
     } catch (error) {
       this.logger.error(`Refresh token generation failed: ${error.message}`);
@@ -72,7 +74,7 @@ export class TokenService {
       
       // 验证是否为刷新令牌
       if (payload.type !== 'refresh') {
-        throw new UnauthorizedException('令牌类型错误');
+        throw new BusinessException(ErrorCode.ErrAuthRefreshTokenInvalid);
       }
       
       // 移除type字段，返回原始用户信息
@@ -80,7 +82,10 @@ export class TokenService {
       return userPayload as IAuthUser;
     } catch (error) {
       this.logger.warn(`Refresh token verification failed: ${error.message}`);
-      throw new UnauthorizedException('刷新令牌无效或已过期');
+      if (error instanceof BusinessException) {
+        throw error;
+      }
+      throw new BusinessException(ErrorCode.ErrAuthRefreshTokenInvalid);
     }
   }
 }

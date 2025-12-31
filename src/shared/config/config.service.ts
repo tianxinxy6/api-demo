@@ -5,7 +5,10 @@ import { ConfigEntity } from '@/entities/config.entity';
 
 /**
  * 配置服务
- * 用于管理系统配置，特别是区块链扫描状态
+ * 职责：
+ * 1. 管理系统配置（存储在数据库）
+ * 2. 支持多种类型配置（字符串、数字、布尔）
+ * 3. 管理区块链扫描进度
  */
 @Injectable()
 export class ConfigService {

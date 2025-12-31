@@ -18,6 +18,7 @@ import { OrderModule } from './modules/order/order.module';
 import { TransactionModule } from './modules/transaction/transaction.module';
 import { TaskModule } from './modules/cron/cron.module';
 import { SysModule } from './modules/sys/sys.module';
+import { MarketModule } from './modules/market/market.module';
 import { ValidationPipe } from './common/pipes/validation.pipe';
 
 @Module({
@@ -40,6 +41,7 @@ import { ValidationPipe } from './common/pipes/validation.pipe';
     TransactionModule,
     TaskModule,
     SysModule,
+    MarketModule,
   ],
   providers: [
     { provide: APP_FILTER, useClass: AllExceptionsFilter },

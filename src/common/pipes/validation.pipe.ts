@@ -8,6 +8,14 @@ import {
 import { validate } from 'class-validator';
 import { plainToInstance } from 'class-transformer';
 
+/**
+ * 数据验证管道
+ * 职责：
+ * 1. 使用 class-validator 验证 DTO
+ * 2. 自动转换数据类型
+ * 3. 移除非白名单属性
+ * 4. 格式化验证错误消息
+ */
 @Injectable()
 export class ValidationPipe implements PipeTransform<any> {
   private readonly logger = new Logger(ValidationPipe.name);

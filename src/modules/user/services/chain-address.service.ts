@@ -1,10 +1,11 @@
-import { Injectable, Logger, BadRequestException } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, In } from 'typeorm';
 import { HttpService } from '@nestjs/axios';
 import * as crypto from 'crypto';
 import { UserWalletAddressEntity } from '@/entities/user-wallet-address.entity';
-import { AddressInfo, ChainType, Status } from '@/constants';
+import { AddressInfo, ChainType, Status, ErrorCode } from '@/constants';
+import { BusinessException } from '@/common/exceptions/biz.exception';
 import { VaultUtil, VaultConfig } from '@/utils/vault.util';
 import { CacheService } from '@/shared/cache/cache.service';
 import { ConfigService } from '@nestjs/config';
@@ -42,12 +43,12 @@ export class ChainAddressService {
         private readonly walletService: WalletService,
     ) {
         // 初始化 Vault 配置
-        const vaultConfig: VaultConfig = this.configService.get('vault');
+        const vaultConfig: VaultConfig = this.configService.get('app.vault');
         this.vaultUtil = new VaultUtil(vaultConfig, this.httpService);
     }
 
     /**
-     * 为用户创建新的链上地址
+     * 为用户创建或获取链上地址
      * 每个用户在每条链上只能有一个地址
      */
     async createChainAddress(userId: number, chainType: ChainType): Promise<ChainAddressResponse> {
@@ -62,43 +63,39 @@ export class ChainAddressService {
             const addressInfo = await this.walletService.generateWallet(chainType);
 
             // 保存到数据库
-            const chainAddress = new UserWalletAddressEntity();
-            chainAddress.userId = userId;
-            chainAddress.chainId = 0;
-            chainAddress.chainType = chainType;
-            chainAddress.address = addressInfo.address;
-            chainAddress.derivationIndex = 0;
-            chainAddress.status = Status.Enabled;
+            const chainAddress = this.walletAddressRepository.create({
+                userId,
+                chainId: 0,
+                chainType,
+                address: addressInfo.address,
+                derivationIndex: 0,
+                status: Status.Enabled,
+            });
 
             const savedAddress = await this.walletAddressRepository.save(chainAddress);
 
             // 将私钥加密存储到 Vault
             await this.storePrivateKeyToVault(savedAddress.id, userId, addressInfo);
-
-            this.logger.log(`Successfully created chain address ${addressInfo.address} for user ${userId}`);
-
             // 清除用户地址列表缓存
             await this.clearUserAddressCache(userId);
 
             return this.toAddressResponse(savedAddress);
         } catch (error) {
-            this.logger.error(`Failed to create chain address: ${error.message}`, error.stack);
+            this.logger.error(`Failed to create chain address for user ${userId}: ${error.message}`, error.stack);
             throw error;
         }
     }
 
     async findByUserAndChain(userId: number, chainType: ChainType): Promise<UserWalletAddressEntity | null> {
-        const address = await this.walletAddressRepository.findOne({
+        return this.walletAddressRepository.findOne({
             where: { userId, chainType },
         });
-        return address;
     }
 
     async findByAddress(chainType: ChainType, address: string): Promise<UserWalletAddressEntity | null> {
-        const chainAddress = await this.walletAddressRepository.findOne({
-            where: { chainType, address: address },
+        return this.walletAddressRepository.findOne({
+            where: { chainType, address },
         });
-        return chainAddress;
     }
 
     /**
@@ -140,7 +137,7 @@ export class ChainAddressService {
         try {
             const chainAddress = await this.findByAddress(chainType, address);
             if (!chainAddress) {
-                throw new BadRequestException('Address not found');
+                throw new BusinessException(ErrorCode.ErrChainAddressNotFound);
             }
 
             const addressId = chainAddress.id;
@@ -155,7 +152,7 @@ export class ChainAddressService {
             );
         } catch (error) {
             this.logger.error(`Failed to get private key for address ${address}: ${error.message}`);
-            throw new BadRequestException('Failed to retrieve private key');
+            throw new BusinessException(ErrorCode.ErrPrivateKeyRetrieveFailed);
         }
     }
 
@@ -209,21 +206,20 @@ export class ChainAddressService {
                 userId
             });
 
-            this.logger.log(`Successfully stored encrypted private key for address ${addressId}`);
+            this.logger.debug(`Encrypted private key stored for address ${addressId}`);
             return keyHash;
         } catch (error) {
-            this.logger.error(`Failed to store private key to vault: ${error.message}`, error.stack);
-            throw new BadRequestException('Failed to securely store private key');
+            this.logger.error(`Failed to store private key: ${error.message}`, error.stack);
+            throw new BusinessException(ErrorCode.ErrPrivateKeyStoreFailed);
         }
     }
 
     /**
-     * 私有方法：清除用户地址缓存
+     * 清除用户地址缓存
+     * @private
      */
     private async clearUserAddressCache(userId: number): Promise<void> {
-        const cacheKey = `user_addresses:${userId}`;
-
-        await this.cacheService.del(cacheKey);
+        await this.cacheService.del(`user_addresses:${userId}`);
     }
 
     /**

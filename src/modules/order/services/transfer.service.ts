@@ -1,4 +1,4 @@
-import { Injectable, BadRequestException, NotFoundException } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, DataSource } from 'typeorm';
 import { OrderTransferEntity } from '@/entities/order-transfer.entity';
@@ -8,11 +8,20 @@ import { UserService } from '@/modules/user/services/user.service';
 import { TokenService } from '@/modules/sys/services/token.service';
 import { CreateTransferDto, QueryTransferDto } from '../dto/transfer.dto';
 import { TransferOrder } from '../model/transfer.model';
-import { TransferStatus, WalletLogType } from '@/constants';
+import { TransferStatus, WalletLogType, ErrorCode } from '@/constants';
 import { generateOrderNo } from '@/utils';
+import { BusinessException } from '@/common/exceptions/biz.exception';
 
+/**
+ * 转账订单服务
+ * 职责：
+ * 1. 创建用户间转账订单
+ * 2. 查询转账记录
+ */
 @Injectable()
 export class TransferService {
+  private readonly logger = new Logger(TransferService.name);
+
   constructor(
     @InjectRepository(OrderTransferEntity)
     private readonly transferRepository: Repository<OrderTransferEntity>,
@@ -39,29 +48,29 @@ export class TransferService {
       // 2. 查找转入用户
       const toUser = await this.userService.findUserByUserName(dto.toUser);
       if (!toUser) {
-        throw new BadRequestException('转入用户不存在');
+        throw new BusinessException(ErrorCode.ErrTransferUserNotFound);
       }
 
       if (toUser.id === userId) {
-        throw new BadRequestException('不能转账给自己');
+        throw new BusinessException(ErrorCode.ErrTransferSelfForbidden);
       }
 
       // 获取转出用户信息
       const user = await this.userService.findUserById(userId);
       if (!user) {
-        throw new NotFoundException('用户不存在');
+        throw new BusinessException(ErrorCode.ErrTransferFromUserNotFound);
       }
 
       // 3. 获取代币信息
       const token = await this.tokenService.getTokenById(dto.tokenId);
       if (!token) {
-        throw new BadRequestException('代币不支持');
+        throw new BusinessException(ErrorCode.ErrTransferTokenNotSupported);
       }
 
       // 4. 验证金额
       const amount = BigInt(dto.amount * 10 ** token.decimals);
       if (amount <= 0) {
-        throw new BadRequestException('转账金额必须大于0');
+        throw new BusinessException(ErrorCode.ErrTransferAmountInvalid);
       }
 
       // 5. 扣减转出方余额
@@ -105,6 +114,7 @@ export class TransferService {
       return order.orderNo;
     } catch (error) {
       await queryRunner.rollbackTransaction();
+      this.logger.error(`Create transfer failed: ${error.message}`, error.stack);
       throw error;
     } finally {
       await queryRunner.release();

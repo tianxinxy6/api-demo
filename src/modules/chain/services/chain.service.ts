@@ -2,9 +2,10 @@ import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { ChainEntity } from '../../../entities/chain.entity';
-import { ChainStatus } from '@/constants';
+import { ChainStatus, ErrorCode } from '@/constants';
 import { CacheService } from '@/shared/cache/cache.service';
 import { SupportedChainResponse } from '../model';
+import { BusinessException } from '@/common/exceptions/biz.exception';
 
 export interface ChainConfig {
   rpcUrl: string;
@@ -20,7 +21,8 @@ export interface ChainConfig {
 @Injectable()
 export class ChainService {
   private readonly logger = new Logger(ChainService.name);
-  private readonly CACHE_TTL = 3600000; // 1 hour
+  private readonly CACHE_TTL = 3600000; // 1小时
+  private readonly CACHE_PREFIX = 'chain:';
 
   constructor(
     @InjectRepository(ChainEntity)
@@ -32,14 +34,17 @@ export class ChainService {
    * 获取所有支持的区块链
    */
   async getSupportedChains(): Promise<SupportedChainResponse[]> {
-    const cacheKey = 'chain:supported';
+    const cacheKey = `${this.CACHE_PREFIX}supported`;
     
     const cached = await this.cacheService.get<SupportedChainResponse[]>(cacheKey);
-    if (cached) return cached;
+    if (cached) {
+      return cached;
+    }
 
     const chains = await this.chainRepository.find({
       where: { status: ChainStatus.ACTIVE },
       select: ['id', 'code', 'name', 'logo', 'type'],
+      order: { id: 'ASC' },
     });
 
     const supportedChains = chains.map(chain => new SupportedChainResponse({
@@ -55,16 +60,22 @@ export class ChainService {
   }
 
   /**
-   * 根据链类型获取区块链配置
+   * 根据链代码获取区块链配置
    */
   async getChainConfig(code: string): Promise<ChainEntity | null> {
-    const cacheKey = `chain:config:${code}`;
+    if (!code?.trim()) {
+      return null;
+    }
+
+    const cacheKey = `${this.CACHE_PREFIX}config:${code}`;
     
     const cached = await this.cacheService.get<ChainEntity>(cacheKey);
-    if (cached) return cached;
+    if (cached) {
+      return cached;
+    }
 
     const chain = await this.chainRepository.findOne({
-      where: { code, status: ChainStatus.ACTIVE },
+      where: { code: code.trim(), status: ChainStatus.ACTIVE },
     });
 
     if (chain) {
@@ -78,10 +89,12 @@ export class ChainService {
    * 根据链ID获取区块链信息
    */
   async getChainById(id: number): Promise<ChainEntity | null> {
-    const cacheKey = `chain:id:${id}`;
+    const cacheKey = `${this.CACHE_PREFIX}id:${id}`;
     
     const cached = await this.cacheService.get<ChainEntity>(cacheKey);
-    if (cached) return cached;
+    if (cached) {
+      return cached;
+    }
 
     const chain = await this.chainRepository.findOne({
       where: { id },
@@ -92,5 +105,16 @@ export class ChainService {
     }
 
     return chain;
+  }
+
+  /**
+   * 清除链缓存
+   * @private
+   */
+  private async clearChainCache(chainId?: number): Promise<void> {
+    if (chainId) {
+      await this.cacheService.del(`${this.CACHE_PREFIX}id:${chainId}`);
+    }
+    await this.cacheService.del(`${this.CACHE_PREFIX}supported`);
   }
 }

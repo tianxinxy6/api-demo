@@ -40,7 +40,7 @@ import { WalletService } from './services/wallet.service';
       },
     }),
     // http
-    HttpModule,
+    HttpModule.register({ timeout: 5000 }),
     // schedule
     ScheduleModule.forRoot(),
     // rate limit

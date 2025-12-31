@@ -1,10 +1,4 @@
-import {
-  Injectable,
-  ConflictException,
-  NotFoundException,
-  BadRequestException,
-  UnauthorizedException,
-} from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { isNil } from 'lodash';
 import { Repository } from 'typeorm';
@@ -18,11 +12,13 @@ import {
 } from '../model';
 import { CacheService } from '@/shared/cache/cache.service';
 import * as bcrypt from 'bcrypt';
-import { UserStatus } from '@/constants';
+import { UserStatus, ErrorCode } from '@/constants';
 import { getClientIp, md5 } from '@/utils';
+import { BusinessException } from '@/common/exceptions/biz.exception';
 
 @Injectable()
 export class UserService {
+  private readonly logger = new Logger(UserService.name);
   private readonly CACHE_PREFIX = 'user:';
   private readonly CACHE_TTL = 3600000; // 1小时
 
@@ -128,7 +124,7 @@ export class UserService {
     });
 
     if (exists) {
-      throw new ConflictException('用户名已存在');
+      throw new BusinessException(ErrorCode.ErrUserExisted);
     }
 
     // 密码哈希
@@ -172,10 +168,20 @@ export class UserService {
       return null;
     }
 
-    // 移除密码字段返回
-    const { password: _, ...userWithoutPassword } = user;
-    // 手动构造返回对象，确保类型安全
-    return Object.assign(new UserEntity(), userWithoutPassword);
+    // 使用白名单模式，只返回必要字段，避免敏感信息泄露
+    const safeUser = new UserEntity();
+    safeUser.id = user.id;
+    safeUser.username = user.username;
+    safeUser.nickname = user.nickname;
+    safeUser.avatar = user.avatar;
+    safeUser.status = user.status;
+    safeUser.email = user.email;
+    safeUser.phone = user.phone;
+    safeUser.gender = user.gender;
+    safeUser.loginTime = user.loginTime;
+    safeUser.createdAt = user.createdAt;
+    
+    return safeUser;
   }
 
   /**
@@ -196,11 +202,8 @@ export class UserService {
     const user = await this.userRepository.findOne({ where: { id } });
 
     if (!user) {
-      throw new NotFoundException(`用户不存在: ${id}`);
+      throw new BusinessException(ErrorCode.ErrUserNotFound);
     }
-
-    // 清除缓存
-    await this.cacheService.del(`${this.CACHE_PREFIX}${id}`);
 
     // 禁止直接修改密码和敏感字段
     const { 
@@ -218,7 +221,20 @@ export class UserService {
       ...safeUpdates 
     } = updates;
 
+    if (Object.keys(safeUpdates).length === 0) {
+      return;
+    }
+
     await this.userRepository.update(id, safeUpdates);
+    await this.clearUserCache(id);
+  }
+
+  /**
+   * 清除用户缓存
+   * @private
+   */
+  private async clearUserCache(id: number): Promise<void> {
+    await this.cacheService.del(`${this.CACHE_PREFIX}${id}`);
   }
 
   /**
@@ -228,14 +244,13 @@ export class UserService {
     const user = await this.userRepository.findOne({ where: { id } });
 
     if (!user) {
-      throw new NotFoundException(`用户不存在: ${id}`);
+      throw new BusinessException(ErrorCode.ErrUserNotFound);
     }
 
-    // 清除缓存
-    await this.cacheService.del(`${this.CACHE_PREFIX}${id}`);
-
-    // 使用TypeORM官方软删除
     await this.userRepository.softDelete(id);
+    await this.clearUserCache(id);
+    
+    this.logger.warn(`User ${id} account deleted`);
   }
 
   /**
@@ -245,11 +260,11 @@ export class UserService {
     const result = await this.userRepository.restore(id);
     
     if (result.affected === 0) {
-      throw new NotFoundException(`用户不存在或未被删除: ${id}`);
+      throw new BusinessException(ErrorCode.ErrUserNotDeleted);
     }
 
-    // 清除缓存
-    await this.cacheService.del(`${this.CACHE_PREFIX}${id}`);
+    await this.clearUserCache(id);
+    this.logger.log(`User ${id} account restored`);
   }
 
   /**
@@ -263,25 +278,25 @@ export class UserService {
   ): Promise<void> {
     // 验证新密码和确认密码是否一致
     if (newPassword !== confirmPassword) {
-      throw new BadRequestException('新密码和确认密码不一致');
+      throw new BusinessException(ErrorCode.ErrPasswordConfirmNotMatch);
     }
 
     // 获取用户信息（包括密码）
     const user = await this.findUserById(userId);
     if (!user) {
-      throw new NotFoundException('用户不存在');
+      throw new BusinessException(ErrorCode.ErrUserNotFound);
     }
 
     // 验证当前密码
     const isCurrentPasswordValid = await bcrypt.compare(currentPassword, user.password);
     if (!isCurrentPasswordValid) {
-      throw new UnauthorizedException('当前密码错误');
+      throw new BusinessException(ErrorCode.ErrPasswordNotMatch);
     }
 
     // 检查新密码是否与当前密码相同
     const isSamePassword = await bcrypt.compare(newPassword, user.password);
     if (isSamePassword) {
-      throw new BadRequestException('新密码不能与当前密码相同');
+      throw new BusinessException(ErrorCode.ErrPasswordSame);
     }
 
     // 加密新密码
@@ -292,8 +307,8 @@ export class UserService {
       password: hashedNewPassword,
     });
 
-    // 清除缓存
-    await this.cacheService.del(`${this.CACHE_PREFIX}${userId}`);
+    await this.clearUserCache(userId);
+    this.logger.log(`User ${userId} password changed`);
   }
 
   /**
@@ -306,7 +321,7 @@ export class UserService {
   ): Promise<void> {
     // 验证密码和确认密码是否一致
     if (password !== confirmPassword) {
-      throw new BadRequestException('交易密码和确认密码不一致');
+      throw new BusinessException(ErrorCode.ErrPasswordConfirmNotMatch);
     }
 
     // 获取用户信息
@@ -316,24 +331,24 @@ export class UserService {
     });
 
     if (!user) {
-      throw new NotFoundException('用户不存在');
+      throw new BusinessException(ErrorCode.ErrUserNotFound);
     }
 
-    // 检查是否已设置提现密码
+    // 检查是否已设置交易密码
     if (user.transPassword) {
-      throw new BadRequestException('已设置交易密码，请使用修改功能');
+      throw new BusinessException(ErrorCode.ErrTransPasswordAlreadySet);
     }
 
     // 加密提现密码
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // 更新提现密码
+    // 更新交易密码
     await this.userRepository.update(userId, {
       transPassword: hashedPassword,
     });
 
-    // 清除缓存
-    await this.cacheService.del(`${this.CACHE_PREFIX}${userId}`);
+    await this.clearUserCache(userId);
+    this.logger.log(`User ${userId} transaction password set`);
   }
 
   /**
@@ -347,33 +362,33 @@ export class UserService {
   ): Promise<void> {
     // 验证新密码和确认密码是否一致
     if (newPassword !== confirmPassword) {
-      throw new BadRequestException('新提现密码和确认密码不一致');
+      throw new BusinessException(ErrorCode.ErrPasswordConfirmNotMatch);
     }
 
-    // 获取用户信息（包括提现密码）
+    // 获取用户信息（包括交易密码）
     const user = await this.userRepository.findOne({
       where: { id: userId },
       select: ['id', 'transPassword'],
     });
 
     if (!user) {
-      throw new NotFoundException('用户不存在');
+      throw new BusinessException(ErrorCode.ErrUserNotFound);
     }
 
     if (!user.transPassword) {
-      throw new BadRequestException('尚未设置交易密码，请先设置');
+      throw new BusinessException(ErrorCode.ErrTransPasswordNotSet);
     }
 
-    // 验证当前提现密码
+    // 验证当前交易密码
     const isOldPasswordValid = await bcrypt.compare(oldPassword, user.transPassword);
     if (!isOldPasswordValid) {
-      throw new UnauthorizedException('当前交易密码错误');
+      throw new BusinessException(ErrorCode.ErrTransPasswordNotMatch);
     }
 
     // 检查新密码是否与当前密码相同
     const isSamePassword = await bcrypt.compare(newPassword, user.transPassword);
     if (isSamePassword) {
-      throw new BadRequestException('新交易密码不能与当前交易密码相同');
+      throw new BusinessException(ErrorCode.ErrPasswordSame);
     }
 
     // 加密新交易密码
@@ -384,33 +399,30 @@ export class UserService {
       transPassword: hashedNewPassword,
     });
 
-    // 清除缓存
-    await this.cacheService.del(`${this.CACHE_PREFIX}${userId}`);
+    await this.clearUserCache(userId);
+    this.logger.log(`User ${userId} transaction password changed`);
   }
 
   /**
    * 验证用户的交易密码
    * @param userId 用户ID
    * @param password 待验证的交易密码
-   * @throws BadRequestException 如果未设置交易密码
-   * @throws BadRequestException 如果交易密码错误
-   * @throws NotFoundException 如果用户不存在
    */
   async verifyTransferPassword(userId: number, password: string): Promise<void> {
     // 获取用户信息（包括交易密码）
     const user = await this.findUserById(userId);
     if (!user) {
-      throw new NotFoundException('用户不存在');
+      throw new BusinessException(ErrorCode.ErrUserNotFound);
     }
 
     if (!user.transPassword) {
-      throw new BadRequestException('请先设置交易密码');
+      throw new BusinessException(ErrorCode.ErrTransPasswordNotSet);
     }
 
     // 验证密码
     const isPasswordValid = await bcrypt.compare(password, user.transPassword);
     if (!isPasswordValid) {
-      throw new BadRequestException('交易密码错误');
+      throw new BusinessException(ErrorCode.ErrTransPasswordNotMatch);
     }
   }
 
@@ -439,7 +451,6 @@ export class UserService {
       lastToken: md5(req.accessToken)
     });
 
-    // 清除缓存
-    await this.cacheService.del(`${this.CACHE_PREFIX}${userId}`);
+    await this.clearUserCache(userId);
   }
 }

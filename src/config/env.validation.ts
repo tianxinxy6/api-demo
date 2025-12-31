@@ -16,24 +16,12 @@ enum Environment {
   Test = 'test',
 }
 
-enum DatabaseType {
-  Postgres = 'postgres',
-  MySQL = 'mysql',
-  SQLite = 'sqlite',
-  MongoDB = 'mongodb',
-}
-
 enum LogLevel {
   Error = 'error',
   Warn = 'warn',
   Info = 'info',
   Debug = 'debug',
   Verbose = 'verbose',
-}
-
-enum LogFormat {
-  Json = 'json',
-  Simple = 'simple',
 }
 
 class EnvironmentVariables {
@@ -47,39 +35,30 @@ class EnvironmentVariables {
   PORT: number = 3000;
 
   @IsString()
-  APP_NAME: string = 'chain_wallet'; // 与 package.json 保持一致
+  APP_NAME: string = 'chain-wallet';
 
   @IsString()
   APP_VERSION: string = '1.0.0';
 
-  // 数据库配置
-  @IsOptional()
-  @IsString()
-  DATABASE_URL?: string;
-
-  @IsEnum(DatabaseType)
-  DATABASE_TYPE: DatabaseType = DatabaseType.MySQL;
-
+  // Database
   @IsString()
   DATABASE_HOST: string = 'localhost';
 
   @IsNumber()
   @Transform(({ value }) => parseInt(value, 10))
-  DATABASE_PORT: number = 3306; // MySQL 默认端口
+  DATABASE_PORT: number = 3306;
+
+  @IsString()
+  DATABASE_USERNAME: string = 'root';
 
   @IsOptional()
   @IsString()
-  DATABASE_USERNAME?: string = 'root'; // 提供默认值
+  DATABASE_PASSWORD?: string = '';
 
-  @IsOptional()
   @IsString()
-  DATABASE_PASSWORD?: string = ''; // 提供默认值
+  DATABASE_NAME: string = 'chain_wallet';
 
-  @IsOptional()
-  @IsString()
-  DATABASE_NAME?: string = 'chain_wallet'; // 提供默认值
-
-  // Redis配置
+  // Redis
   @IsString()
   REDIS_HOST: string = 'localhost';
 
@@ -91,29 +70,28 @@ class EnvironmentVariables {
   @IsString()
   REDIS_PASSWORD?: string;
 
-  // JWT配置
-  @IsOptional()
+  // JWT
   @IsString()
-  JWT_SECRET?: string;
+  JWT_SECRET: string;
 
   @IsString()
-  JWT_EXPIRES_IN: string = '7d';
+  JWT_EXPIRES_IN: string = '1h';
 
-  // 日志配置
+  @IsString()
+  JWT_REFRESH_EXPIRES_IN: string = '7d';
+
+  // Logging
   @IsEnum(LogLevel)
   LOG_LEVEL: LogLevel = LogLevel.Info;
 
-  @IsEnum(LogFormat)
-  LOG_FORMAT: LogFormat = LogFormat.Json;
-
-  // API配置
+  // API
   @IsString()
   API_PREFIX: string = 'api';
 
   @IsString()
   API_VERSION: string = 'v1';
 
-  // 限流配置
+  // Rate Limiting
   @IsNumber()
   @Transform(({ value }) => parseInt(value, 10))
   THROTTLE_TTL: number = 60;
@@ -122,13 +100,31 @@ class EnvironmentVariables {
   @Transform(({ value }) => parseInt(value, 10))
   THROTTLE_LIMIT: number = 10;
 
-  // CORS配置
+  // CORS
   @IsString()
-  CORS_ORIGIN: string = 'http://localhost:3000';
+  CORS_ORIGIN: string = '*';
 
   @IsBoolean()
   @Transform(({ value }) => value === 'true')
   CORS_CREDENTIALS: boolean = true;
+
+  // Encryption
+  @IsOptional()
+  @IsString()
+  ENCRYPTION_KEY?: string;
+
+  // Vault (optional)
+  @IsOptional()
+  @IsString()
+  VAULT_ADDR?: string;
+
+  @IsOptional()
+  @IsString()
+  VAULT_TOKEN?: string;
+
+  @IsOptional()
+  @IsString()
+  VAULT_SECRET_PATH?: string;
 }
 
 export function validate(config: Record<string, unknown>) {

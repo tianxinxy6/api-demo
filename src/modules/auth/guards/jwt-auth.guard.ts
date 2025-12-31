@@ -1,7 +1,6 @@
 import {
   ExecutionContext,
   Injectable,
-  UnauthorizedException,
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { AuthGuard } from '@nestjs/passport';
@@ -44,13 +43,13 @@ export class JwtAuthGuard extends AuthGuard(AuthStrategy.JWT) {
 
     // 非公开路由必须携带有效的 token
     if (isEmpty(token)) {
-      throw new UnauthorizedException('请先登录');
+      throw new BusinessException(ErrorCode.ErrAuthRequireLogin);
     }
 
-    // 检查 Token 是否有效（包含黑名单和批量撤销检查）
+    // 检查 Token 是否有效（包含黑名单检查）
     const isValidToken = await this.tokenBlacklistService.isTokenValid(token);
     if (!isValidToken) {
-      throw new UnauthorizedException('Token 已失效，请重新登录');
+      throw new BusinessException(ErrorCode.ErrAuthTokenRevoked);
     }
 
     // 通过 Passport JWT 策略进行验证
@@ -58,10 +57,7 @@ export class JwtAuthGuard extends AuthGuard(AuthStrategy.JWT) {
     try {
       result = await super.canActivate(context);
     } catch (err) {
-      if (err instanceof UnauthorizedException) {
-        throw new BusinessException(ErrorCode.ErrToken);
-      }
-      throw err;
+      throw new BusinessException(ErrorCode.ErrAuthTokenInvalid);
     }
 
     // super.canActivate 成功后，用户信息已经通过 JWT 策略的 validate 方法设置到 request.user 中
@@ -70,8 +66,9 @@ export class JwtAuthGuard extends AuthGuard(AuthStrategy.JWT) {
   }
 
   override handleRequest(err, user) {
-    // You can throw an exception based on either "info" or "err" arguments
-    if (err || !user) throw err || new UnauthorizedException();
+    if (err || !user) {
+      throw err || new BusinessException(ErrorCode.ErrAuthTokenInvalid);
+    }
 
     return user;
   }

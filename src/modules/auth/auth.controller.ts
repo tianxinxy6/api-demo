@@ -30,9 +30,9 @@ export class AuthController {
   @Public()
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({ summary: '用户注册' })
-  @ApiResponse({ status: 201, description: '注册成功，返回访问令牌' })
-  async register(@Body() dto: UserRegisterDto) {
-    return this.authService.register(dto);
+  @ApiResponse({ status: 201, description: '注册成功' })
+  async register(@Body() dto: UserRegisterDto): Promise<void> {
+    await this.authService.register(dto);
   }
 
   /**
@@ -42,21 +42,33 @@ export class AuthController {
   @Public()
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: '用户登录' })
-  @ApiResponse({ description: '登录成功，返回访问令牌' })
+  @ApiResponse({ status: 200, description: '登录成功，返回访问令牌' })
   async login(@Body() dto: UserLoginDto, @Req() req: FastifyRequest) {
     return this.authService.login(dto, req);
   }
 
   /**
-   * 刷新 Token
+   * 刷新令牌
    */
-  @Post('refresh')
+  @Post('token/refresh')
   @Public()
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: '刷新访问令牌' })
-  @ApiResponse({ description: '返回新的访问令牌和刷新令牌' })
+  @ApiResponse({ status: 200, description: '返回新的访问令牌' })
   async refreshToken(@Body() dto: RefreshTokenDto, @Req() req: FastifyRequest) {
     return this.authService.refreshToken(dto.refreshToken, req);
+  }
+
+  /**
+   * 登出
+   */
+  @Post('logout')
+  @ApiSecurityAuth()
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: '用户登出' })
+  @ApiResponse({ status: 200, description: '登出成功' })
+  async logout(@AuthUser() user: IAuthUser, @Req() req: FastifyRequest): Promise<void> {
+    await this.authService.logout(user, req);
   }
 
   /**
@@ -65,20 +77,8 @@ export class AuthController {
   @Get('me')
   @ApiSecurityAuth()
   @ApiOperation({ summary: '获取当前登录用户信息' })
-  @ApiResponse({ type: UserProfileResponse, description: '返回当前登录用户信息' })
+  @ApiResponse({ status: 200, type: UserProfileResponse })
   async getCurrentUser(@AuthUser() user: IAuthUser) {
     return this.authService.getCurrentUser(user);
-  }
-
-  /**
-   * 用户登出
-   */
-  @Post('logout')
-  @ApiSecurityAuth()
-  @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: '用户登出' })
-  @ApiResponse({ status: 200, description: '登出成功' })
-  async logout(@AuthUser() user: IAuthUser, @Req() req: FastifyRequest) {
-    return this.authService.logout(user, req);
   }
 }

@@ -4,7 +4,6 @@ import { ChainAddressService } from '@/modules/user/services/chain-address.servi
 import { TokenService } from '@/modules/chain/services/token.service';
 import { ConfigService } from '@/shared/config/config.service';
 import { ChainEntity } from '@/entities/chain.entity';
-import { sleep } from 'tronweb/utils';
 import { ChainTransaction } from '../../transaction.constant';
 import { BaseTransactionEntity } from '@/entities/txs/base.entity';
 import { TransactionStatus } from '@/constants';
@@ -13,7 +12,11 @@ import { DatabaseService } from '@/shared/database/database.service';
 
 /**
  * 区块链扫描任务基类
- * 提供通用的扫描逻辑和状态管理
+ * 职责：
+ * 1. 扫描区块链交易（充值检测）
+ * 2. 管理扫描进度和状态
+ * 3. 过滤和处理目标交易
+ * 4. 创建充值订单
  */
 export abstract class BaseScanService {
   protected readonly logger = new Logger(this.constructor.name);
@@ -124,15 +127,14 @@ export abstract class BaseScanService {
         this.currentScannedBlock = blockNum;
       }
       // 避免过快扫描，稍作休息
-      await sleep(100);
+      await new Promise(resolve => setTimeout(resolve, 100));
     }
 
     return foundTxCount;
   }
 
   /**
-   * 扫描单个区块 - 子类实现
-   * @param chain 链配置
+   * 扫描单个区块
    * @param blockNumber 区块号
    * @returns 找到的交易数量
    */
@@ -164,7 +166,7 @@ export abstract class BaseScanService {
 
       return targetTransactions.length;
     } catch (error) {
-      this.logger.warn(`Failed to scan ETH block ${blockNumber}:`, error.message);
+      this.logger.warn(`Failed to scan block ${blockNumber}: ${error.message}`);
       return 0;
     }
   }
@@ -251,8 +253,9 @@ export abstract class BaseScanService {
   }
 
   /**
-     * 处理发现的充值交易
-     */
+   * 处理发现的充值交易
+   * @param tx 链上交易
+   */
   protected async handleTx(tx: ChainTransaction): Promise<void> {
     try {
       const targetAddress = this.receiverOf(tx);
@@ -286,6 +289,12 @@ export abstract class BaseScanService {
     }
   }
 
+  /**
+   * 构建交易实体
+   * @param tx 链上交易
+   * @param userId 用户ID
+   * @param targetAddress 目标地址
+   */
   protected async buildTransactionEntity(
     tx: ChainTransaction,
     userId: number,

@@ -79,6 +79,8 @@ export enum WalletLogType {
   ADMIN_ADJUSTMENT = 9, // 管理员调整
   FREEZE = 10, // 冻结
   UNFREEZE = 11, // 解冻
+  SWAP_OUT = 12, // 闪兑支出
+  SWAP_IN = 13, // 闪兑收入
 }
 
 // ============= 交易相关 =============

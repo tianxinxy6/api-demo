@@ -7,10 +7,15 @@ declare global {
     uid: number;
   }
 
-  interface IChainToken { 
-    code: string; 
-    contractAddress: string, 
-    decimals: number 
+  interface IChainToken {
+    code: string;
+    contractAddress: string,
+    decimals: number
+  }
+
+  export interface IPriceData {
+    symbol: string;
+    price: string;
   }
 
   /**

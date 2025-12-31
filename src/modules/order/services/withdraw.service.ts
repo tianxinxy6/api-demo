@@ -1,4 +1,4 @@
-import { Injectable, BadRequestException, NotFoundException } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, QueryRunner, DataSource } from 'typeorm';
 import { OrderWithdrawEntity } from '@/entities/order-withdraw.entity';
@@ -8,11 +8,23 @@ import { TokenService } from '@/modules/sys/services/token.service';
 import { TokenService as ChainTokenService } from '@/modules/chain/services/token.service';
 import { CreateWithdrawDto, QueryWithdrawDto } from '../dto/withdraw.dto';
 import { WithdrawOrder } from '../model/withdraw.model';
-import { WithdrawalStatus, WalletLogType } from '@/constants';
+import { WithdrawalStatus, WalletLogType, ErrorCode } from '@/constants';
 import { generateOrderNo } from '@/utils';
+import { BusinessException } from '@/common/exceptions/biz.exception';
 
+/**
+ * 提现订单服务
+ * 职责：
+ * 1. 创建提现订单（冻结余额）
+ * 2. 取消提现订单（解冻余额）
+ * 3. 提现成功（扣减冻结余额）
+ * 4. 提现失败（解冻余额）
+ * 5. 查询用户提现记录
+ */
 @Injectable()
 export class WithdrawService {
+    private readonly logger = new Logger(WithdrawService.name);
+
     constructor(
         @InjectRepository(OrderWithdrawEntity)
         private readonly withdrawRepository: Repository<OrderWithdrawEntity>,
@@ -43,24 +55,24 @@ export class WithdrawService {
                 },
             })
             if (exist) {
-                throw new BadRequestException('已经有提现订单在处理中，请勿重复提交');
+                throw new BusinessException(ErrorCode.ErrWithdrawPending);
             }
 
             // 1. 获取代币信息
             const token = await this.tokenService.getTokenById(dto.tokenId);
             if (!token) {
-                throw new BadRequestException('代币不支持');
+                throw new BusinessException(ErrorCode.ErrWithdrawTokenNotSupported);
             }
             // 获取链上代币信息
             const chainToken = await this.chainTokenService.getAddressByCode(dto.chainId, token.code);
             if (!chainToken) {
-                throw new BadRequestException('代币不存在');
+                throw new BusinessException(ErrorCode.ErrWithdrawChainTokenNotFound);
             }
 
             // 2. 验证金额
             const amount = BigInt(dto.amount * 10 ** chainToken.decimals);
             if (amount <= 0) {
-                throw new BadRequestException('提现金额必须大于0');
+                throw new BusinessException(ErrorCode.ErrWithdrawAmountInvalid);
             }
 
             // 3. 计算手续费和实际到账金额
@@ -110,6 +122,7 @@ export class WithdrawService {
             return order.orderNo;
         } catch (error) {
             await queryRunner.rollbackTransaction();
+            this.logger.error(`Create withdraw order failed: ${error.message}`, error.stack);
             throw error;
         } finally {
             await queryRunner.release();
@@ -157,11 +170,11 @@ export class WithdrawService {
                 where: { orderNo, userId },
             });
             if (!order) {
-                throw new NotFoundException('提现订单不存在');
+                throw new BusinessException(ErrorCode.ErrWithdrawNotFound);
             }
 
             if (order.status !== WithdrawalStatus.PENDING) {
-                throw new BadRequestException('只能取消待审核状态的订单');
+                throw new BusinessException(ErrorCode.ErrWithdrawCancelForbidden);
             }
 
             // 2. 更新订单状态
@@ -187,6 +200,7 @@ export class WithdrawService {
             await queryRunner.commitTransaction();
         } catch (error) {
             await queryRunner.rollbackTransaction();
+            this.logger.error(`Cancel withdraw order failed: ${error.message}`, error.stack);
             throw error;
         } finally {
             await queryRunner.release();
@@ -206,11 +220,11 @@ export class WithdrawService {
             where: { id: orderId },
         });
         if (!order) {
-            throw new NotFoundException('提现订单不存在');
+            throw new BusinessException(ErrorCode.ErrWithdrawNotFound);
         }
 
         if (order.status !== WithdrawalStatus.PROCESSING && order.status !== WithdrawalStatus.CONFIRMED) {
-            throw new BadRequestException('订单状态不正确');
+            throw new BusinessException(ErrorCode.ErrWithdrawStatusInvalid);
         }
 
         // 2. 更新订单状态
@@ -244,7 +258,7 @@ export class WithdrawService {
             where: { id: orderId },
         });
         if (!order) {
-            throw new NotFoundException('提现订单不存在');
+            throw new BusinessException(ErrorCode.ErrWithdrawNotFound);
         }
 
         // 2. 更新订单状态
@@ -266,6 +280,8 @@ export class WithdrawService {
                 type: WalletLogType.WITHDRAWAL,
                 remark: '提现失败',
             });
+            
+            this.logger.warn(`Withdraw failed: order=${orderId}, reason=${failureReason}`);
         }
     }
 
@@ -330,7 +346,7 @@ export class WithdrawService {
 
         const withdraw = await this.withdrawRepository.findOne({ where });
         if (!withdraw) {
-            throw new NotFoundException('提现订单不存在');
+            throw new BusinessException(ErrorCode.ErrWithdrawNotFound);
         }
 
         return this.mapToModel(withdraw);

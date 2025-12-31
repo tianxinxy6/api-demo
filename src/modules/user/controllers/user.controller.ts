@@ -27,11 +27,11 @@ export class UserController {
   constructor(private userService: UserService) {}
 
   /**
-   * 获取当前登录用户信息
+   * 获取当前用户信息
    */
   @Get('me')
-  @ApiOperation({ summary: '获取当前登录用户信息' })
-  @ApiResponse({ type: UserProfileResponse, description: '当前用户的详细信息' })
+  @ApiOperation({ summary: '获取当前用户信息' })
+  @ApiResponse({ type: UserProfileResponse, description: '用户详细信息' })
   async getCurrentUserInfo(@AuthUser() user: IAuthUser): Promise<UserProfileResponse | null> {
     return this.userService.getUserProfile(user.uid);
   }
@@ -42,88 +42,80 @@ export class UserController {
   @Put('edit')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: '更新当前用户信息' })
-  @ApiResponse({ status: 200, description: '更新成功', type: UserProfileResponse })
+  @ApiResponse({ status: 200, description: '更新成功' })
   async updateCurrentUser(
     @AuthUser() user: IAuthUser,
     @Body() updates: UpdateUserDto,
-  ): Promise<UserProfileResponse | null> {
+  ): Promise<void> {
     await this.userService.updateUser(user.uid, updates);
-    return;
   }
 
   /**
-   * 修改密码
+   * 修改登录密码
    */
-  @Post('edit-password')
+  @Put('password')
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: '修改密码' })
+  @ApiOperation({ summary: '修改登录密码' })
   @ApiResponse({ status: 200, description: '密码修改成功' })
   async changePassword(
     @AuthUser() user: IAuthUser,
     @Body() dto: ChangePasswordDto,
-  ) {
+  ): Promise<void> {
     await this.userService.changePassword(
       user.uid,
       dto.oldPassword,
       dto.newPassword,
       dto.confirmPassword,
     );
-
-    return;
   }
 
   /**
    * 设置交易密码
    */
-  @Put('transfer-password')
+  @Post('trans-pwd')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: '设置交易密码' })
   @ApiResponse({ status: 200, description: '交易密码设置成功' })
   async setTransferPassword(
     @AuthUser() user: IAuthUser,
     @Body() dto: SetPasswordDto,
-  ) {
+  ): Promise<void> {
     await this.userService.setTransferPassword(
       user.uid,
       dto.password,
       dto.confirmPassword,
     );
-
-    return;
   }
 
   /**
-   * 修改提现密码
+   * 修改交易密码
    */
-  @Post('transfer-password')
+  @Put('trans-pwd')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: '修改交易密码' })
   @ApiResponse({ status: 200, description: '交易密码修改成功' })
-  async changeWithdrawPassword(
+  async changeTransferPassword(
     @AuthUser() user: IAuthUser,
     @Body() dto: ChangePasswordDto,
-  ) {
+  ): Promise<void> {
     await this.userService.changeTransferPassword(
       user.uid,
       dto.oldPassword,
       dto.newPassword,
       dto.confirmPassword,
     );
-
-    return;
   }
 
   /**
    * 注销账户
    */
-  @Delete('cancel')
+  @Delete('del')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: '注销账户' })
   @ApiResponse({ status: 200, description: '账户注销成功' })
   async deactivateAccount(
     @AuthUser() user: IAuthUser,
-  ) {
+  ): Promise<void> {
     await this.userService.deleteUser(user.uid);
-    return;
   }
 }

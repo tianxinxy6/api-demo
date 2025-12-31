@@ -14,7 +14,12 @@ import { ResOp } from '../model/response.model';
 import { BYPASS_KEY } from '../decorators/bypass.decorator';
 
 /**
- * 统一处理接口请求与响应结果，如果不需要则添加 @Bypass 装饰器
+ * 响应转换拦截器
+ * 职责：
+ * 1. 统一处理接口响应格式
+ * 2. 将响应数据包装为标准格式: { code, message, data }
+ * 3. 处理 query 参数，支持数组参数
+ * 4. 支持通过 @Bypass 装饰器跳过转换
  */
 @Injectable()
 export class TransformInterceptor implements NestInterceptor {

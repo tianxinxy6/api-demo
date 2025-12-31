@@ -11,8 +11,12 @@ export interface CacheOptions {
 }
 
 /**
- * 缓存服务 - 基于 @nestjs/cache-manager 的封装
- * 支持 Redis 和其他存储后端，提供统一的缓存操作接口
+ * 缓存服务
+ * 职责：
+ * 1. 封装 @nestjs/cache-manager 提供统一缓存接口
+ * 2. 支持 Redis 和其他存储后端
+ * 3. 提供键前缀管理和过期时间控制
+ * 4. 处理缓存异常并记录日志
  */
 @Injectable()
 export class CacheService {

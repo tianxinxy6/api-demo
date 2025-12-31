@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { UserLoginLogEntity } from '@/entities/user-login-log.entity';
@@ -7,6 +7,8 @@ import { getClientIp } from '@/utils';
 
 @Injectable()
 export class UserLoginLogService {
+  private readonly logger = new Logger(UserLoginLogService.name);
+
   constructor(
     @InjectRepository(UserLoginLogEntity)
     private readonly userLoginLogRepository: Repository<UserLoginLogEntity>,

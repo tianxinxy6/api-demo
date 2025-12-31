@@ -2,6 +2,7 @@ import {
   Controller,
   Get,
   Param,
+  ParseIntPipe,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -17,41 +18,37 @@ import {
   SupportedChainResponse,
   ChainTokenResponse,
 } from './model';
+import { BusinessException } from '@/common/exceptions/biz.exception';
+import { ErrorCode } from '@/constants';
 
-@ApiTags('chain - 区块链管理')
+@ApiTags('Chain - 区块链管理')
 @ApiSecurityAuth()
-@Controller('chain')
+@Controller('chains')
 export class ChainController {
   constructor(
     private readonly chainService: ChainService,
     private readonly tokenService: TokenService,
-  ) { }
+  ) {}
 
   /**
    * 获取所有支持的区块链
    */
-  @Get('all')
-  @ApiOperation({
-    summary: '获取支持的区块链列表',
-    description: '获取平台支持的所有区块链配置信息'
-  })
+  @Get()
+  @ApiOperation({ summary: '获取支持的区块链列表' })
   @ApiResponse({
     status: 200,
     type: [SupportedChainResponse],
     description: '支持的区块链列表'
   })
   async getSupportedChains(): Promise<SupportedChainResponse[]> {
-    return await this.chainService.getSupportedChains();
+    return this.chainService.getSupportedChains();
   }
 
   /**
    * 获取指定链上的所有代币列表
    */
-  @Get('tokens/:chainId')
-  @ApiOperation({
-    summary: '获取链上代币列表',
-    description: '获取指定区块链上支持的所有代币列表（包括原生代币和ERC20/TRC20等代币）'
-  })
+  @Get(':chainId/tokens')
+  @ApiOperation({ summary: '获取链上代币列表' })
   @ApiParam({
     name: 'chainId',
     description: '区块链ID',
@@ -63,16 +60,16 @@ export class ChainController {
     type: [ChainTokenResponse],
     description: '链上代币列表'
   })
-  @ApiResponse({ status: 404, description: '链不存在或无支持的代币' })
+  @ApiResponse({ status: 404, description: '区块链不存在' })
   async getChainTokens(
-    @Param('chainId') chainId: number,
+    @Param('chainId', ParseIntPipe) chainId: number,
   ): Promise<ChainTokenResponse[]> {
     // 先验证链是否存在
     const chain = await this.chainService.getChainById(chainId);
     if (!chain) {
-      return [];
+      throw new BusinessException(ErrorCode.ErrChainNotFound);
     }
 
-    return await this.tokenService.getChainTokenList(chainId);
+    return this.tokenService.getChainTokenList(chainId);
   }
 }

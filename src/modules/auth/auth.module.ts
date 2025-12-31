@@ -24,13 +24,13 @@ const strategies = [JwtStrategy];
     JwtModule.registerAsync({
       imports: [ConfigModule],
       useFactory: (configService: ConfigService) => {
-        const { secret, expires } = configService.get('jwt')!;
+        const { secret, expiresIn } = configService.get('jwt')!;
 
         return {
           global: true,
           secret: secret,
           signOptions: {
-            expiresIn: `${expires}s`,
+            expiresIn,
           },
         };
       },

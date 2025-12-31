@@ -1,14 +1,15 @@
-import { Injectable, Logger, BadRequestException } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { HttpService } from '@nestjs/axios';
 import * as crypto from 'crypto';
-import { AddressInfo, ChainType, Status, SysWalletType } from '@/constants';
+import { AddressInfo, ChainType, Status, SysWalletType, ErrorCode } from '@/constants';
 import { VaultUtil, VaultConfig } from '@/utils/vault.util';
 import { ConfigService } from '@nestjs/config';
 import { SysWalletAddressEntity } from '@/entities/sys-wallet-address.entity';
 import { WalletService } from '@/shared/services/wallet.service';
 import { ConfigService as SystemConfigService } from '@/shared/config/config.service';
+import { BusinessException } from '@/common/exceptions/biz.exception';
 
 /**
  * 链上地址服务
@@ -39,7 +40,7 @@ export class SysWalletAddressService {
         private readonly systemConfigService: SystemConfigService,
     ) {
         // 初始化 Vault 配置
-        const vaultConfig: VaultConfig = this.configService.get('vault');
+        const vaultConfig: VaultConfig = this.configService.get('app.vault');
         this.vaultUtil = new VaultUtil(vaultConfig, this.httpService);
     }
 
@@ -71,8 +72,6 @@ export class SysWalletAddressService {
 
             // 将私钥加密存储到 Vault
             await this.storePrivateKeyToVault(savedAddress.id, addressInfo);
-
-            this.logger.log(`Successfully created chain address ${addressInfo.address} for system wallet`);
         } catch (error) {
             this.logger.error(`Failed to create chain address: ${error.message}`, error.stack);
             throw error;
@@ -88,7 +87,9 @@ export class SysWalletAddressService {
     }
 
     /**
-     * 获取手续费钱包地址的私钥
+     * 获取系统钱包地址的私钥
+     * @param chainType 链类型
+     * @param type 钱包类型
      */
     async getWallet(chainType: ChainType, type: SysWalletType): Promise<string> {
         const address = await this.walletAddressRepository.findOne({
@@ -99,7 +100,8 @@ export class SysWalletAddressService {
             },
         });
         if (!address) {
-            throw new BadRequestException(`System wallet address for chain type ${chainType} not found`);
+            this.logger.warn(`System wallet not found: chainType=${chainType}, type=${type}`);
+            throw new BusinessException(ErrorCode.ErrSysWalletNotFound);
         }
         return await this.getPrivateKey(address.id);
     }
@@ -125,24 +127,26 @@ export class SysWalletAddressService {
 
     /**
      * 从 Vault 获取私钥（支持解密）
+     * @private
      */
     private async getPrivateKey(addressId: number): Promise<string> {
         try {
             const vaultKey = `address_sys_${addressId}`;
             const data = await this.vaultUtil.getPrivateKey(vaultKey);
             return this.decryptPrivateKey(
-                data.privateKey, // 这里存储的是加密后的数据
+                data.privateKey,
                 data.keyHash,
                 addressId
             );
         } catch (error) {
-            this.logger.error(`Failed to get private key for address ${addressId}: ${error.message}`);
-            throw new BadRequestException('Failed to retrieve private key');
+            this.logger.error(`Failed to get private key for address ${addressId}: ${error.message}`, error.stack);
+            throw new BusinessException(ErrorCode.ErrSysWalletPrivateKeyFailed);
         }
     }
 
     /**
-     * 私有方法：将加密私钥存储到 Vault
+     * 将加密私钥存储到 Vault
+     * @private
      */
     private async storePrivateKeyToVault(
         addressId: number,
@@ -152,9 +156,8 @@ export class SysWalletAddressService {
             const vaultKey = `address_sys_${addressId}`;
             const { encryptedData, keyHash } = this.encryptPrivateKey(addressInfo.privateKey, addressId);
 
-            // 将加密后的私钥和验证信息作为普通数据存储到Vault
             await this.vaultUtil.storePrivateKey(vaultKey, {
-                privateKey: encryptedData, // 存储加密后的数据
+                privateKey: encryptedData,
                 address: addressInfo.address,
                 publicKey: addressInfo.publicKey,
                 keyHash,
@@ -164,7 +167,7 @@ export class SysWalletAddressService {
             return keyHash;
         } catch (error) {
             this.logger.error(`Failed to store private key to vault: ${error.message}`, error.stack);
-            throw new BadRequestException('Failed to securely store private key');
+            throw new BusinessException(ErrorCode.ErrSysWalletPrivateKeyStoreFailed);
         }
     }
 
@@ -200,13 +203,15 @@ export class SysWalletAddressService {
 
     /**
      * 解密私钥
+     * @private
      */
     private decryptPrivateKey(encryptedData: string, keyHash: string, addressId: number): string {
         const encryptionKey = this.generateKey(addressId);
         const expectedKeyHash = crypto.createHash('sha256').update(encryptionKey).digest('hex').slice(0, 16);
 
         if (expectedKeyHash !== keyHash) {
-            throw new Error('Invalid key hash - decryption key mismatch');
+            this.logger.error(`Decryption key mismatch for address ${addressId}`);
+            throw new BusinessException(ErrorCode.ErrSysWalletDecryptionFailed);
         }
 
         const key = crypto.createHash('sha256').update(encryptionKey).digest();

@@ -20,6 +20,15 @@ interface MyError {
   readonly message?: string;
 }
 
+/**
+ * 全局异常过滤器
+ * 职责：
+ * 1. 捕获所有未处理的异常
+ * 2. 统一异常响应格式
+ * 3. 区分业务异常和系统异常
+ * 4. 生产环境隐藏系统错误详情
+ * 5. 注册全局异常监听钩子
+ */
 @Catch()
 export class AllExceptionsFilter implements ExceptionFilter {
   private readonly logger = new Logger(AllExceptionsFilter.name);
@@ -28,6 +37,11 @@ export class AllExceptionsFilter implements ExceptionFilter {
     this.registerCatchAllExceptionsHook();
   }
 
+  /**
+   * 捕获异常并处理
+   * @param exception 异常对象
+   * @param host 参数主机
+   */
   catch(exception: unknown, host: ArgumentsHost) {
     const ctx = host.switchToHttp();
     const request = ctx.getRequest<FastifyRequest>();
@@ -68,6 +82,10 @@ export class AllExceptionsFilter implements ExceptionFilter {
     response.status(status).send(resBody);
   }
 
+  /**
+   * 获取 HTTP 状态码
+   * @param exception 异常对象
+   */
   getStatus(exception: unknown): number {
     if (exception instanceof HttpException) {
       return exception.getStatus();
@@ -83,6 +101,10 @@ export class AllExceptionsFilter implements ExceptionFilter {
     }
   }
 
+  /**
+   * 获取错误消息
+   * @param exception 异常对象
+   */
   getErrorMessage(exception: unknown): string {
     if (exception instanceof HttpException) {
       return exception.message;
@@ -97,6 +119,10 @@ export class AllExceptionsFilter implements ExceptionFilter {
     }
   }
 
+  /**
+   * 注册全局异常监听钩子
+   * 捕获未处理的 Promise 拒绝和未捕获的异常
+   */
   registerCatchAllExceptionsHook() {
     process.on('unhandledRejection', (reason) => {
       this.logger.error('unhandledRejection: ', reason);

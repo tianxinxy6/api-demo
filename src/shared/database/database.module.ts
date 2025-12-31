@@ -4,6 +4,8 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
 import { DatabaseService } from './database.service';
 import { ConfigEntity } from '@/entities/config.entity';
+import { BusinessException } from '@/common/exceptions/biz.exception';
+import { ErrorCode } from '@/constants';
 
 @Module({
   imports: [
@@ -15,11 +17,9 @@ import { ConfigEntity } from '@/entities/config.entity';
           autoLoadEntities: true,
         };
       },
-      // dataSource receives the configured DataSourceOptions
-      // and returns a Promise<DataSource>.
       dataSourceFactory: async (options) => {
         if (!options) {
-          throw new Error('Database options are not defined');
+          throw new BusinessException(ErrorCode.ErrSharedDatabaseNotConfigured);
         }
         const dataSource = await new DataSource(options).initialize();
         return dataSource;

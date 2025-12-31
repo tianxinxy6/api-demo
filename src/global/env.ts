@@ -37,10 +37,6 @@ export function env(key: string, defaultValue: string = '') {
   return formatValue(key, defaultValue);
 }
 
-export function envString(key: string, defaultValue: string = '') {
-  return formatValue(key, defaultValue);
-}
-
 export function envNumber(key: string, defaultValue: number = 0) {
   return formatValue(key, defaultValue, (value) => {
     try {

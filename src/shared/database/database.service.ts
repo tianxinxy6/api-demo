@@ -2,6 +2,14 @@ import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { DataSource, QueryRunner } from 'typeorm';
 import { InjectDataSource } from '@nestjs/typeorm';
 
+/**
+ * 数据库服务
+ * 职责：
+ * 1. 管理数据库连接和状态
+ * 2. 提供事务管理功能
+ * 3. 提供数据库健康检查
+ * 4. 提供 QueryRunner 创建和管理
+ */
 @Injectable()
 export class DatabaseService implements OnModuleInit {
   private readonly logger = new Logger(DatabaseService.name);
@@ -44,6 +52,8 @@ export class DatabaseService implements OnModuleInit {
 
   /**
    * 执行事务
+   * @param operation 事务操作
+   * @returns 事务结果
    */
   async runTransaction<T>(
     operation: (queryRunner: QueryRunner) => Promise<T>,

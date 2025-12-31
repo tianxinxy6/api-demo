@@ -14,9 +14,12 @@ import { DepositOrder } from '../model/deposit.model';
 import { AuthUser } from '@/common/decorators/auth-user.decorator';
 import { ApiSecurityAuth } from '@/common/decorators/swagger.decorator';
 
-@ApiTags('充值记录')
+/**
+ * 充值订单控制器
+ */
+@ApiTags('Orders - Deposit')
 @ApiSecurityAuth()
-@Controller('deposit')
+@Controller('order/deposit')
 export class DepositController {
   constructor(private readonly depositService: DepositService) {}
 

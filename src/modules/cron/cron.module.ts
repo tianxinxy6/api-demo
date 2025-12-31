@@ -1,24 +1,25 @@
 import { Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
 import { ScanTask } from './tasks/scan.task';
 import { ConfirmTask } from './tasks/confirm.task';
 import { WithdrawTask } from './tasks/withdraw.task';
+import { MarketPriceTask } from './tasks/market-price.task';
 import { TransactionModule } from '../transaction/transaction.module';
+import { MarketModule } from '../market/market.module';
 
 /**
  * 任务模块 - 管理定时任务
- * 注意：ScheduleModule.forRoot() 已在 SharedModule 中全局注册，无需重复导入
  */
 @Module({
   imports: [
-    ConfigModule,
     TransactionModule,
+    MarketModule,
   ],
   providers: [
     // 定时任务
     ScanTask,
     ConfirmTask,
     WithdrawTask,
+    MarketPriceTask,
   ],
 })
 export class TaskModule {}

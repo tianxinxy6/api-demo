@@ -8,27 +8,31 @@ import { ChainTokenResponse } from '../model';
 
 /**
  * 代币服务 - 钱包系统核心功能
- * 只提供钱包业务必需的代币查询和缓存功能
+ * 提供钱包业务必需的代币查询和缓存功能
  */
 @Injectable()
 export class TokenService {
     private readonly logger = new Logger(TokenService.name);
-    private readonly CACHE_TTL = 3600000; // 1小时缓存
+    private readonly CACHE_TTL = 3600000; // 1小时
+    private readonly CACHE_PREFIX = 'token:';
 
     constructor(
         @InjectRepository(ChainTokenEntity)
         private readonly tokenRepository: Repository<ChainTokenEntity>,
         private readonly cacheService: CacheService,
-    ) { }
+    ) {}
 
     /**
      * 私有方法：获取链上所有代币的基础数据
+     * @private
      */
     private async getChainTokenData(chainId: number): Promise<Array<IChainToken>> {
-        const cacheKey = `token:data:${chainId}`;
+        const cacheKey = `${this.CACHE_PREFIX}data:${chainId}`;
 
         const cached = await this.cacheService.get<Array<IChainToken>>(cacheKey);
-        if (cached) return cached;
+        if (cached) {
+            return cached;
+        }
 
         const tokens = await this.tokenRepository.find({
             where: { 
@@ -86,10 +90,12 @@ export class TokenService {
      * 获取链上所有支持的代币列表（包括原生代币）
      */
     async getChainTokenList(chainId: number): Promise<ChainTokenResponse[]> {
-        const cacheKey = `token:list:${chainId}`;
+        const cacheKey = `${this.CACHE_PREFIX}list:${chainId}`;
 
         const cached = await this.cacheService.get<ChainTokenResponse[]>(cacheKey);
-        if (cached) return cached;
+        if (cached) {
+            return cached;
+        }
 
         const tokens = await this.tokenRepository.find({
             where: { 
@@ -97,6 +103,7 @@ export class TokenService {
                 status: TokenStatus.ACTIVE
             },
             select: ['id', 'code', 'name', 'logo', 'contractAddress', 'decimals'],
+            order: { id: 'ASC' },
         });
 
         const tokenList = tokens.map(token => new ChainTokenResponse({
@@ -110,5 +117,16 @@ export class TokenService {
 
         await this.cacheService.set(cacheKey, tokenList, { ttl: this.CACHE_TTL });
         return tokenList;
+    }
+
+    /**
+     * 清除代币缓存
+     * @private
+     */
+    private async clearTokenCache(chainId: number): Promise<void> {
+        await Promise.all([
+            this.cacheService.del(`${this.CACHE_PREFIX}data:${chainId}`),
+            this.cacheService.del(`${this.CACHE_PREFIX}list:${chainId}`),
+        ]);
     }
 }

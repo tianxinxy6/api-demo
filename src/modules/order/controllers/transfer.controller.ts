@@ -4,8 +4,6 @@ import {
   Post,
   Body,
   Query,
-  Param,
-  ParseIntPipe,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -18,9 +16,12 @@ import { TransferOrder } from '../model/transfer.model';
 import { AuthUser } from '@/common/decorators/auth-user.decorator';
 import { ApiSecurityAuth } from '@/common/decorators/swagger.decorator';
 
-@ApiTags('转账记录')
+/**
+ * 转账订单控制器
+ */
+@ApiTags('Orders - Transfer')
 @ApiSecurityAuth()
-@Controller('transfer')
+@Controller('orders/transfers')
 export class TransferController {
   constructor(private readonly transferService: TransferService) {}
 

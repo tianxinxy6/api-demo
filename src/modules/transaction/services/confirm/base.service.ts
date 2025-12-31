@@ -4,10 +4,16 @@ import { ChainEntity } from '@/entities/chain.entity';
 import { BaseTransactionEntity } from '@/entities/txs/base.entity';
 import { DepositService } from '@/modules/order/services/deposit.service';
 import { DatabaseService } from '@/shared/database/database.service';
-import { TransactionStatus } from '@/constants';
+import { TransactionStatus, ErrorCode } from '@/constants';
+import { BusinessException } from '@/common/exceptions/biz.exception';
 
 /**
  * 交易确认服务基类
+ * 职责：
+ * 1. 确认待处理的区块链交易
+ * 2. 检查交易状态和确认数
+ * 3. 更新充值订单状态
+ * 4. 触发归集流程
  */
 export abstract class BaseConfirmService {
   protected readonly logger = new Logger(this.constructor.name);
@@ -45,8 +51,9 @@ export abstract class BaseConfirmService {
   }
 
   /**
-  * 归集交易
-  */
+   * 归集交易
+   * 将已确认的交易归集到系统钱包
+   */
   async collect(): Promise<void> {
     const pendingTxs = await this.getTxList(TransactionStatus.CONFIRMED, 20);
     if (pendingTxs.length === 0) {
@@ -144,6 +151,9 @@ export abstract class BaseConfirmService {
 
   /**
    * 确认交易
+   * @param txHash 交易哈希
+   * @param confirmBlock 确认区块号
+   * @param success 是否成功
    */
   async confirmTx(
     txHash: string,
@@ -159,7 +169,8 @@ export abstract class BaseConfirmService {
         } as any);
 
         if (!transaction) {
-          throw new Error(`Transaction not found: ${txHash}`);
+          this.logger.warn(`Transaction not found: ${txHash}`);
+          throw new BusinessException(ErrorCode.ErrTransactionNotFound);
         }
 
         // 2. 确定交易状态
@@ -187,25 +198,30 @@ export abstract class BaseConfirmService {
   }
 
   /**
-  * 初始化 - 子类实现
-  */
+   * 初始化
+   * @param chain 链配置
+   */
   protected abstract init(chain: ChainEntity): void;
 
   /**
    * 检查交易确认状态
+   * @param txHash 交易哈希
    */
   protected abstract checkStatus(txHash: string): Promise<boolean>;
 
   /**
-   * 获取最新区块号 - 子类实现
+   * 获取最新区块号
    */
   protected abstract getLatestBlockNumber(): Promise<number>;
 
+  /**
+   * 构建交易实体
+   */
   protected abstract buildEntity(): BaseTransactionEntity;
 
   /**
-   * 触发归集 - 子类实现
-   * @param tx 已确认的交易
+   * 触发归集操作
+   * @param tx 交易实体
    */
   protected abstract triggerCollect(tx: BaseTransactionEntity): Promise<void>;
 }
