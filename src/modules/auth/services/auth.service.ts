@@ -3,7 +3,7 @@ import type { FastifyRequest } from 'fastify';
 
 import { UserService } from '../../user/services/user.service';
 import { TokenService } from './token.service';
-import { TokenBlacklistService } from './token-blacklist.service';
+import { TokenBlacklistService } from '@/modules/user/services/token-blacklist.service';
 import { UserLoginLogService } from './user-login-log.service';
 import { UserRegisterDto, UserLoginDto } from '../../user/dto/user.dto';
 import { UserStatus, ErrorCode } from '@/constants';
@@ -55,7 +55,7 @@ export class AuthService {
     await this.userLoginLogService.recordLoginLog(user.id, req, 1);
 
     // 更新用户登录信息
-    await this.userService.updateLoginInfo(user.id, req);
+    await this.userService.updateLoginInfo(user.id, req, accessToken);
 
     return {
       user,
@@ -70,7 +70,7 @@ export class AuthService {
   async refreshToken(refreshToken: string, req: FastifyRequest) {
     const isValidToken = await this.tokenBlacklistService.isTokenValid(refreshToken);
     if (!isValidToken) {
-      throw new BusinessException(ErrorCode.ErrAuthTokenRevoked);
+      throw new BusinessException(ErrorCode.ErrAuthTokenInvalid);
     }
 
     // 验证刷新令牌
@@ -87,8 +87,13 @@ export class AuthService {
     const newAccessToken = await this.tokenService.sign(payload);
     const newRefreshToken = await this.tokenService.generateRefreshToken(payload);
 
-    // 作废旧的刷新令牌
+    // 作废旧的刷新令牌和旧的访问令牌(如果存在)
     await this.tokenBlacklistService.revokeToken(refreshToken, user.uid);
+    
+    // 撤销旧的 accessToken,防止令牌刷新后旧令牌依然可用
+    if (req.accessToken) {
+      await this.tokenBlacklistService.revokeToken(req.accessToken, user.uid);
+    }
 
     return {
       accessToken: newAccessToken,

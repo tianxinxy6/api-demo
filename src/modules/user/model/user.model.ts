@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { formatToDateTime } from '@/utils/date.util';
+import { maskEmail, maskPhone } from '@/utils';
 
 /**
  * 基础用户信息响应模型 - 用于公开展示
@@ -48,26 +49,11 @@ export class UserProfileResponse extends UserBasicResponse {
 
   constructor(partial: Partial<Omit<UserProfileResponse, 'createdAt' | 'loginTime'>> & { createdAt?: Date; loginTime?: Date }) {
     super(partial);
+    this.email = partial.email ? maskEmail(partial.email) : null;
+    this.phone = partial.phone ? maskPhone(partial.phone) : null;
+    this.gender = partial.gender ?? 0;
     this.createdAt = partial.createdAt ? formatToDateTime(partial.createdAt) : '';
     this.loginTime = partial.loginTime ? formatToDateTime(partial.loginTime) : undefined;
   }
 }
 
-/**
- * 工具函数：格式化手机号（脱敏处理）
- */
-export function maskPhone(phone: string): string {
-  if (!phone || phone.length < 7) return phone;
-  return phone.replace(/(\d{3})\d{4}(\d{4})/, '$1****$2');
-}
-
-/**
- * 工具函数：格式化邮箱（脱敏处理）
- */
-export function maskEmail(email: string): string {
-  if (!email || !email.includes('@')) return email;
-  const [username, domain] = email.split('@');
-  if (username.length <= 2) return email;
-  const maskedUsername = username.slice(0, 2) + '*'.repeat(username.length - 2);
-  return `${maskedUsername}@${domain}`;
-}

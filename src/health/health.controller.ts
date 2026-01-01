@@ -15,6 +15,6 @@ export class HealthController {
   @ApiOperation({ summary: '详细健康检查' })
   @ApiResponse({ status: 200, description: '返回服务健康状态' })
   async checkDetailed() {
-    return 'ok';
+    return null;
   }
 }

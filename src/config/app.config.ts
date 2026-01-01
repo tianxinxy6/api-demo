@@ -6,7 +6,7 @@ export default registerAs('app', () => ({
   port: envNumber('PORT', 3000),
   name: env('APP_NAME', 'chain-wallet'),
   version: env('APP_VERSION', '1.0.0'),
-  encryptionKey: env('ENCRYPTION_KEY', 'default_encryption_key_please_change'),
+  encryptKey: env('ENCRYPT_KEY', ''),
   swagger: {
     enable: envBoolean('SWAGGER_ENABLE', false),
   },

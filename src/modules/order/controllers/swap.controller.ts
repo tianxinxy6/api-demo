@@ -9,7 +9,7 @@ import { ApiSecurityAuth } from '@/common/decorators/swagger.decorator';
 /**
  * 闪兑订单控制器
  */
-@ApiTags('Orders - Swap')
+@ApiTags('Order - Swap')
 @ApiSecurityAuth()
 @Controller('order/swap')
 export class SwapController {

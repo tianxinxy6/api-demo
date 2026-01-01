@@ -42,9 +42,9 @@ export class EthWithdrawService extends BaseWithdrawService {
     /**
      * 初始化 ETH 连接
      */
-    protected async init(privateKey: string): Promise<string> {
+    protected async init(privateKey: string): Promise<void> {
         this.ethUtil = new EthUtil(this.chain.rpcUrl, privateKey);
-        return this.ethUtil.getWallet().address;
+        this.addressFrom = this.ethUtil.getWallet().address;
     }
 
     protected buildEntity(): BaseTransactionEntity {

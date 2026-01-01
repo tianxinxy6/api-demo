@@ -179,7 +179,7 @@ export abstract class BaseScanService {
 
     try {
       // 使用 TokenService 从数据库获取代币符号
-      return await this.tokenService.getCodeByAddress(this.chainType, contractAddress);
+      return await this.tokenService.getCodeByAddress(this.chain.id, contractAddress);
     } catch (error) {
       this.logger.warn(`Failed to get token symbol for ${contractAddress}:`, error.message);
       return null;
@@ -314,9 +314,9 @@ export abstract class BaseScanService {
     entity.contract = tx.contract?.address || null;
 
     if (tx.contract?.address) {
-      const tokenInfo = await this.getTokenSymbol(tx.contract?.address);
-      entity.token = tokenInfo.code || this.chainCode;
-      entity.decimals = tokenInfo.decimals || this.chain.decimals;
+      const tokenInfo = await this.getTokenSymbol(tx.contract.address);
+      entity.token = tokenInfo?.code || this.chainCode;
+      entity.decimals = tokenInfo?.decimals || this.chain.decimals;
     } else {
       entity.token = this.chain.token;
       entity.decimals = this.chain.decimals;

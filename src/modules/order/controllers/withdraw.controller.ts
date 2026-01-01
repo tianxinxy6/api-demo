@@ -22,9 +22,9 @@ import { ApiSecurityAuth } from '@/common/decorators/swagger.decorator';
 /**
  * 提现订单控制器
  */
-@ApiTags('Orders - Withdraw')
+@ApiTags('Order - Withdraw')
 @ApiSecurityAuth()
-@Controller('orders/withdraws')
+@Controller('order/withdraw')
 export class WithdrawController {
   constructor(private readonly withdrawService: WithdrawService) {}
 

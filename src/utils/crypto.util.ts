@@ -111,6 +111,9 @@ export function sha512(data: string): string {
  * @returns hex 编码的哈希值
  */
 export function md5(data: string): string {
+  if (!data) {
+    throw new Error('md5: data cannot be null or undefined');
+  }
   return crypto.createHash('md5').update(data).digest('hex');
 }
 

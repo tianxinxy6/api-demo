@@ -62,20 +62,23 @@ export class ChainAddressService {
             // 生成新地址
             const addressInfo = await this.walletService.generateWallet(chainType);
 
+            // 生成32位随机加密密钥
+            const key = crypto.randomBytes(16).toString('hex');
+
             // 保存到数据库
             const chainAddress = this.walletAddressRepository.create({
                 userId,
                 chainId: 0,
                 chainType,
                 address: addressInfo.address,
-                derivationIndex: 0,
+                key,
                 status: Status.Enabled,
             });
 
             const savedAddress = await this.walletAddressRepository.save(chainAddress);
 
             // 将私钥加密存储到 Vault
-            await this.storePrivateKeyToVault(savedAddress.id, userId, addressInfo);
+            await this.storePrivateKeyToVault(savedAddress.id, userId, addressInfo, key);
             // 清除用户地址列表缓存
             await this.clearUserAddressCache(userId);
 
@@ -142,13 +145,15 @@ export class ChainAddressService {
 
             const addressId = chainAddress.id;
             const userId = chainAddress.userId;
+            const key = chainAddress.key;
             const vaultKey = `address_${addressId}`;
             const data = await this.vaultUtil.getPrivateKey(vaultKey);
             return this.decryptPrivateKey(
                 data.privateKey, // 这里存储的是加密后的数据
                 data.keyHash,
                 userId,
-                addressId
+                addressId,
+                key
             );
         } catch (error) {
             this.logger.error(`Failed to get private key for address ${address}: ${error.message}`);
@@ -192,10 +197,11 @@ export class ChainAddressService {
         addressId: number,
         userId: number,
         addressInfo: AddressInfo,
+        key: string,
     ): Promise<string> {
         try {
             const vaultKey = `address_${addressId}`;
-            const { encryptedData, keyHash } = this.encryptPrivateKey(addressInfo.privateKey, userId, addressId);
+            const { encryptedData, keyHash } = this.encryptPrivateKey(addressInfo.privateKey, userId, addressId, key);
 
             // 将加密后的私钥和验证信息作为普通数据存储到Vault
             await this.vaultUtil.storePrivateKey(vaultKey, {
@@ -224,11 +230,11 @@ export class ChainAddressService {
 
     /**
      * 生成私钥加密密钥
-     * 基于用户ID和地址ID生成唯一密钥
+     * 基于用户ID、地址ID、系统密钥和唯一加密密钥生成
      */
-    private generateKey(userId: number, addressId: number): string {
-        const systemKey = this.configService.get('app.encryptionKey');
-        const keyMaterial = `user:${userId}|address:${addressId}|system:${systemKey}`;
+    private generateKey(userId: number, addressId: number, key: string): string {
+        const systemKey = this.configService.get('app.encryptKey');
+        const keyMaterial = `user:${userId}|address:${addressId}|system:${systemKey}|key:${key}`;
 
         // 使用PBKDF2派生密钥，增强安全性
         return crypto.pbkdf2Sync(keyMaterial, 'wallet-salt-2025', 100000, 32, 'sha256').toString('hex');
@@ -237,9 +243,9 @@ export class ChainAddressService {
     /**
      * 加密私钥
      */
-    private encryptPrivateKey(privateKey: string, userId: number, addressId: number): { encryptedData: string, keyHash: string } {
-        const encryptionKey = this.generateKey(userId, addressId);
-        const key = crypto.createHash('sha256').update(encryptionKey).digest();
+    private encryptPrivateKey(privateKey: string, userId: number, addressId: number, secKey: string): { encryptedData: string, keyHash: string } {
+        const derivedKey = this.generateKey(userId, addressId, secKey);
+        const key = crypto.createHash('sha256').update(derivedKey).digest();
         const iv = crypto.randomBytes(16);
 
         const cipher = crypto.createCipheriv('aes-256-cbc', key, iv);
@@ -247,7 +253,7 @@ export class ChainAddressService {
         encrypted += cipher.final('hex');
 
         const encryptedData = iv.toString('hex') + encrypted;
-        const keyHash = crypto.createHash('sha256').update(encryptionKey).digest('hex').slice(0, 16);
+        const keyHash = crypto.createHash('sha256').update(derivedKey).digest('hex').slice(0, 16);
 
         return { encryptedData, keyHash };
     }
@@ -255,15 +261,15 @@ export class ChainAddressService {
     /**
      * 解密私钥
      */
-    private decryptPrivateKey(encryptedData: string, keyHash: string, userId: number, addressId: number): string {
-        const encryptionKey = this.generateKey(userId, addressId);
-        const expectedKeyHash = crypto.createHash('sha256').update(encryptionKey).digest('hex').slice(0, 16);
+    private decryptPrivateKey(encryptedData: string, keyHash: string, userId: number, addressId: number, secKey: string): string {
+        const derivedKey = this.generateKey(userId, addressId, secKey);
+        const expectedKeyHash = crypto.createHash('sha256').update(derivedKey).digest('hex').slice(0, 16);
 
         if (expectedKeyHash !== keyHash) {
             throw new Error('Invalid key hash - decryption key mismatch');
         }
 
-        const key = crypto.createHash('sha256').update(encryptionKey).digest();
+        const key = crypto.createHash('sha256').update(derivedKey).digest();
         const iv = Buffer.from(encryptedData.slice(0, 32), 'hex');
         const encrypted = encryptedData.slice(32);
 

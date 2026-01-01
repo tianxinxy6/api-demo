@@ -1,5 +1,6 @@
 import { ChainType } from "@/constants";
 import { ApiProperty } from "@nestjs/swagger";
+import { formatToDateTime } from "@/utils/date.util";
 
 /**
  * 链上地址响应模型 - 基础版本（最小化返回）
@@ -15,10 +16,13 @@ export class ChainAddressResponse {
   @ApiProperty({ description: '钱包地址', example: '0x742d35Cc6634C0532925a3b8D0eE8C3A4' })
   address: string;
 
-  @ApiProperty({ description: '创建时间' })
-  createdAt: Date;
+  @ApiProperty({ description: '创建时间', example: '2025-12-20 15:00:00' })
+  createdAt: string;
 
-  constructor(partial: Partial<ChainAddressResponse>) {
-    Object.assign(this, partial);
+  constructor(partial: Partial<Omit<ChainAddressResponse, 'createdAt'>> & { createdAt?: Date }) {
+    this.id = partial.id!;
+    this.chainType = partial.chainType!;
+    this.address = partial.address!;
+    this.createdAt = partial.createdAt ? formatToDateTime(partial.createdAt) : '';
   }
 }

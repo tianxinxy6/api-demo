@@ -48,14 +48,14 @@ export class TronWithdrawService extends BaseWithdrawService {
    * @param privateKey 私钥
    * @returns 钱包地址
    */
-  protected async init(privateKey: string): Promise<string> {
+  protected async init(privateKey: string): Promise<void> {
     this.tronUtil = new TronUtil(this.chain.rpcUrl, privateKey);
     const address = this.tronUtil.getFromAddress();
     if (!address) {
       this.logger.error('Failed to derive address from private key');
       throw new BusinessException(ErrorCode.ErrTransactionAddressDeriveFailed);
     }
-    return address;
+    this.addressFrom = address;
   }
 
   /**
@@ -104,12 +104,12 @@ export class TronWithdrawService extends BaseWithdrawService {
     try {
       const amount = BigInt(order.actualAmount);
 
-      const gasFee = this.tronUtil.calculateTrxTransFee(order.to).toString();
+      const gasFee = (await this.tronUtil.calculateTrxTransFee(order.to)).toString();
 
       this.tronUtil.sendTrx(order.to, Number(amount))
         .then(async (hash) => {
           // 创建提现交易记录
-          const txEntity = this.buildWithdrawEntity(order) as TransactionOutTronEntity;
+          const txEntity = this.buildWithdrawEntity(order);
           txEntity.hash = hash;
           txEntity.amount = amount.toString();
           txEntity.gasFee = gasFee;
@@ -146,7 +146,7 @@ export class TronWithdrawService extends BaseWithdrawService {
         return;
       }
 
-      const gasFee = this.tronUtil.calculateTrc20TransFee(order.to).toString();
+      const gasFee = (await this.tronUtil.calculateTrc20TransFee(order.to)).toString();
       // 检查 ETH 余额是否足够支付 gas费
       const trxBalance = await this.getBalance(fromAddress);
       if (trxBalance < BigInt(gasFee)) {

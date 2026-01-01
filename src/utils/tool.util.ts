@@ -99,3 +99,22 @@ export function formatTokenAmount(wei: string, decimals: number = 18): string {
     return `${integerPart.toString()}.${trimmedFractional}`;
   }
 }
+
+/**
+ * 工具函数：格式化手机号（脱敏处理）
+ */
+export function maskPhone(phone: string): string {
+  if (!phone || phone.length < 7) return phone;
+  return phone.replace(/(\d{3})\d{4}(\d{4})/, '$1****$2');
+}
+
+/**
+ * 工具函数：格式化邮箱（脱敏处理）
+ */
+export function maskEmail(email: string): string {
+  if (!email || !email.includes('@')) return email;
+  const [username, domain] = email.split('@');
+  if (username.length <= 2) return email;
+  const maskedUsername = username.slice(0, 2) + '*'.repeat(username.length - 2);
+  return `${maskedUsername}@${domain}`;
+}

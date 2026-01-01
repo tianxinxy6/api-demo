@@ -12,8 +12,9 @@ import { UserController } from './controllers/user.controller';
 import { AppCacheModule } from '@/shared/cache/cache.module';
 import { WalletController } from './controllers/wallet.controller';
 import { SharedModule } from '@/shared/shared.module';
+import { TokenBlacklistService } from './services/token-blacklist.service';
 
-const providers = [UserService, WalletService, ChainAddressService];
+const providers = [UserService, WalletService, ChainAddressService, TokenBlacklistService];
 
 @Module({
   imports: [

@@ -1,4 +1,7 @@
 export enum ErrorCode {
+  // 特殊的状态码
+  ErrAuthTokenInvalid = '401:令牌已失效，请重新登录',
+
   // system
   ErrInternalServer = '10000:Internal server error',
   ErrInvalidParam = '10001:Invalid params',
@@ -60,11 +63,8 @@ export enum ErrorCode {
   // auth (23xxx)
   ErrAuthLogin = '23101:用户名或密码错误',
   ErrAuthUserDisabled = '23102:账号已被禁用',
-  ErrAuthTokenInvalid = '23103:令牌无效或已过期',
-  ErrAuthTokenExpired = '23104:令牌已过期，请重新登录',
-  ErrAuthRefreshTokenInvalid = '23105:刷新令牌无效',
-  ErrAuthTokenRevoked = '23106:令牌已失效，请重新登录',
-  ErrAuthRequireLogin = '23107:请先登录',
+  ErrAuthRefreshTokenInvalid = '23103:刷新令牌无效',
+  ErrAuthRequireLogin = '23104:请先登录',
 
   // chain (24xxx)
   ErrChainNotFound = '24101:区块链不存在',

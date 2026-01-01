@@ -19,9 +19,9 @@ import { ApiSecurityAuth } from '@/common/decorators/swagger.decorator';
 /**
  * 转账订单控制器
  */
-@ApiTags('Orders - Transfer')
+@ApiTags('Order - Transfer')
 @ApiSecurityAuth()
-@Controller('orders/transfers')
+@Controller('order/transfer')
 export class TransferController {
   constructor(private readonly transferService: TransferService) {}
 

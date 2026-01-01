@@ -50,11 +50,11 @@ export class ChainTokenEntity extends CommonEntity {
    */
   @Column({
     comment: '合约地址',
-    name: 'contract_address',
+    name: 'contract',
     length: 255,
     nullable: true,
   })
-  contractAddress?: string;
+  contract?: string;
 
   /**
    * 代币精度（小数位数）

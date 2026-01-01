@@ -7,6 +7,7 @@ import {
   Delete,
   HttpCode,
   HttpStatus,
+  Req,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 
@@ -19,6 +20,7 @@ import {
   UpdateUserDto, 
   SetPasswordDto
 } from '../dto/user.dto';
+import type { FastifyRequest } from 'fastify';
 
 @ApiTags('User - 用户管理')
 @ApiSecurityAuth()
@@ -115,7 +117,8 @@ export class UserController {
   @ApiResponse({ status: 200, description: '账户注销成功' })
   async deactivateAccount(
     @AuthUser() user: IAuthUser,
+    @Req() req: FastifyRequest,
   ): Promise<void> {
-    await this.userService.deleteUser(user.uid);
+    await this.userService.deleteUser(user.uid, req);
   }
 }

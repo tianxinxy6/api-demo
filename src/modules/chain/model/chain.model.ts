@@ -43,12 +43,13 @@ export class ChainTokenResponse {
   logo: string;
 
   @ApiProperty({ description: '合约地址（原生代币为null）', nullable: true, example: '0xdAC17F958D2ee523a2206206994597C13D831ec7' })
-  contractAddress?: string;
+  contract: string | null;
 
   @ApiProperty({ description: '精度位数', example: 6 })
   decimals: number;
 
   constructor(partial: Partial<ChainTokenResponse>) {
     Object.assign(this, partial);
+    this.contract = partial.contract ?? null;
   }
 }

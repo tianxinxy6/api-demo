@@ -35,11 +35,12 @@ export class UserWalletAddressEntity extends CommonEntity {
   address: string;
 
   @Column({
-    comment: 'HD钱包派生索引',
-    name: 'derivation_index',
-    type: 'int',
+    comment: '加密密钥',
+    name: 'key',
+    type: 'char',
+    length: 32,
   })
-  derivationIndex: number;
+  key: string;
 
   @Column({
     comment: '地址状态: 0=正常 1=禁用',

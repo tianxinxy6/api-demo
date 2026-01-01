@@ -19,6 +19,8 @@ export abstract class BaseWithdrawService {
     protected abstract readonly chainType: number;
 
     protected chain: ChainEntity;
+    // 转账发起者地址
+    protected addressFrom: string;
 
     constructor(
         protected readonly chainService: ChainService,
@@ -31,7 +33,7 @@ export abstract class BaseWithdrawService {
     /**
      * 初始化链连接（由子类实现）
      */
-    protected abstract init(privateKey: string): Promise<string>;
+    protected abstract init(privateKey: string): Promise<void>;
 
     /**
      * 构建交易实体（由子类实现）
@@ -72,7 +74,7 @@ export abstract class BaseWithdrawService {
             }
 
             // 2. 初始化链连接
-            const walletAddress = await this.init(privateKey);
+            await this.init(privateKey);
 
             // 4. 查询待处理的提现订单（从 WithdrawService 获取）
             const orders = await this.withdrawService.getPendingWithdraws(
@@ -90,7 +92,7 @@ export abstract class BaseWithdrawService {
             for (const order of orders) {
                 try {
                     const balance = await this.getBalance(
-                        walletAddress,
+                        this.addressFrom,
                         order.contract,
                     );
 
@@ -176,6 +178,7 @@ export abstract class BaseWithdrawService {
         const entity = this.buildEntity();
         entity.userId = order.userId;
         entity.relId = order.id;
+        entity.from = this.addressFrom;
         entity.to = order.to;  // 使用订单中的 to 字段（目标地址）
         entity.amount = order.actualAmount;
         entity.token = order.token;

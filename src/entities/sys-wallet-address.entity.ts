@@ -49,6 +49,14 @@ export class SysWalletAddressEntity extends CommonEntity {
     status: Status.Enabled;
 
     @Column({
+        comment: '加密密钥',
+        name: 'key',
+        type: 'char',
+        length: 32,
+    })
+    key: string;
+
+    @Column({
         comment: '备注说明',
         type: 'varchar',
         length: 200,

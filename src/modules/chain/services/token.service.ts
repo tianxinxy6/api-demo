@@ -20,7 +20,7 @@ export class TokenService {
         @InjectRepository(ChainTokenEntity)
         private readonly tokenRepository: Repository<ChainTokenEntity>,
         private readonly cacheService: CacheService,
-    ) {}
+    ) { }
 
     /**
      * 私有方法：获取链上所有代币的基础数据
@@ -35,21 +35,18 @@ export class TokenService {
         }
 
         const tokens = await this.tokenRepository.find({
-            where: { 
-                chainId, 
-                status: TokenStatus.ACTIVE,
-                contractAddress: Not(IsNull())
+            where: {
+                chainId,
+                status: TokenStatus.ACTIVE
             },
-            select: ['code', 'contractAddress', 'decimals'],
+            select: ['code', 'contract', 'decimals'],
         });
 
-        const tokenData = tokens
-            .filter(token => token.code?.trim() && token.contractAddress?.trim())
-            .map(token => ({
-                code: token.code!.trim(),
-                contractAddress: token.contractAddress!.trim(),
-                decimals: token.decimals
-            }));
+        const tokenData = tokens.map(token => ({
+            code: token.code,
+            contractAddress: token.contract,
+            decimals: token.decimals
+        }));
 
         await this.cacheService.set(cacheKey, tokenData, { ttl: this.CACHE_TTL });
         return tokenData;
@@ -98,11 +95,11 @@ export class TokenService {
         }
 
         const tokens = await this.tokenRepository.find({
-            where: { 
-                chainId, 
+            where: {
+                chainId,
                 status: TokenStatus.ACTIVE
             },
-            select: ['id', 'code', 'name', 'logo', 'contractAddress', 'decimals'],
+            select: ['id', 'code', 'name', 'logo', 'contract', 'decimals'],
             order: { id: 'ASC' },
         });
 
@@ -111,7 +108,7 @@ export class TokenService {
             code: token.code,
             name: token.name,
             logo: token.logo,
-            contractAddress: token.contractAddress || undefined,
+            contract: token.contract ?? null,
             decimals: token.decimals,
         }));
 

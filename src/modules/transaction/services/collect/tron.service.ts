@@ -101,7 +101,7 @@ export class TronCollectService extends BaseCollectService {
         return;
       }
 
-      this.tronUtil.sendTrx(relTx.to, Number(transferAmount))
+      this.tronUtil.sendTrx(this.collectAddress, Number(transferAmount))
         .then(async (hash) => {
           // 保存归集交易记录
           const txEntity = this.buildCollectEntity(relTx);

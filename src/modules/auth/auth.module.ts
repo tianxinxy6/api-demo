@@ -9,12 +9,11 @@ import { AuthController } from './auth.controller';
 import { AuthService } from './services/auth.service';
 import { TokenService } from './services/token.service';
 import { JwtStrategy } from './strategies/jwt.strategy';
-import { TokenBlacklistService } from './services/token-blacklist.service';
 import { UserLoginLogService } from './services/user-login-log.service';
 import { TransactionModule } from '@/modules/transaction/transaction.module';
 import { UserLoginLogEntity } from '@/entities/user-login-log.entity';
 
-const providers = [AuthService, TokenService, TokenBlacklistService, UserLoginLogService];
+const providers = [AuthService, TokenService, UserLoginLogService];
 const strategies = [JwtStrategy];
 
 @Module({

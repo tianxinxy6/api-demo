@@ -1,0 +1,2955 @@
+{
+  "item": [
+    {
+      "id": "e331ee37-e2eb-444c-82be-86e30d40419f",
+      "name": "auth",
+      "item": [
+        {
+          "id": "f4a4c117-8457-4207-bf8d-c1b1942b9e90",
+          "name": "用户注册",
+          "request": {
+            "name": "用户注册",
+            "description": {},
+            "url": {
+              "path": [
+                "auth",
+                "register"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "auth": null,
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"<string>\",\n  \"password\": \"<string>\",\n  \"confirmPassword\": \"<string>\",\n  \"nickname\": \"<string>\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "id": "dd95e6ca-970f-4fc4-8ca4-9ed93de2c6f0",
+              "name": "注册成功",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "auth",
+                    "register"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"username\": \"john_doe\",\n  \"password\": \"password123\",\n  \"confirmPassword\": \"password123\",\n  \"nickname\": \"John Doe\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Created",
+              "code": 201,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "8002a128-c775-4b1c-ab7e-10a098cb59f6",
+          "name": "用户登录",
+          "request": {
+            "name": "用户登录",
+            "description": {},
+            "url": {
+              "path": [
+                "auth",
+                "login"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "auth": null,
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"<string>\",\n  \"password\": \"<string>\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "id": "38aec897-ab7b-4a98-98cd-1b928d407b9b",
+              "name": "登录成功，返回访问令牌",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "auth",
+                    "login"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"username\": \"john_doe\",\n  \"password\": \"password123\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "86bd4036-cd99-409e-b79e-3f63c85c124d",
+          "name": "刷新访问令牌",
+          "request": {
+            "name": "刷新访问令牌",
+            "description": {},
+            "url": {
+              "path": [
+                "auth",
+                "token",
+                "refresh"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "method": "POST",
+            "auth": null,
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refreshToken\": \"<string>\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "id": "54cf3772-6960-47ed-ae73-4affec5117c1",
+              "name": "返回新的访问令牌",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "auth",
+                    "token",
+                    "refresh"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "method": "POST",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"refreshToken\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "33e09389-17f1-4e50-b453-64de1df8b629",
+          "name": "用户登出",
+          "request": {
+            "name": "用户登出",
+            "description": {},
+            "url": {
+              "path": [
+                "auth",
+                "logout"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "method": "POST",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{bearerToken}}"
+                }
+              ]
+            }
+          },
+          "response": [
+            {
+              "id": "1a3deb1c-6897-4566-967a-c46aae7fc906",
+              "name": "登出成功",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "auth",
+                    "logout"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  }
+                ],
+                "method": "POST",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "6261549b-11b9-473b-aed9-891470b417ba",
+          "name": "获取当前登录用户信息",
+          "request": {
+            "name": "获取当前登录用户信息",
+            "description": {},
+            "url": {
+              "path": [
+                "auth",
+                "me"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{bearerToken}}"
+                }
+              ]
+            }
+          },
+          "response": [
+            {
+              "id": "fe3bc5f1-391a-4c7b-ad0d-c20c6167f91c",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "auth",
+                    "me"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"id\": 4420.547038464846,\n  \"username\": \"string\",\n  \"nickname\": \"string\",\n  \"avatar\": \"string\",\n  \"status\": 5826.930494234403,\n  \"email\": \"string\",\n  \"phone\": \"138****8888\",\n  \"gender\": 3617.4604652317676,\n  \"createdAt\": \"2025-12-20 15:00:00\",\n  \"loginTime\": \"2025-12-20 15:00:00\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        }
+      ],
+      "event": []
+    },
+    {
+      "id": "106bd960-d6a1-4e0e-b967-593b0e74dfe7",
+      "name": "user",
+      "item": [
+        {
+          "id": "b18a9adb-5d29-44db-b942-74f3892eb847",
+          "name": "获取当前用户信息",
+          "request": {
+            "name": "获取当前用户信息",
+            "description": {},
+            "url": {
+              "path": [
+                "user",
+                "me"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{bearerToken}}"
+                }
+              ]
+            }
+          },
+          "response": [
+            {
+              "id": "36811e13-ad2a-4b69-aedb-b3c1f996d51b",
+              "name": "用户详细信息",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "user",
+                    "me"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Internal Server Error",
+              "code": 500,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"id\": 4420.547038464846,\n  \"username\": \"string\",\n  \"nickname\": \"string\",\n  \"avatar\": \"string\",\n  \"status\": 5826.930494234403,\n  \"email\": \"string\",\n  \"phone\": \"138****8888\",\n  \"gender\": 3617.4604652317676,\n  \"createdAt\": \"2025-12-20 15:00:00\",\n  \"loginTime\": \"2025-12-20 15:00:00\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "30ccebb4-2bbc-4cc6-9b67-7667252228e0",
+          "name": "更新当前用户信息",
+          "request": {
+            "name": "更新当前用户信息",
+            "description": {},
+            "url": {
+              "path": [
+                "user",
+                "edit"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "method": "PUT",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{bearerToken}}"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nickname\": \"<string>\",\n  \"avatar\": \"<string>\",\n  \"gender\": \"<number>\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "id": "164f65a6-8a79-49cf-97f2-10533346608c",
+              "name": "更新成功",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "user",
+                    "edit"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  }
+                ],
+                "method": "PUT",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"nickname\": \"John Doe\",\n  \"avatar\": \"https://example.com/avatar.jpg\",\n  \"gender\": 1\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "8c05d9a6-be23-4a6e-9852-e9881be10845",
+          "name": "修改登录密码",
+          "request": {
+            "name": "修改登录密码",
+            "description": {},
+            "url": {
+              "path": [
+                "user",
+                "password"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "method": "PUT",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{bearerToken}}"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"oldPassword\": \"<string>\",\n  \"newPassword\": \"<string>\",\n  \"confirmPassword\": \"<string>\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [
+            {
+              "id": "b111d846-cdf6-4fdb-b208-9a10a250612c",
+              "name": "密码修改成功",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "user",
+                    "password"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  }
+                ],
+                "method": "PUT",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"oldPassword\": \"currentPassword123\",\n  \"newPassword\": \"newPassword123\",\n  \"confirmPassword\": \"newPassword123\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "4925c2bf-4587-461f-a450-37e79b4a86ce",
+          "name": "trans-pwd",
+          "item": [
+            {
+              "id": "7dfe4379-1662-4efa-a373-528dfc28f634",
+              "name": "设置交易密码",
+              "request": {
+                "name": "设置交易密码",
+                "description": {},
+                "url": {
+                  "path": [
+                    "user",
+                    "trans-pwd"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{bearerToken}}"
+                    }
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"password\": \"<string>\",\n  \"confirmPassword\": \"<string>\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": [
+                {
+                  "id": "06eef5cb-1f80-4cfb-9da3-413d49a58fbc",
+                  "name": "交易密码设置成功",
+                  "originalRequest": {
+                    "url": {
+                      "path": [
+                        "user",
+                        "trans-pwd"
+                      ],
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "query": [],
+                      "variable": []
+                    },
+                    "header": [
+                      {
+                        "description": {
+                          "content": "Added as a part of security scheme: bearer",
+                          "type": "text/plain"
+                        },
+                        "key": "Authorization",
+                        "value": "Bearer <token>"
+                      }
+                    ],
+                    "method": "POST",
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"password\": \"123456\",\n  \"confirmPassword\": \"123456\"\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    }
+                  },
+                  "status": "OK",
+                  "code": 200,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "text/plain"
+                    }
+                  ],
+                  "body": "",
+                  "cookie": [],
+                  "_postman_previewlanguage": "text"
+                }
+              ],
+              "event": [],
+              "protocolProfileBehavior": {
+                "disableBodyPruning": true
+              }
+            },
+            {
+              "id": "08abc6d6-473d-48a6-9226-805663f2e4f5",
+              "name": "修改交易密码",
+              "request": {
+                "name": "修改交易密码",
+                "description": {},
+                "url": {
+                  "path": [
+                    "user",
+                    "trans-pwd"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "PUT",
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{bearerToken}}"
+                    }
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"oldPassword\": \"<string>\",\n  \"newPassword\": \"<string>\",\n  \"confirmPassword\": \"<string>\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": [
+                {
+                  "id": "723a11aa-0da9-4ee9-a602-e3a07440139f",
+                  "name": "交易密码修改成功",
+                  "originalRequest": {
+                    "url": {
+                      "path": [
+                        "user",
+                        "trans-pwd"
+                      ],
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "query": [],
+                      "variable": []
+                    },
+                    "header": [
+                      {
+                        "description": {
+                          "content": "Added as a part of security scheme: bearer",
+                          "type": "text/plain"
+                        },
+                        "key": "Authorization",
+                        "value": "Bearer <token>"
+                      }
+                    ],
+                    "method": "PUT",
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"oldPassword\": \"currentPassword123\",\n  \"newPassword\": \"newPassword123\",\n  \"confirmPassword\": \"newPassword123\"\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    }
+                  },
+                  "status": "OK",
+                  "code": 200,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "text/plain"
+                    }
+                  ],
+                  "body": "",
+                  "cookie": [],
+                  "_postman_previewlanguage": "text"
+                }
+              ],
+              "event": [],
+              "protocolProfileBehavior": {
+                "disableBodyPruning": true
+              }
+            }
+          ],
+          "event": []
+        },
+        {
+          "id": "cc8a22e9-f7b8-4c57-8493-f04885a8f5fa",
+          "name": "注销账户",
+          "request": {
+            "name": "注销账户",
+            "description": {},
+            "url": {
+              "path": [
+                "user",
+                "del"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "method": "DELETE",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{bearerToken}}"
+                }
+              ]
+            }
+          },
+          "response": [
+            {
+              "id": "1e1f902d-e100-4391-bd1c-2ad21eee4e0e",
+              "name": "账户注销成功",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "user",
+                    "del"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  }
+                ],
+                "method": "DELETE",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        }
+      ],
+      "event": []
+    },
+    {
+      "id": "5886a1cb-7b98-4cab-80cf-ae2f5886bb53",
+      "name": "wallet/addresses",
+      "item": [
+        {
+          "id": "20874d64-f04d-4293-b1e4-e6e484cc166e",
+          "name": "获取所有区块链地址",
+          "request": {
+            "name": "获取所有区块链地址",
+            "description": {},
+            "url": {
+              "path": [
+                "wallet",
+                "addresses"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{bearerToken}}"
+                }
+              ]
+            }
+          },
+          "response": [
+            {
+              "id": "cb6b64fd-da7d-476e-9a9b-7cfb5a9684db",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "wallet",
+                    "addresses"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "[\n  {\n    \"id\": 1,\n    \"chainType\": 2,\n    \"address\": \"0x742d35Cc6634C0532925a3b8D0eE8C3A4\",\n    \"createdAt\": \"2017-06-29T15:05:12.638Z\"\n  },\n  {\n    \"id\": 1,\n    \"chainType\": 2,\n    \"address\": \"0x742d35Cc6634C0532925a3b8D0eE8C3A4\",\n    \"createdAt\": \"1988-07-15T19:30:36.083Z\"\n  }\n]",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "47d6397e-2c86-4403-afc0-74905f04e0e0",
+          "name": "获取指定区块链地址（不存在则创建）",
+          "request": {
+            "name": "获取指定区块链地址（不存在则创建）",
+            "description": {},
+            "url": {
+              "path": [
+                "wallet",
+                "addresses",
+                ":chainType"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "<number>",
+                  "key": "chainType",
+                  "description": "(Required) "
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{bearerToken}}"
+                }
+              ]
+            }
+          },
+          "response": [
+            {
+              "id": "a681113d-76af-4e73-a2fd-fea9ac328ef7",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "wallet",
+                    "addresses",
+                    ":chainType"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<number>",
+                      "key": "chainType",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"id\": 1,\n  \"chainType\": 2,\n  \"address\": \"0x742d35Cc6634C0532925a3b8D0eE8C3A4\",\n  \"createdAt\": \"1951-03-04T15:35:08.591Z\"\n}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "e0ba6ee0-d436-4fac-baf8-fb3d16fdf9e7",
+              "name": "不支持的区块链类型",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "wallet",
+                    "addresses",
+                    ":chainType"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<number>",
+                      "key": "chainType",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        }
+      ],
+      "event": []
+    },
+    {
+      "id": "1c87298a-907f-496a-95c0-28184d17e385",
+      "name": "order",
+      "item": [
+        {
+          "id": "4276bc7b-38ed-4d79-bfde-af6e287dc495",
+          "name": "获取我的充值记录",
+          "request": {
+            "name": "获取我的充值记录",
+            "description": {},
+            "url": {
+              "path": [
+                "order",
+                "deposit"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [
+                {
+                  "disabled": false,
+                  "key": "cursor",
+                  "value": "0",
+                  "description": "(Required) "
+                },
+                {
+                  "disabled": false,
+                  "key": "limit",
+                  "value": "10",
+                  "description": "(Required) "
+                },
+                {
+                  "disabled": false,
+                  "key": "startDate",
+                  "value": "<string>",
+                  "description": "开始时间"
+                },
+                {
+                  "disabled": false,
+                  "key": "endDate",
+                  "value": "<string>",
+                  "description": "结束时间"
+                },
+                {
+                  "disabled": false,
+                  "key": "chainId",
+                  "value": "<number>",
+                  "description": "区块链ID"
+                },
+                {
+                  "disabled": false,
+                  "key": "token",
+                  "value": "<string>",
+                  "description": "代币代码"
+                },
+                {
+                  "disabled": false,
+                  "key": "status",
+                  "value": "<number>",
+                  "description": "订单状态"
+                }
+              ],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{bearerToken}}"
+                }
+              ]
+            }
+          },
+          "response": [
+            {
+              "id": "dc233300-69aa-416f-9c5a-7f92c2b501f7",
+              "name": "查询成功",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "order",
+                    "deposit"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "cursor",
+                      "value": "0"
+                    },
+                    {
+                      "key": "limit",
+                      "value": "10"
+                    },
+                    {
+                      "key": "startDate",
+                      "value": "2025-12-12 10:00:00"
+                    },
+                    {
+                      "key": "endDate",
+                      "value": "2025-12-12 18:00:00"
+                    },
+                    {
+                      "key": "chainId",
+                      "value": "1"
+                    },
+                    {
+                      "key": "token",
+                      "value": "USDT"
+                    },
+                    {
+                      "key": "status",
+                      "value": "0"
+                    }
+                  ],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "[\n  {\n    \"id\": 1,\n    \"userId\": 1,\n    \"chainId\": 1,\n    \"token\": \"USDT\",\n    \"decimals\": 6,\n    \"amount\": 10.5,\n    \"hash\": \"0x1234567890abcdef...\",\n    \"confirmBlock\": 12,\n    \"status\": 0,\n    \"from\": \"TXXXxxxXXXXxxxXXXX\",\n    \"to\": \"TYYYyyyYYYYyyyYYYY\",\n    \"blockNumber\": 12345678,\n    \"createdAt\": \"2025-12-20 15:00:00\",\n    \"failureReason\": \"string\"\n  },\n  {\n    \"id\": 1,\n    \"userId\": 1,\n    \"chainId\": 1,\n    \"token\": \"USDT\",\n    \"decimals\": 6,\n    \"amount\": 10.5,\n    \"hash\": \"0x1234567890abcdef...\",\n    \"confirmBlock\": 12,\n    \"status\": 0,\n    \"from\": \"TXXXxxxXXXXxxxXXXX\",\n    \"to\": \"TYYYyyyYYYYyyyYYYY\",\n    \"blockNumber\": 12345678,\n    \"createdAt\": \"2025-12-20 15:00:00\",\n    \"failureReason\": \"string\"\n  }\n]",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "9b4206d6-6341-4f95-b0f7-8ac76fd07a72",
+          "name": "swap",
+          "item": [
+            {
+              "id": "bd6c873a-2cf6-4863-9f93-2acc40b6fa3d",
+              "name": "创建闪兑订单",
+              "request": {
+                "name": "创建闪兑订单",
+                "description": {},
+                "url": {
+                  "path": [
+                    "order",
+                    "swap"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{bearerToken}}"
+                    }
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"fromTokenId\": \"<number>\",\n  \"toTokenId\": \"<number>\",\n  \"fromAmount\": \"<number>\",\n  \"transPassword\": \"<string>\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": [
+                {
+                  "id": "7b697938-d566-45ce-b5a6-c6bcc0921a26",
+                  "name": "创建成功",
+                  "originalRequest": {
+                    "url": {
+                      "path": [
+                        "order",
+                        "swap"
+                      ],
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "query": [],
+                      "variable": []
+                    },
+                    "header": [
+                      {
+                        "description": {
+                          "content": "Added as a part of security scheme: bearer",
+                          "type": "text/plain"
+                        },
+                        "key": "Authorization",
+                        "value": "Bearer <token>"
+                      }
+                    ],
+                    "method": "POST",
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"fromTokenId\": 1,\n  \"toTokenId\": 2,\n  \"fromAmount\": 0.5,\n  \"transPassword\": \"123456\"\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    }
+                  },
+                  "status": "Created",
+                  "code": 201,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "text/plain"
+                    }
+                  ],
+                  "body": "",
+                  "cookie": [],
+                  "_postman_previewlanguage": "text"
+                }
+              ],
+              "event": [],
+              "protocolProfileBehavior": {
+                "disableBodyPruning": true
+              }
+            },
+            {
+              "id": "6c0483dc-c59b-4d18-9303-34396c61af27",
+              "name": "获取我的闪兑记录",
+              "request": {
+                "name": "获取我的闪兑记录",
+                "description": {},
+                "url": {
+                  "path": [
+                    "order",
+                    "swap"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "disabled": false,
+                      "key": "cursor",
+                      "value": "0",
+                      "description": "(Required) "
+                    },
+                    {
+                      "disabled": false,
+                      "key": "limit",
+                      "value": "10",
+                      "description": "(Required) "
+                    },
+                    {
+                      "disabled": false,
+                      "key": "startDate",
+                      "value": "<string>",
+                      "description": "开始时间"
+                    },
+                    {
+                      "disabled": false,
+                      "key": "endDate",
+                      "value": "<string>",
+                      "description": "结束时间"
+                    },
+                    {
+                      "disabled": false,
+                      "key": "fromToken",
+                      "value": "<string>",
+                      "description": "源代币代码"
+                    },
+                    {
+                      "disabled": false,
+                      "key": "toToken",
+                      "value": "<string>",
+                      "description": "目标代币代码"
+                    },
+                    {
+                      "disabled": false,
+                      "key": "status",
+                      "value": "<number>",
+                      "description": "订单状态: 1=成功 0=失败"
+                    }
+                  ],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{bearerToken}}"
+                    }
+                  ]
+                }
+              },
+              "response": [
+                {
+                  "id": "36041200-066d-4c36-bc51-e736da0a4c75",
+                  "name": "查询成功",
+                  "originalRequest": {
+                    "url": {
+                      "path": [
+                        "order",
+                        "swap"
+                      ],
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "query": [
+                        {
+                          "key": "cursor",
+                          "value": "0"
+                        },
+                        {
+                          "key": "limit",
+                          "value": "10"
+                        },
+                        {
+                          "key": "startDate",
+                          "value": "2025-12-12 10:00:00"
+                        },
+                        {
+                          "key": "endDate",
+                          "value": "2025-12-12 18:00:00"
+                        },
+                        {
+                          "key": "fromToken",
+                          "value": "BTC"
+                        },
+                        {
+                          "key": "toToken",
+                          "value": "ETH"
+                        },
+                        {
+                          "key": "status",
+                          "value": "1"
+                        }
+                      ],
+                      "variable": []
+                    },
+                    "header": [
+                      {
+                        "description": {
+                          "content": "Added as a part of security scheme: bearer",
+                          "type": "text/plain"
+                        },
+                        "key": "Authorization",
+                        "value": "Bearer <token>"
+                      },
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      }
+                    ],
+                    "method": "GET",
+                    "body": {}
+                  },
+                  "status": "OK",
+                  "code": 200,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "[\n  {\n    \"id\": 1,\n    \"orderNo\": \"SW202512310001\",\n    \"fromToken\": \"BTC\",\n    \"fromAmount\": 0.5,\n    \"toToken\": \"ETH\",\n    \"toAmount\": 10.5,\n    \"rate\": \"21.00000000\",\n    \"status\": 1,\n    \"createdAt\": \"2025-12-31 10:30:00\",\n    \"failReason\": \"string\"\n  },\n  {\n    \"id\": 1,\n    \"orderNo\": \"SW202512310001\",\n    \"fromToken\": \"BTC\",\n    \"fromAmount\": 0.5,\n    \"toToken\": \"ETH\",\n    \"toAmount\": 10.5,\n    \"rate\": \"21.00000000\",\n    \"status\": 1,\n    \"createdAt\": \"2025-12-31 10:30:00\",\n    \"failReason\": \"string\"\n  }\n]",
+                  "cookie": [],
+                  "_postman_previewlanguage": "json"
+                }
+              ],
+              "event": [],
+              "protocolProfileBehavior": {
+                "disableBodyPruning": true
+              }
+            }
+          ],
+          "event": []
+        }
+      ],
+      "event": []
+    },
+    {
+      "id": "a32eff45-f718-4d7e-90a5-99f8528efb0d",
+      "name": "orders",
+      "item": [
+        {
+          "id": "2f715dc6-59be-45ec-bbb7-055e427144f0",
+          "name": "withdraws",
+          "item": [
+            {
+              "id": "262f4d5a-988f-4c54-b528-99311c222485",
+              "name": "创建提现订单",
+              "request": {
+                "name": "创建提现订单",
+                "description": {},
+                "url": {
+                  "path": [
+                    "orders",
+                    "withdraws"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{bearerToken}}"
+                    }
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"chainId\": \"<number>\",\n  \"tokenId\": \"<number>\",\n  \"amount\": \"<number>\",\n  \"toAddress\": \"<string>\",\n  \"transPassword\": \"<string>\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": [
+                {
+                  "id": "9b7bc1da-5bae-4c65-a476-6f6bf3396461",
+                  "name": "创建成功",
+                  "originalRequest": {
+                    "url": {
+                      "path": [
+                        "orders",
+                        "withdraws"
+                      ],
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "query": [],
+                      "variable": []
+                    },
+                    "header": [
+                      {
+                        "description": {
+                          "content": "Added as a part of security scheme: bearer",
+                          "type": "text/plain"
+                        },
+                        "key": "Authorization",
+                        "value": "Bearer <token>"
+                      },
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      }
+                    ],
+                    "method": "POST",
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"chainId\": 1,\n  \"tokenId\": 1,\n  \"amount\": \"<number>\",\n  \"toAddress\": \"TXXXxxxXXXXxxxXXXX\",\n  \"transPassword\": \"123456\"\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    }
+                  },
+                  "status": "Created",
+                  "code": 201,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "\"string\"",
+                  "cookie": [],
+                  "_postman_previewlanguage": "json"
+                }
+              ],
+              "event": [],
+              "protocolProfileBehavior": {
+                "disableBodyPruning": true
+              }
+            },
+            {
+              "id": "304b0306-1fab-42e7-8577-c34af911c12a",
+              "name": "获取我的提现记录",
+              "request": {
+                "name": "获取我的提现记录",
+                "description": {},
+                "url": {
+                  "path": [
+                    "orders",
+                    "withdraws"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "disabled": false,
+                      "key": "cursor",
+                      "value": "0",
+                      "description": "(Required) "
+                    },
+                    {
+                      "disabled": false,
+                      "key": "limit",
+                      "value": "10",
+                      "description": "(Required) "
+                    },
+                    {
+                      "disabled": false,
+                      "key": "startDate",
+                      "value": "<string>",
+                      "description": "开始时间"
+                    },
+                    {
+                      "disabled": false,
+                      "key": "endDate",
+                      "value": "<string>",
+                      "description": "结束时间"
+                    },
+                    {
+                      "disabled": false,
+                      "key": "chainId",
+                      "value": "<number>",
+                      "description": "区块链ID"
+                    },
+                    {
+                      "disabled": false,
+                      "key": "token",
+                      "value": "<string>",
+                      "description": "代币代码"
+                    },
+                    {
+                      "disabled": false,
+                      "key": "status",
+                      "value": "<number>",
+                      "description": "订单状态"
+                    }
+                  ],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{bearerToken}}"
+                    }
+                  ]
+                }
+              },
+              "response": [
+                {
+                  "id": "684f6299-f9e8-49f0-84d8-8583813b9600",
+                  "name": "查询成功",
+                  "originalRequest": {
+                    "url": {
+                      "path": [
+                        "orders",
+                        "withdraws"
+                      ],
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "query": [
+                        {
+                          "key": "cursor",
+                          "value": "0"
+                        },
+                        {
+                          "key": "limit",
+                          "value": "10"
+                        },
+                        {
+                          "key": "startDate",
+                          "value": "2025-12-12 10:00:00"
+                        },
+                        {
+                          "key": "endDate",
+                          "value": "2025-12-12 18:00:00"
+                        },
+                        {
+                          "key": "chainId",
+                          "value": "1"
+                        },
+                        {
+                          "key": "token",
+                          "value": "USDT"
+                        },
+                        {
+                          "key": "status",
+                          "value": "0"
+                        }
+                      ],
+                      "variable": []
+                    },
+                    "header": [
+                      {
+                        "description": {
+                          "content": "Added as a part of security scheme: bearer",
+                          "type": "text/plain"
+                        },
+                        "key": "Authorization",
+                        "value": "Bearer <token>"
+                      },
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      }
+                    ],
+                    "method": "GET",
+                    "body": {}
+                  },
+                  "status": "OK",
+                  "code": 200,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "[\n  {\n    \"id\": 1,\n    \"userId\": 1,\n    \"orderNo\": \"17035123456781234567\",\n    \"chainId\": 1,\n    \"token\": \"USDT\",\n    \"decimals\": 6,\n    \"amount\": 10.5,\n    \"fee\": 0.5,\n    \"actualAmount\": 10,\n    \"toAddress\": \"TXXXxxxXXXXxxxXXXX\",\n    \"status\": 0,\n    \"createdAt\": \"2025-12-20 15:00:00\",\n    \"hash\": \"0x1234567890abcdef...\",\n    \"failureReason\": \"string\",\n    \"remark\": \"string\",\n    \"finishedAt\": \"2025-12-20 15:00:00\"\n  },\n  {\n    \"id\": 1,\n    \"userId\": 1,\n    \"orderNo\": \"17035123456781234567\",\n    \"chainId\": 1,\n    \"token\": \"USDT\",\n    \"decimals\": 6,\n    \"amount\": 10.5,\n    \"fee\": 0.5,\n    \"actualAmount\": 10,\n    \"toAddress\": \"TXXXxxxXXXXxxxXXXX\",\n    \"status\": 0,\n    \"createdAt\": \"2025-12-20 15:00:00\",\n    \"hash\": \"0x1234567890abcdef...\",\n    \"failureReason\": \"string\",\n    \"remark\": \"string\",\n    \"finishedAt\": \"2025-12-20 15:00:00\"\n  }\n]",
+                  "cookie": [],
+                  "_postman_previewlanguage": "json"
+                }
+              ],
+              "event": [],
+              "protocolProfileBehavior": {
+                "disableBodyPruning": true
+              }
+            },
+            {
+              "id": "3e8b2269-586d-4d1f-942e-c5430f4b51f7",
+              "name": "取消提现订单",
+              "request": {
+                "name": "取消提现订单",
+                "description": {},
+                "url": {
+                  "path": [
+                    "orders",
+                    "withdraws",
+                    ":orderNo"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<string>",
+                      "key": "orderNo",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "method": "DELETE",
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{bearerToken}}"
+                    }
+                  ]
+                }
+              },
+              "response": [
+                {
+                  "id": "61a8e700-1698-478e-ac57-f9ad85a0d446",
+                  "name": "取消成功",
+                  "originalRequest": {
+                    "url": {
+                      "path": [
+                        "orders",
+                        "withdraws",
+                        ":orderNo"
+                      ],
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "query": [],
+                      "variable": [
+                        {
+                          "disabled": false,
+                          "type": "any",
+                          "value": "<string>",
+                          "key": "orderNo",
+                          "description": "(Required) "
+                        }
+                      ]
+                    },
+                    "header": [
+                      {
+                        "description": {
+                          "content": "Added as a part of security scheme: bearer",
+                          "type": "text/plain"
+                        },
+                        "key": "Authorization",
+                        "value": "Bearer <token>"
+                      }
+                    ],
+                    "method": "DELETE",
+                    "body": {}
+                  },
+                  "status": "OK",
+                  "code": 200,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "text/plain"
+                    }
+                  ],
+                  "body": "",
+                  "cookie": [],
+                  "_postman_previewlanguage": "text"
+                }
+              ],
+              "event": [],
+              "protocolProfileBehavior": {
+                "disableBodyPruning": true
+              }
+            },
+            {
+              "id": "7ea289ee-1613-4dc4-8319-c300b091b0fd",
+              "name": "获取提现订单详情",
+              "request": {
+                "name": "获取提现订单详情",
+                "description": {},
+                "url": {
+                  "path": [
+                    "orders",
+                    "withdraws",
+                    ":id"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<number>",
+                      "key": "id",
+                      "description": "(Required) "
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{bearerToken}}"
+                    }
+                  ]
+                }
+              },
+              "response": [
+                {
+                  "id": "52ea65d6-56ad-4373-931b-bc4aeed3fa5a",
+                  "name": "查询成功",
+                  "originalRequest": {
+                    "url": {
+                      "path": [
+                        "orders",
+                        "withdraws",
+                        ":id"
+                      ],
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "query": [],
+                      "variable": [
+                        {
+                          "disabled": false,
+                          "type": "any",
+                          "value": "<number>",
+                          "key": "id",
+                          "description": "(Required) "
+                        }
+                      ]
+                    },
+                    "header": [
+                      {
+                        "description": {
+                          "content": "Added as a part of security scheme: bearer",
+                          "type": "text/plain"
+                        },
+                        "key": "Authorization",
+                        "value": "Bearer <token>"
+                      },
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      }
+                    ],
+                    "method": "GET",
+                    "body": {}
+                  },
+                  "status": "OK",
+                  "code": 200,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "{\n  \"id\": 1,\n  \"userId\": 1,\n  \"orderNo\": \"17035123456781234567\",\n  \"chainId\": 1,\n  \"token\": \"USDT\",\n  \"decimals\": 6,\n  \"amount\": 10.5,\n  \"fee\": 0.5,\n  \"actualAmount\": 10,\n  \"toAddress\": \"TXXXxxxXXXXxxxXXXX\",\n  \"status\": 0,\n  \"createdAt\": \"2025-12-20 15:00:00\",\n  \"hash\": \"0x1234567890abcdef...\",\n  \"failureReason\": \"string\",\n  \"remark\": \"string\",\n  \"finishedAt\": \"2025-12-20 15:00:00\"\n}",
+                  "cookie": [],
+                  "_postman_previewlanguage": "json"
+                }
+              ],
+              "event": [],
+              "protocolProfileBehavior": {
+                "disableBodyPruning": true
+              }
+            }
+          ],
+          "event": []
+        },
+        {
+          "id": "5e414c63-a941-47a1-8393-80337bc9b14e",
+          "name": "transfers",
+          "item": [
+            {
+              "id": "395453e5-7a79-46b2-8364-7747ad9871f2",
+              "name": "创建转账订单",
+              "request": {
+                "name": "创建转账订单",
+                "description": {},
+                "url": {
+                  "path": [
+                    "orders",
+                    "transfers"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "POST",
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{bearerToken}}"
+                    }
+                  ]
+                },
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"toUser\": \"<string>\",\n  \"tokenId\": \"<number>\",\n  \"amount\": \"<number>\",\n  \"transPassword\": \"<string>\",\n  \"remark\": \"<string>\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "response": [
+                {
+                  "id": "fb769176-9eed-4c05-8aa6-72c2e0f4b24a",
+                  "name": "创建成功，返回订单号",
+                  "originalRequest": {
+                    "url": {
+                      "path": [
+                        "orders",
+                        "transfers"
+                      ],
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "query": [],
+                      "variable": []
+                    },
+                    "header": [
+                      {
+                        "description": {
+                          "content": "Added as a part of security scheme: bearer",
+                          "type": "text/plain"
+                        },
+                        "key": "Authorization",
+                        "value": "Bearer <token>"
+                      },
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      }
+                    ],
+                    "method": "POST",
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"toUser\": \"user123\",\n  \"tokenId\": 1,\n  \"amount\": 100,\n  \"transPassword\": \"123456\",\n  \"remark\": \"转账备注\"\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    }
+                  },
+                  "status": "Created",
+                  "code": 201,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "\"string\"",
+                  "cookie": [],
+                  "_postman_previewlanguage": "json"
+                }
+              ],
+              "event": [],
+              "protocolProfileBehavior": {
+                "disableBodyPruning": true
+              }
+            },
+            {
+              "id": "fc077cf4-64ef-47b4-ab96-b44be4679bc8",
+              "name": "获取我的转账记录",
+              "request": {
+                "name": "获取我的转账记录",
+                "description": {},
+                "url": {
+                  "path": [
+                    "orders",
+                    "transfers"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "disabled": false,
+                      "key": "cursor",
+                      "value": "0",
+                      "description": "(Required) "
+                    },
+                    {
+                      "disabled": false,
+                      "key": "limit",
+                      "value": "10",
+                      "description": "(Required) "
+                    },
+                    {
+                      "disabled": false,
+                      "key": "startDate",
+                      "value": "<string>",
+                      "description": "开始时间"
+                    },
+                    {
+                      "disabled": false,
+                      "key": "endDate",
+                      "value": "<string>",
+                      "description": "结束时间"
+                    },
+                    {
+                      "disabled": false,
+                      "key": "tokenId",
+                      "value": "<number>",
+                      "description": "代币ID"
+                    }
+                  ],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{bearerToken}}"
+                    }
+                  ]
+                }
+              },
+              "response": [
+                {
+                  "id": "f1fe03fb-e2f0-4f4e-a76c-0cde64ebd999",
+                  "name": "查询成功",
+                  "originalRequest": {
+                    "url": {
+                      "path": [
+                        "orders",
+                        "transfers"
+                      ],
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "query": [
+                        {
+                          "key": "cursor",
+                          "value": "0"
+                        },
+                        {
+                          "key": "limit",
+                          "value": "10"
+                        },
+                        {
+                          "key": "startDate",
+                          "value": "2025-12-12 10:00:00"
+                        },
+                        {
+                          "key": "endDate",
+                          "value": "2025-12-12 18:00:00"
+                        },
+                        {
+                          "key": "tokenId",
+                          "value": "1"
+                        }
+                      ],
+                      "variable": []
+                    },
+                    "header": [
+                      {
+                        "description": {
+                          "content": "Added as a part of security scheme: bearer",
+                          "type": "text/plain"
+                        },
+                        "key": "Authorization",
+                        "value": "Bearer <token>"
+                      },
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      }
+                    ],
+                    "method": "GET",
+                    "body": {}
+                  },
+                  "status": "OK",
+                  "code": 200,
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json"
+                    }
+                  ],
+                  "body": "[\n  {\n    \"id\": 1,\n    \"userId\": 1,\n    \"toUserId\": 2,\n    \"orderNo\": \"17035123456781234567\",\n    \"tokenId\": 1,\n    \"token\": \"USDT\",\n    \"decimals\": 6,\n    \"amount\": 100.5,\n    \"status\": 1,\n    \"createdAt\": \"2025-12-29 15:00:00\",\n    \"remark\": \"转账备注\"\n  },\n  {\n    \"id\": 1,\n    \"userId\": 1,\n    \"toUserId\": 2,\n    \"orderNo\": \"17035123456781234567\",\n    \"tokenId\": 1,\n    \"token\": \"USDT\",\n    \"decimals\": 6,\n    \"amount\": 100.5,\n    \"status\": 1,\n    \"createdAt\": \"2025-12-29 15:00:00\",\n    \"remark\": \"转账备注\"\n  }\n]",
+                  "cookie": [],
+                  "_postman_previewlanguage": "json"
+                }
+              ],
+              "event": [],
+              "protocolProfileBehavior": {
+                "disableBodyPruning": true
+              }
+            }
+          ],
+          "event": []
+        }
+      ],
+      "event": []
+    },
+    {
+      "id": "c2036cbd-24bf-4be6-a0bf-7712f5203337",
+      "name": "创建系统钱包地址",
+      "request": {
+        "name": "创建系统钱包地址",
+        "description": {},
+        "url": {
+          "path": [
+            "system",
+            "wallets",
+            "addresses"
+          ],
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "query": [],
+          "variable": []
+        },
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "method": "POST",
+        "auth": null,
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"chainType\": \"<number>\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "response": [
+        {
+          "id": "6d56ffae-e905-4cfb-a9e1-5f9ca63c43ea",
+          "name": "创建成功",
+          "originalRequest": {
+            "url": {
+              "path": [
+                "system",
+                "wallets",
+                "addresses"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "method": "POST",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"chainType\": 2\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "status": "Created",
+          "code": 201,
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "text/plain"
+            }
+          ],
+          "body": "",
+          "cookie": [],
+          "_postman_previewlanguage": "text"
+        }
+      ],
+      "event": [],
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      }
+    },
+    {
+      "id": "b2e1033f-0326-479c-afc3-aafe06bd25f1",
+      "name": "chains",
+      "item": [
+        {
+          "id": "bf081552-524e-4595-b6e8-379ae2399282",
+          "name": "获取支持的区块链列表",
+          "request": {
+            "name": "获取支持的区块链列表",
+            "description": {},
+            "url": {
+              "path": [
+                "chains"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{bearerToken}}"
+                }
+              ]
+            }
+          },
+          "response": [
+            {
+              "id": "a3028ab0-e8e6-4503-83d6-79c29c34446f",
+              "name": "支持的区块链列表",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "chains"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "[\n  {\n    \"id\": 8007.171932391324,\n    \"code\": \"ETH\",\n    \"name\": \"Ethereum\",\n    \"logo\": \"https://example.com/eth.png\",\n    \"type\": 4154.48519035426\n  },\n  {\n    \"id\": 1784.6253698881953,\n    \"code\": \"ETH\",\n    \"name\": \"Ethereum\",\n    \"logo\": \"https://example.com/eth.png\",\n    \"type\": 769.4267994889925\n  }\n]",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "e849b514-34cf-4e36-812d-5bab6e6f7ef5",
+          "name": "获取链上代币列表",
+          "request": {
+            "name": "获取链上代币列表",
+            "description": {},
+            "url": {
+              "path": [
+                "chains",
+                ":chainId",
+                "tokens"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "<number>",
+                  "key": "chainId",
+                  "description": "(Required) 区块链ID"
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{bearerToken}}"
+                }
+              ]
+            }
+          },
+          "response": [
+            {
+              "id": "4537442f-2513-4a8d-b013-49b7efa6e943",
+              "name": "链上代币列表",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "chains",
+                    ":chainId",
+                    "tokens"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<number>",
+                      "key": "chainId",
+                      "description": "(Required) 区块链ID"
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "[\n  {\n    \"id\": 933.3978497134287,\n    \"code\": \"USDT\",\n    \"name\": \"Tether USD\",\n    \"logo\": \"https://example.com/usdt.png\",\n    \"contractAddress\": \"0xdAC17F958D2ee523a2206206994597C13D831ec7\",\n    \"decimals\": 6\n  },\n  {\n    \"id\": 1946.3178130045367,\n    \"code\": \"USDT\",\n    \"name\": \"Tether USD\",\n    \"logo\": \"https://example.com/usdt.png\",\n    \"contractAddress\": \"0xdAC17F958D2ee523a2206206994597C13D831ec7\",\n    \"decimals\": 6\n  }\n]",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "id": "a20c95f1-76ab-40e0-adf0-84d61d45b925",
+              "name": "区块链不存在",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "chains",
+                    ":chainId",
+                    "tokens"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<number>",
+                      "key": "chainId",
+                      "description": "(Required) 区块链ID"
+                    }
+                  ]
+                },
+                "header": [
+                  {
+                    "description": {
+                      "content": "Added as a part of security scheme: bearer",
+                      "type": "text/plain"
+                    },
+                    "key": "Authorization",
+                    "value": "Bearer <token>"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Not Found",
+              "code": 404,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        }
+      ],
+      "event": []
+    },
+    {
+      "id": "71826aa6-5729-4d3f-b2c1-d7e0f058d847",
+      "name": "market/prices",
+      "item": [
+        {
+          "id": "ff6e164c-3809-4c2e-a346-b64abbb46cce",
+          "name": "获取所有代币价格列表",
+          "request": {
+            "name": "获取所有代币价格列表",
+            "description": {},
+            "url": {
+              "path": [
+                "market",
+                "prices"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "GET",
+            "auth": null
+          },
+          "response": [
+            {
+              "id": "3210f071-2201-43ac-8e97-df7e6bc264ef",
+              "name": "代币价格列表",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "market",
+                    "prices"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "[\n  {\n    \"symbol\": \"BTCUSDT\",\n    \"token\": \"BTC\",\n    \"quote\": \"USDT\",\n    \"price\": \"43250.50000000\",\n    \"priceAt\": \"2025-12-20 15:30:00\"\n  },\n  {\n    \"symbol\": \"BTCUSDT\",\n    \"token\": \"BTC\",\n    \"quote\": \"USDT\",\n    \"price\": \"43250.50000000\",\n    \"priceAt\": \"2025-12-20 15:30:00\"\n  }\n]",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "7dfa6cd4-f6d2-4d9c-8cbc-1a1a17567726",
+          "name": "获取指定交易对的实时价格",
+          "request": {
+            "name": "获取指定交易对的实时价格",
+            "description": {},
+            "url": {
+              "path": [
+                "market",
+                "prices",
+                ":symbol"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": [
+                {
+                  "disabled": false,
+                  "type": "any",
+                  "value": "<string>",
+                  "key": "symbol",
+                  "description": "(Required) 交易对符号"
+                }
+              ]
+            },
+            "method": "GET",
+            "auth": null
+          },
+          "response": [
+            {
+              "id": "715080a1-f64d-4e9b-9031-e72242a8f578",
+              "name": "交易对价格",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "market",
+                    "prices",
+                    ":symbol"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<string>",
+                      "key": "symbol",
+                      "description": "(Required) 交易对符号"
+                    }
+                  ]
+                },
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            },
+            {
+              "id": "c2c7221f-988d-4303-9811-2d58cd29fc1b",
+              "name": "价格数据不存在",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "market",
+                    "prices",
+                    ":symbol"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": [
+                    {
+                      "disabled": false,
+                      "type": "any",
+                      "value": "<string>",
+                      "key": "symbol",
+                      "description": "(Required) 交易对符号"
+                    }
+                  ]
+                },
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Not Found",
+              "code": 404,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        }
+      ],
+      "event": []
+    },
+    {
+      "id": "d6b951a7-f0e4-4a03-b47d-7ae9d99bde20",
+      "name": "详细健康检查",
+      "request": {
+        "name": "详细健康检查",
+        "description": {},
+        "url": {
+          "path": [
+            "health"
+          ],
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "query": [],
+          "variable": []
+        },
+        "method": "GET",
+        "auth": null
+      },
+      "response": [
+        {
+          "id": "0bf0dc59-a9cd-4402-87ca-da5086dd20e5",
+          "name": "返回服务健康状态",
+          "originalRequest": {
+            "url": {
+              "path": [
+                "health"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "method": "GET",
+            "body": {}
+          },
+          "status": "OK",
+          "code": 200,
+          "header": [
+            {
+              "key": "Content-Type",
+              "value": "text/plain"
+            }
+          ],
+          "body": "",
+          "cookie": [],
+          "_postman_previewlanguage": "text"
+        }
+      ],
+      "event": [],
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      }
+    }
+  ],
+  "event": [],
+  "variable": [
+    {
+      "type": "string",
+      "value": "http://localhost:3000/api",
+      "key": "baseUrl"
+    }
+  ],
+  "info": {
+    "_postman_id": "976f22a7-7d0c-4d16-a59a-d10aaa3e902c",
+    "name": "chain-wallet",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": {
+      "content": "\n🔷 **Base URL**: `http://localhost:3000/api` <br>\n🧾 **Swagger JSON**: [查看文档 JSON](http://localhost:3000/docs/json)",
+      "type": "text/plain"
+    }
+  }
+}

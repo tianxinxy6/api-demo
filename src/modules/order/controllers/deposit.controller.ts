@@ -17,7 +17,7 @@ import { ApiSecurityAuth } from '@/common/decorators/swagger.decorator';
 /**
  * 充值订单控制器
  */
-@ApiTags('Orders - Deposit')
+@ApiTags('Order - Deposit')
 @ApiSecurityAuth()
 @Controller('order/deposit')
 export class DepositController {

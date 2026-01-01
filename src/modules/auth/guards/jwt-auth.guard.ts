@@ -9,7 +9,7 @@ import { ExtractJwt } from 'passport-jwt';
 
 import { BusinessException } from '@/common/exceptions/biz.exception';
 import { AuthStrategy, PUBLIC_KEY } from '../auth.constant';
-import { TokenBlacklistService } from '@/modules/auth/services/token-blacklist.service';
+import { TokenBlacklistService } from '@/modules/user/services/token-blacklist.service';
 import { ErrorCode } from '@/constants/error-code.constant';
 
 // https://docs.nestjs.com/recipes/passport#implement-protected-route-and-jwt-strategy-guards
@@ -49,7 +49,7 @@ export class JwtAuthGuard extends AuthGuard(AuthStrategy.JWT) {
     // 检查 Token 是否有效（包含黑名单检查）
     const isValidToken = await this.tokenBlacklistService.isTokenValid(token);
     if (!isValidToken) {
-      throw new BusinessException(ErrorCode.ErrAuthTokenRevoked);
+      throw new BusinessException(ErrorCode.ErrAuthTokenInvalid);
     }
 
     // 通过 Passport JWT 策略进行验证

@@ -8,9 +8,9 @@ import { UserRegisterDto } from '../dto/user.dto';
 import { 
   UserProfileResponse, 
   UserBasicResponse,
-  maskPhone 
 } from '../model';
 import { CacheService } from '@/shared/cache/cache.service';
+import { TokenBlacklistService } from './token-blacklist.service';
 import * as bcrypt from 'bcrypt';
 import { UserStatus, ErrorCode } from '@/constants';
 import { getClientIp, md5 } from '@/utils';
@@ -26,6 +26,7 @@ export class UserService {
     @InjectRepository(UserEntity)
     private readonly userRepository: Repository<UserEntity>,
     private readonly cacheService: CacheService,
+    private readonly tokenBlacklistService: TokenBlacklistService,
   ) {}
 
   /**
@@ -43,6 +44,7 @@ export class UserService {
 
   /**
    * 将UserEntity转换为UserProfileResponse
+   * 使用白名单模式,只返回必要的字段
    */
   private toProfileResponse(user: UserEntity): UserProfileResponse {
     return new UserProfileResponse({
@@ -50,8 +52,9 @@ export class UserService {
       username: user.username,
       nickname: user.nickname,
       avatar: user.avatar,
+      status: user.status,
       email: user.email,
-      phone: user.phone ? maskPhone(user.phone) : undefined,
+      phone: user.phone,
       gender: user.gender,
       createdAt: user.createdAt,
       loginTime: user.loginTime,
@@ -239,9 +242,13 @@ export class UserService {
 
   /**
    * 删除用户（软删除）
+   * 同时将用户的 token 拉黑,防止已删除用户继续使用旧 token
    */
-  async deleteUser(id: number): Promise<void> {
-    const user = await this.userRepository.findOne({ where: { id } });
+  async deleteUser(id: number, req: FastifyRequest): Promise<void> {
+    const user = await this.userRepository.findOne({ 
+      where: { id },
+      select: ['id', 'lastToken'],
+    });
 
     if (!user) {
       throw new BusinessException(ErrorCode.ErrUserNotFound);
@@ -250,7 +257,11 @@ export class UserService {
     await this.userRepository.softDelete(id);
     await this.clearUserCache(id);
     
-    this.logger.warn(`User ${id} account deleted`);
+    if (req.accessToken) {
+      await this.tokenBlacklistService.revokeToken(req.accessToken, id);
+    }
+    
+    this.logger.warn(`User ${id} account deleted and tokens revoked`);
   }
 
   /**
@@ -442,13 +453,13 @@ export class UserService {
   /**
    * 更新用户登录信息
    */
-  async updateLoginInfo(userId: number, req: FastifyRequest): Promise<void> {
+  async updateLoginInfo(userId: number, req: FastifyRequest, accessToken: string): Promise<void> {
     const loginIp = getClientIp(req);
     
     await this.userRepository.update(userId, {
       loginIp,
       loginTime: new Date(),
-      lastToken: md5(req.accessToken)
+      lastToken: md5(accessToken)
     });
 
     await this.clearUserCache(userId);
