@@ -1,11 +1,10 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { ChainEntity } from '../../../entities/chain.entity';
-import { ChainStatus, ErrorCode } from '@/constants';
+import { ChainEntity } from '@/entities/chain.entity';
+import { ChainStatus } from '@/constants';
 import { CacheService } from '@/shared/cache/cache.service';
 import { SupportedChainResponse } from '../model';
-import { BusinessException } from '@/common/exceptions/biz.exception';
 
 export interface ChainConfig {
   rpcUrl: string;

@@ -1,6 +1,8 @@
 import { Module } from '@nestjs/common';
 import { CacheModule } from '@nestjs/cache-manager';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import KeyvRedis from '@keyv/redis';
+import { Keyv } from 'keyv';
 import { CacheService } from './cache.service';
 import { RedisService } from './redis.service';
 
@@ -11,14 +13,28 @@ import { RedisService } from './redis.service';
       inject: [ConfigService],
       useFactory: async (configService: ConfigService) => {
         const redisConfig = configService.get('redis');
+        const host = redisConfig?.host ?? 'localhost';
+        const port = redisConfig?.port ?? 6379;
+        const password = redisConfig?.password;
+        const db = redisConfig?.db ?? 0;
+
+        // 构建 Redis 连接 URL
+        let redisUrl = `redis://${host}:${port}`;
+        if (password) {
+          redisUrl = `redis://:${password}@${host}:${port}`;
+        }
+        if (db) {
+          redisUrl += `/${db}`;
+        }
+
         return {
-          store: 'redis',
-          host: redisConfig?.host ?? 'localhost',
-          port: redisConfig?.port ?? 6379,
-          password: redisConfig?.password,
-          db: redisConfig?.db ?? 0,
-          keyPrefix: 'app:cache:',
-          ttl: 3600, // 默认1小时
+          stores: [
+            new Keyv({
+              store: new KeyvRedis(redisUrl),
+              namespace: undefined, // Keyv 使用 namespace 作为 key 前缀
+              ttl: 3600 * 1000, // 默认1小时（毫秒）
+            }),
+          ],
         };
       },
     }),
