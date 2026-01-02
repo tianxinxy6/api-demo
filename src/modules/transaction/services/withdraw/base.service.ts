@@ -1,4 +1,4 @@
-import { Logger } from '@nestjs/common';
+import { Inject, Logger } from '@nestjs/common';
 import { DataSource } from 'typeorm';
 import { ChainService } from '@/modules/chain/services/chain.service';
 import { ChainEntity } from '@/entities/chain.entity';
@@ -12,6 +12,8 @@ import { TransactionStatus, WithdrawalStatus } from '@/constants';
 /**
  * 提现转账服务基类
  * 定义提现转账的通用流程和接口
+ *
+ * 使用属性注入模式：子类不需要重复声明构造函数
  */
 export abstract class BaseWithdrawService {
   protected readonly logger = new Logger(this.constructor.name);
@@ -22,13 +24,21 @@ export abstract class BaseWithdrawService {
   // 转账发起者地址
   protected addressFrom: string;
 
-  constructor(
-    protected readonly chainService: ChainService,
-    protected readonly sysWalletAddressService: SysWalletAddressService,
-    protected readonly dataSource: DataSource,
-    protected readonly databaseService: DatabaseService,
-    protected readonly withdrawService: WithdrawService,
-  ) {}
+  // 使用属性注入 - 子类会自动继承这些依赖
+  @Inject()
+  protected readonly chainService: ChainService;
+
+  @Inject()
+  protected readonly sysWalletAddressService: SysWalletAddressService;
+
+  @Inject()
+  protected readonly dataSource: DataSource;
+
+  @Inject()
+  protected readonly databaseService: DatabaseService;
+
+  @Inject()
+  protected readonly withdrawService: WithdrawService;
 
   /**
    * 初始化链连接（由子类实现）
@@ -56,12 +66,10 @@ export abstract class BaseWithdrawService {
   async process(): Promise<void> {
     try {
       // 1. 获取链配置
+      this.chain = await this.chainService.getChainConfig(this.chainCode);
       if (!this.chain) {
-        this.chain = await this.chainService.getChainConfig(this.chainCode);
-        if (!this.chain) {
-          this.logger.warn(`Chain ${this.chainCode} config not found`);
-          return;
-        }
+        this.logger.warn(`Chain ${this.chainCode} config not found`);
+        return;
       }
 
       // 3. 获取提现钱包私钥
@@ -80,7 +88,7 @@ export abstract class BaseWithdrawService {
         return;
       }
 
-      this.logger.log(`Found ${orders.length} approved withdraw orders for ${this.chainCode}`);
+      this.logger.debug(`Found ${orders.length} approved withdraw orders for ${this.chainCode}`);
 
       // 6. 处理每笔提现订单
       for (const order of orders) {

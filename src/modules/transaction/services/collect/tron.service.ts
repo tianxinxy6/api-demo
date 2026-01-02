@@ -3,16 +3,14 @@ import { ChainType, TransactionStatus } from '@/constants';
 import { TronUtil } from '@/utils/tron.util';
 import { BaseCollectService } from './base.service';
 import { BaseTransactionEntity } from '@/entities/txs/base.entity';
-import { ChainService } from '@/modules/chain/services/chain.service';
-import { ChainAddressService } from '@/modules/user/services/chain-address.service';
-import { SysWalletAddressService } from '@/modules/sys/services/sys-wallet.service';
-import { DataSource } from 'typeorm';
-import { DatabaseService } from '@/shared/database/database.service';
 import { TransactionCollectTronEntity } from '@/entities/txs/collect/transaction-tron.entity';
 
 /**
  * TRON 归集服务
  * 处理 TRON 链的资金归集（包括 TRX 和 TRC20 代币）
+ *
+ * 继承自 BaseCollectService，自动获得父类的所有依赖注入
+ * 不需要构造函数
  */
 @Injectable()
 export class TronCollectService extends BaseCollectService {
@@ -20,16 +18,6 @@ export class TronCollectService extends BaseCollectService {
   protected readonly chainType = ChainType.TRON;
 
   private tronUtil: TronUtil;
-
-  constructor(
-    chainService: ChainService,
-    chainAddressService: ChainAddressService,
-    sysWalletAddressService: SysWalletAddressService,
-    dataSource: DataSource,
-    databaseService: DatabaseService,
-  ) {
-    super(chainService, chainAddressService, sysWalletAddressService, dataSource, databaseService);
-  }
 
   protected buildEntity(): TransactionCollectTronEntity {
     return new TransactionCollectTronEntity();

@@ -1,20 +1,18 @@
 import { Injectable } from '@nestjs/common';
-import { DataSource } from 'typeorm';
 import { ethers } from 'ethers';
 import { ChainType, TransactionStatus } from '@/constants';
 import { BaseTransactionEntity } from '@/entities/txs/base.entity';
 import { BaseWithdrawService } from './base.service';
-import { ChainService } from '@/modules/chain/services/chain.service';
-import { SysWalletAddressService } from '@/modules/sys/services/sys-wallet.service';
-import { DatabaseService } from '@/shared/database/database.service';
 import { TransactionOutEthEntity } from '@/entities/txs/withdraw/transaction-eth.entity';
 import { OrderWithdrawEntity } from '@/entities/order-withdraw.entity';
-import { WithdrawService } from '@/modules/order/services/withdraw.service';
 import { EthUtil } from '@/utils';
 
 /**
  * ETH 提现转账服务
  * 处理 ETH 链的提现转账（包括 ETH 和 ERC20 代币）
+ *
+ * 继承自 BaseWithdrawService，自动获得父类的所有依赖注入
+ * 不需要构造函数
  */
 @Injectable()
 export class EthWithdrawService extends BaseWithdrawService {
@@ -22,16 +20,6 @@ export class EthWithdrawService extends BaseWithdrawService {
   protected readonly chainType = ChainType.ETH;
 
   private ethUtil: EthUtil;
-
-  constructor(
-    chainService: ChainService,
-    sysWalletAddressService: SysWalletAddressService,
-    dataSource: DataSource,
-    databaseService: DatabaseService,
-    withdrawService: WithdrawService,
-  ) {
-    super(chainService, sysWalletAddressService, dataSource, databaseService, withdrawService);
-  }
 
   /**
    * 初始化 ETH 连接

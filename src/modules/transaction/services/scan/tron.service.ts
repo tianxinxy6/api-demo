@@ -3,12 +3,6 @@ import { TronUtil } from '@/utils/tron.util';
 import { ChainType } from '@/constants';
 import { BaseScanService } from './base.service';
 import { ChainTransaction, ContractInfo } from '../../transaction.constant';
-import { ChainService } from '@/modules/chain/services/chain.service';
-import { ChainAddressService } from '@/modules/user/services/chain-address.service';
-import { ChainTokenService } from '@/modules/chain/services/token.service';
-import { AppConfigService } from '@/shared/config/config.service';
-import { DepositService } from '@/modules/order/services/deposit.service';
-import { DatabaseService } from '@/shared/database/database.service';
 import { TransactionTronEntity } from '@/entities/txs/deposit/transaction-tron.entity';
 
 const TYPE_TRX_TRANSFER = 'TRX_TRANSFER';
@@ -19,6 +13,9 @@ const TYPE_OTHER = 'OTHER';
 /**
  * TRON 链交易监控任务
  * TRON 平均出块时间：3秒，每3秒扫描一次确保及时发现交易
+ *
+ * 继承自 BaseScanService，自动获得父类的所有依赖注入
+ * 不需要构造函数，使用属性注入模式
  */
 @Injectable()
 export class TronScanService extends BaseScanService {
@@ -26,24 +23,6 @@ export class TronScanService extends BaseScanService {
   protected chainType: number = ChainType.TRON;
 
   private tronUtil: TronUtil;
-
-  constructor(
-    chainService: ChainService,
-    chainAddressService: ChainAddressService,
-    configService: AppConfigService,
-    tokenService: ChainTokenService,
-    depositService: DepositService,
-    databaseService: DatabaseService,
-  ) {
-    super(
-      chainService,
-      chainAddressService,
-      configService,
-      tokenService,
-      depositService,
-      databaseService,
-    );
-  }
 
   protected init(): void {
     this.tronUtil = new TronUtil(this.chain.rpcUrl);

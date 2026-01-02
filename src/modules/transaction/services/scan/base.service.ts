@@ -1,4 +1,4 @@
-import { Logger } from '@nestjs/common';
+import { Inject, Logger } from '@nestjs/common';
 import { ChainService } from '@/modules/chain/services/chain.service';
 import { ChainAddressService } from '@/modules/user/services/chain-address.service';
 import { ChainTokenService } from '@/modules/chain/services/token.service';
@@ -17,24 +17,37 @@ import { DatabaseService } from '@/shared/database/database.service';
  * 2. 管理扫描进度和状态
  * 3. 过滤和处理目标交易
  * 4. 创建充值订单
+ *
+ * 使用属性注入模式：子类不需要重复声明构造函数
+ * 参考：https://docs.nestjs.com/fundamentals/custom-providers#property-based-injection
  */
 export abstract class BaseScanService {
   protected readonly logger = new Logger(this.constructor.name);
   protected abstract readonly chainType: number;
   protected abstract readonly chainCode: string;
 
+  // 使用属性注入 - 子类会自动继承这些依赖
+  @Inject()
+  protected readonly chainService: ChainService;
+
+  @Inject()
+  protected readonly chainAddressService: ChainAddressService;
+
+  @Inject()
+  protected readonly configService: AppConfigService;
+
+  @Inject()
+  protected readonly tokenService: ChainTokenService;
+
+  @Inject()
+  protected readonly depositService: DepositService;
+
+  @Inject()
+  protected readonly databaseService: DatabaseService;
+
   protected isScanning = false;
   protected currentScannedBlock = 0; // 当前扫描到的区块号
   protected chain: ChainEntity;
-
-  constructor(
-    protected readonly chainService: ChainService,
-    protected readonly chainAddressService: ChainAddressService,
-    protected readonly configService: AppConfigService,
-    protected readonly tokenService: ChainTokenService,
-    protected readonly depositService: DepositService,
-    protected readonly databaseService: DatabaseService,
-  ) {}
 
   /**
    * 主要扫描方法 - 由子类通过定时器调用
@@ -58,11 +71,10 @@ export abstract class BaseScanService {
    */
   protected async scan(): Promise<void> {
     try {
+      this.chain = await this.chainService.getChainConfig(this.chainCode);
       if (!this.chain) {
-        this.chain = await this.chainService.getChainConfig(this.chainCode);
-        if (!this.chain) {
-          return;
-        }
+        this.logger.warn(`Chain ${this.chainCode} config not found`);
+        return;
       }
 
       this.init();
@@ -88,14 +100,14 @@ export abstract class BaseScanService {
         startBlock = endBlock;
       }
 
-      this.logger.log(`${this.chainCode}: Scanning blocks ${startBlock} to ${endBlock}`);
+      this.logger.debug(`${this.chainCode}: Scanning blocks ${startBlock} to ${endBlock}`);
 
       // 7. 执行具体的扫描逻辑
       const foundTxCount = await this.scanBlockRange(startBlock, endBlock);
 
       // 8. 记录扫描结果
       if (foundTxCount > 0) {
-        this.logger.log(
+        this.logger.debug(
           `${this.chainCode}: Scan completed, found ${foundTxCount} transactions ` +
             `in blocks ${startBlock}-${endBlock}`,
         );

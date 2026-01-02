@@ -2,15 +2,15 @@ import { Injectable } from '@nestjs/common';
 import { BaseConfirmService } from './base.service';
 import { EthUtil } from '@/utils/eth.util';
 import { ChainEntity } from '@/entities/chain.entity';
-import { ChainService } from '@/modules/chain/services/chain.service';
-import { DepositService } from '@/modules/order/services/deposit.service';
-import { DatabaseService } from '@/shared/database/database.service';
 import { EthCollectService } from '../collect/eth.service';
 import { BaseTransactionEntity } from '@/entities/txs/base.entity';
 import { TransactionEthEntity } from '@/entities/txs/deposit/transaction-eth.entity';
 
 /**
  * ETH 交易确认服务
+ *
+ * 继承自 BaseConfirmService，自动获得父类的共享依赖
+ * 只需注入自己特有的依赖（ethCollectService）
  */
 @Injectable()
 export class EthConfirmService extends BaseConfirmService {
@@ -20,13 +20,9 @@ export class EthConfirmService extends BaseConfirmService {
 
   private ethUtil: EthUtil;
 
-  constructor(
-    chainService: ChainService,
-    depositService: DepositService,
-    databaseService: DatabaseService,
-    private readonly ethCollectService: EthCollectService,
-  ) {
-    super(chainService, depositService, databaseService);
+  // 只注入子类特有的依赖
+  constructor(private readonly ethCollectService: EthCollectService) {
+    super();
   }
 
   protected init(chain: ChainEntity): void {
@@ -55,11 +51,6 @@ export class EthConfirmService extends BaseConfirmService {
    * 触发归集
    */
   protected async triggerCollect(tx: BaseTransactionEntity): Promise<void> {
-    try {
-      this.logger.log(`Triggering collect for ETH transaction ${tx.hash}`);
-      await this.ethCollectService.collect(tx);
-    } catch (error) {
-      this.logger.error(`Failed to trigger collect for transaction ${tx.hash}:`, error.message);
-    }
+    await this.ethCollectService.collect(tx);
   }
 }

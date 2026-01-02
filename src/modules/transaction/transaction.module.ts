@@ -1,7 +1,6 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
-import { ChainEntity } from '@/entities/chain.entity';
 import { OrderModule } from '@/modules/order/order.module';
 import { ChainModule } from '@/modules/chain/chain.module';
 import { UserModule } from '@/modules/user/user.module';
@@ -31,7 +30,6 @@ import { TronWithdrawService } from './services/withdraw/tron.service';
       TransactionCollectTronEntity,
       TransactionOutEthEntity,
       TransactionOutTronEntity,
-      ChainEntity,
     ]),
     OrderModule,
     ChainModule,

@@ -1,4 +1,4 @@
-import { Logger } from '@nestjs/common';
+import { Inject, Logger } from '@nestjs/common';
 import { ChainService } from '@/modules/chain/services/chain.service';
 import { ChainEntity } from '@/entities/chain.entity';
 import { BaseTransactionEntity } from '@/entities/txs/base.entity';
@@ -14,6 +14,8 @@ import { BusinessException } from '@/common/exceptions/biz.exception';
  * 2. 检查交易状态和确认数
  * 3. 更新充值订单状态
  * 4. 触发归集流程
+ *
+ * 使用属性注入模式：子类只需注入自己特有的依赖
  */
 export abstract class BaseConfirmService {
   protected readonly logger = new Logger(this.constructor.name);
@@ -24,11 +26,15 @@ export abstract class BaseConfirmService {
 
   protected isConfirming = false;
 
-  constructor(
-    protected readonly chainService: ChainService,
-    protected readonly depositService: DepositService,
-    protected readonly databaseService: DatabaseService,
-  ) {}
+  // 使用属性注入 - 子类会自动继承这些依赖
+  @Inject()
+  protected readonly chainService: ChainService;
+
+  @Inject()
+  protected readonly depositService: DepositService;
+
+  @Inject()
+  protected readonly databaseService: DatabaseService;
 
   /**
    * 确认待处理交易

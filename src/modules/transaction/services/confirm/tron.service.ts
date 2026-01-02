@@ -1,15 +1,15 @@
 import { Injectable } from '@nestjs/common';
 import { BaseConfirmService } from './base.service';
 import { TronUtil } from '@/utils/tron.util';
-import { ChainService } from '@/modules/chain/services/chain.service';
-import { DepositService } from '@/modules/order/services/deposit.service';
-import { DatabaseService } from '@/shared/database/database.service';
 import { TronCollectService } from '../collect/tron.service';
 import { BaseTransactionEntity } from '@/entities/txs/base.entity';
 import { TransactionTronEntity } from '@/entities/txs/deposit/transaction-tron.entity';
 
 /**
  * TRON 交易确认服务
+ *
+ * 继承自 BaseConfirmService，自动获得父类的共享依赖
+ * 只需注入自己特有的依赖（tronCollectService）
  */
 @Injectable()
 export class TronConfirmService extends BaseConfirmService {
@@ -19,13 +19,9 @@ export class TronConfirmService extends BaseConfirmService {
 
   private tronUtil: TronUtil;
 
-  constructor(
-    chainService: ChainService,
-    depositService: DepositService,
-    databaseService: DatabaseService,
-    private readonly tronCollectService: TronCollectService,
-  ) {
-    super(chainService, depositService, databaseService);
+  // 只注入子类特有的依赖
+  constructor(private readonly tronCollectService: TronCollectService) {
+    super();
   }
 
   protected init(chain): void {
@@ -54,11 +50,6 @@ export class TronConfirmService extends BaseConfirmService {
    * 触发归集
    */
   protected async triggerCollect(tx: BaseTransactionEntity): Promise<void> {
-    try {
-      this.logger.log(`Triggering collect for TRON transaction ${tx.hash}`);
-      await this.tronCollectService.collect(tx);
-    } catch (error) {
-      this.logger.error(`Failed to trigger collect for transaction ${tx.hash}:`, error.message);
-    }
+    await this.tronCollectService.collect(tx);
   }
 }

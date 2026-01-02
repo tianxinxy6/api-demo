@@ -1,4 +1,4 @@
-import { Logger } from '@nestjs/common';
+import { Inject, Logger } from '@nestjs/common';
 import { DataSource, QueryRunner } from 'typeorm';
 import { ChainService } from '@/modules/chain/services/chain.service';
 import { ChainEntity } from '@/entities/chain.entity';
@@ -11,6 +11,8 @@ import { SysWalletAddressService } from '@/modules/sys/services/sys-wallet.servi
 /**
  * 归集服务基类
  * 定义归集的通用流程和接口
+ *
+ * 使用属性注入模式：子类不需要重复声明构造函数
  */
 export abstract class BaseCollectService {
   protected readonly logger = new Logger(this.constructor.name);
@@ -21,13 +23,21 @@ export abstract class BaseCollectService {
   protected collectAddress: string;
   protected chain: ChainEntity;
 
-  constructor(
-    protected readonly chainService: ChainService,
-    protected readonly chainAddressService: ChainAddressService,
-    protected readonly sysWalletAddressService: SysWalletAddressService,
-    protected readonly dataSource: DataSource,
-    protected readonly databaseService: DatabaseService,
-  ) {}
+  // 使用属性注入 - 子类会自动继承这些依赖
+  @Inject()
+  protected readonly chainService: ChainService;
+
+  @Inject()
+  protected readonly chainAddressService: ChainAddressService;
+
+  @Inject()
+  protected readonly sysWalletAddressService: SysWalletAddressService;
+
+  @Inject()
+  protected readonly dataSource: DataSource;
+
+  @Inject()
+  protected readonly databaseService: DatabaseService;
 
   /**
    * 执行归集
@@ -35,11 +45,10 @@ export abstract class BaseCollectService {
   async collect(tx: BaseTransactionEntity): Promise<void> {
     try {
       // 2. 获取链配置
+      this.chain = await this.chainService.getChainConfig(this.chainCode);
       if (!this.chain) {
-        this.chain = await this.chainService.getChainConfig(this.chainCode);
-        if (!this.chain) {
-          return;
-        }
+        this.logger.error(`Chain ${this.chainCode} not found`);
+        return;
       }
 
       // 3. 初始化链连接

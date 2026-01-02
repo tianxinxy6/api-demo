@@ -1,20 +1,18 @@
 import { Injectable } from '@nestjs/common';
-import { DataSource } from 'typeorm';
 import { ChainType, TransactionStatus, ErrorCode } from '@/constants';
 import { TronUtil } from '@/utils/tron.util';
 import { BaseTransactionEntity } from '@/entities/txs/base.entity';
 import { BaseWithdrawService } from './base.service';
-import { ChainService } from '@/modules/chain/services/chain.service';
-import { SysWalletAddressService } from '@/modules/sys/services/sys-wallet.service';
-import { DatabaseService } from '@/shared/database/database.service';
 import { TransactionOutTronEntity } from '@/entities/txs/withdraw/transaction-tron.entity';
 import { OrderWithdrawEntity } from '@/entities/order-withdraw.entity';
-import { WithdrawService } from '@/modules/order/services/withdraw.service';
 import { BusinessException } from '@/common/exceptions/biz.exception';
 
 /**
  * TRON 提现转账服务
  * 处理 TRON 链的提现转账（包括 TRX 和 TRC20 代币）
+ *
+ * 继承自 BaseWithdrawService，自动获得父类的所有依赖注入
+ * 不需要构造函数
  */
 @Injectable()
 export class TronWithdrawService extends BaseWithdrawService {
@@ -22,16 +20,6 @@ export class TronWithdrawService extends BaseWithdrawService {
   protected readonly chainType = ChainType.TRON;
 
   private tronUtil: TronUtil;
-
-  constructor(
-    chainService: ChainService,
-    sysWalletAddressService: SysWalletAddressService,
-    dataSource: DataSource,
-    databaseService: DatabaseService,
-    withdrawService: WithdrawService,
-  ) {
-    super(chainService, sysWalletAddressService, dataSource, databaseService, withdrawService);
-  }
 
   protected buildEntity(): BaseTransactionEntity {
     return new TransactionOutTronEntity();
