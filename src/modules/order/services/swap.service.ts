@@ -122,6 +122,7 @@ export class SwapService {
     fromToken: TokenEntity,
     toToken: TokenEntity,
     calculation: SwapCalculation,
+    orderId: number,
   ): Promise<void> {
     const remark = `闪兑 ${fromToken.code} -> ${toToken.code}`;
 
@@ -132,6 +133,7 @@ export class SwapService {
       amount: calculation.fromAmount.toString(),
       decimals: fromToken.decimals,
       type: WalletLogType.SWAP_OUT,
+      orderId,
       remark,
     });
 
@@ -142,6 +144,7 @@ export class SwapService {
       amount: calculation.toAmount.toString(),
       decimals: toToken.decimals,
       type: WalletLogType.SWAP_IN,
+      orderId,
       remark,
     });
   }
@@ -197,10 +200,7 @@ export class SwapService {
         this.DEFAULT_QUOTE,
       );
 
-      // 4. 执行钱包操作
-      await this.executeWalletOperations(queryRunner, userId, fromToken, toToken, calculation);
-
-      // 5. 创建订单记录
+      // 创建订单记录
       const order = this.createOrderEntity(
         queryRunner,
         userId,
@@ -210,6 +210,16 @@ export class SwapService {
         this.DEFAULT_QUOTE,
       );
       await queryRunner.manager.save(order);
+
+      // 执行钱包操作
+      await this.executeWalletOperations(
+        queryRunner,
+        userId,
+        fromToken,
+        toToken,
+        calculation,
+        order.id,
+      );
 
       // 6. 提交事务
       await queryRunner.commitTransaction();

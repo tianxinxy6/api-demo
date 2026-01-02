@@ -5,6 +5,7 @@ import { CreateWithdrawDto, QueryWithdrawDto, CancelWithdrawDto } from '../dto/w
 import { WithdrawOrder } from '../vo/withdraw.model';
 import { AuthUser } from '@/common/decorators/auth-user.decorator';
 import { ApiSecurityAuth } from '@/common/decorators/swagger.decorator';
+import { Idempotence } from '@/common/decorators/idempotence.decorator';
 
 /**
  * 提现订单控制器
@@ -16,6 +17,7 @@ export class WithdrawController {
   constructor(private readonly withdrawService: WithdrawService) {}
 
   @Post()
+  @Idempotence()
   @ApiOperation({ summary: '创建提现订单' })
   @ApiResponse({
     status: 201,

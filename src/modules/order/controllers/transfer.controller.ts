@@ -5,6 +5,7 @@ import { CreateTransferDto, QueryTransferDto } from '../dto/transfer.dto';
 import { TransferOrder } from '../vo/transfer.model';
 import { AuthUser } from '@/common/decorators/auth-user.decorator';
 import { ApiSecurityAuth } from '@/common/decorators/swagger.decorator';
+import { Idempotence } from '@/common/decorators/idempotence.decorator';
 
 /**
  * 转账订单控制器
@@ -16,6 +17,7 @@ export class TransferController {
   constructor(private readonly transferService: TransferService) {}
 
   @Post()
+  @Idempotence()
   @ApiOperation({ summary: '创建转账订单' })
   @ApiResponse({
     status: 201,

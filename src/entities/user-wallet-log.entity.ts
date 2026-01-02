@@ -8,7 +8,7 @@ import { CommonCEntity } from '@/common/entities/common.entity';
  */
 @Entity({ name: 'user_wallet_log', comment: '用户钱包变动日志' })
 @Index('idx_user_token', ['userId', 'tokenId'])
-@Index('idx_user_time', ['userId', 'createdAt'])
+@Index('idx_order_type', ['orderId', 'type'], { unique: true })
 export class UserWalletLogEntity extends CommonCEntity {
   @Column({ comment: '用户ID', name: 'user_id', type: 'bigint' })
   userId: number;
@@ -54,7 +54,7 @@ export class UserWalletLogEntity extends CommonCEntity {
     type: 'bigint',
     default: 0,
   })
-  orderId?: number;
+  orderId: number;
 
   @Column({
     comment: '备注信息',

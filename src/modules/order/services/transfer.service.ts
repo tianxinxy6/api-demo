@@ -73,27 +73,7 @@ export class TransferService {
         throw new BusinessException(ErrorCode.ErrTransferAmountInvalid);
       }
 
-      // 5. 扣减转出方余额
-      await this.walletService.subBalance(queryRunner, {
-        userId,
-        tokenId: token.id,
-        amount: amount.toString(),
-        decimals: token.decimals,
-        type: WalletLogType.TRANSFER_OUT,
-        remark: dto.remark || `转账给 ${toUser.username}`,
-      });
-
-      // 6. 增加转入方余额
-      await this.walletService.addBalance(queryRunner, {
-        userId: toUser.id,
-        tokenId: token.id,
-        amount: amount.toString(),
-        decimals: token.decimals,
-        type: WalletLogType.TRANSFER_IN,
-        remark: dto.remark || '',
-      });
-
-      // 7. 创建转账订单
+      // 创建转账订单
       const order = queryRunner.manager.create(OrderTransferEntity, {
         userId,
         toUserId: toUser.id,
@@ -105,6 +85,28 @@ export class TransferService {
         status: TransferStatus.SUCCESS,
         remark: dto.remark ?? '',
         finishedAt: new Date(),
+      });
+
+      // 扣减转出方余额
+      await this.walletService.subBalance(queryRunner, {
+        userId,
+        tokenId: token.id,
+        amount: amount.toString(),
+        decimals: token.decimals,
+        type: WalletLogType.TRANSFER_OUT,
+        orderId: order.id,
+        remark: dto.remark || `转账给 ${toUser.username}`,
+      });
+
+      // 增加转入方余额
+      await this.walletService.addBalance(queryRunner, {
+        userId: toUser.id,
+        tokenId: token.id,
+        amount: amount.toString(),
+        decimals: token.decimals,
+        type: WalletLogType.TRANSFER_IN,
+        orderId: order.id,
+        remark: dto.remark || '',
       });
 
       await queryRunner.manager.save(OrderTransferEntity, order);

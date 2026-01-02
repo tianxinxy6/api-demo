@@ -88,17 +88,7 @@ export class WithdrawService {
       }
       const actualAmount = amount - fee;
 
-      // 4. 冻结用户余额
-      await this.walletService.freezeBalance(queryRunner, {
-        userId,
-        tokenId: token.id,
-        amount: amount.toString(),
-        decimals: token.decimals,
-        type: WalletLogType.WITHDRAWAL,
-        remark: '提现冻结',
-      });
-
-      // 5. 创建提现订单
+      // 创建提现订单
       const order = queryRunner.manager.create(OrderWithdrawEntity, {
         userId,
         orderNo: generateOrderNo(),
@@ -112,6 +102,17 @@ export class WithdrawService {
         actualAmount: actualAmount.toString(),
         toAddress: dto.toAddress,
         status: WithdrawalStatus.PENDING,
+      });
+
+      // 冻结用户余额
+      await this.walletService.freezeBalance(queryRunner, {
+        userId,
+        tokenId: token.id,
+        amount: amount.toString(),
+        decimals: token.decimals,
+        type: WalletLogType.WITHDRAWAL,
+        orderId: order.id,
+        remark: '提现冻结',
       });
 
       await queryRunner.manager.save(OrderWithdrawEntity, order);
@@ -193,6 +194,7 @@ export class WithdrawService {
           amount: order.amount,
           decimals: token.decimals,
           type: WalletLogType.WITHDRAWAL,
+          orderId: order.id,
           remark: '提现取消',
         });
       }
@@ -285,6 +287,7 @@ export class WithdrawService {
         amount: order.amount,
         decimals: token.decimals,
         type: WalletLogType.WITHDRAWAL,
+        orderId,
         remark: '提现失败',
       });
 

@@ -5,6 +5,7 @@ import { CreateSwapDto, QuerySwapDto } from '../dto/swap.dto';
 import { SwapOrder } from '../vo/swap.model';
 import { AuthUser } from '@/common/decorators/auth-user.decorator';
 import { ApiSecurityAuth } from '@/common/decorators/swagger.decorator';
+import { Idempotence } from '@/common/decorators/idempotence.decorator';
 
 /**
  * 闪兑订单控制器
@@ -19,6 +20,7 @@ export class SwapController {
    * 创建闪兑订单
    */
   @Post()
+  @Idempotence()
   @ApiOperation({ summary: '创建闪兑订单' })
   @ApiResponse({ status: 201, description: '创建成功' })
   async create(@AuthUser() user: IAuthUser, @Body() dto: CreateSwapDto): Promise<void> {

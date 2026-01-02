@@ -9,10 +9,10 @@ import { BusinessException } from '@/common/exceptions/biz.exception';
 export interface editBalanceParams {
   userId: number;
   tokenId: number;
-  amount: string; // 增加的金额，必须为正数
+  amount: string;
   decimals: number;
   type: WalletLogType;
-  orderId?: number;
+  orderId: number;
   remark?: string;
 }
 
@@ -68,7 +68,7 @@ export class WalletService {
       .createQueryBuilder()
       .update(UserWalletEntity)
       .set({
-        balance: () => `CAST(balance AS DECIMAL(30,0)) + ${addAmount.toString()}`,
+        balance: () => `balance + ${addAmount.toString()}`,
       })
       .where('userId = :userId AND tokenId = :tokenId', { userId, tokenId })
       .execute();
@@ -123,10 +123,10 @@ export class WalletService {
       .createQueryBuilder()
       .update(UserWalletEntity)
       .set({
-        balance: () => `CAST(balance AS DECIMAL(30,0)) - ${subAmount.toString()}`,
+        balance: () => `balance - ${subAmount.toString()}`,
       })
       .where('userId = :userId AND tokenId = :tokenId', { userId, tokenId })
-      .andWhere(`CAST(balance AS DECIMAL(30,0)) - ${subAmount.toString()} >= 0`)
+      .andWhere(`balance - ${subAmount.toString()} >= 0`)
       .execute();
 
     if (updateResult.affected === 0) {
@@ -183,11 +183,11 @@ export class WalletService {
       .createQueryBuilder()
       .update(UserWalletEntity)
       .set({
-        balance: () => `CAST(balance AS DECIMAL(30,0)) - ${freezeAmount.toString()}`,
-        frozenBalance: () => `CAST(frozen_balance AS DECIMAL(30,0)) + ${freezeAmount.toString()}`,
+        balance: () => `balance - ${freezeAmount.toString()}`,
+        frozenBalance: () => `frozen_balance + ${freezeAmount.toString()}`,
       })
       .where('userId = :userId AND tokenId = :tokenId', { userId, tokenId })
-      .andWhere(`CAST(balance AS DECIMAL(30,0)) - ${freezeAmount.toString()} >= 0`)
+      .andWhere(`balance - ${freezeAmount.toString()} >= 0`)
       .execute();
 
     if (updateResult.affected === 0) {
@@ -229,11 +229,11 @@ export class WalletService {
       .createQueryBuilder()
       .update(UserWalletEntity)
       .set({
-        balance: () => `CAST(balance AS DECIMAL(30,0)) + ${unfreezeAmount.toString()}`,
-        frozenBalance: () => `CAST(frozen_balance AS DECIMAL(30,0)) - ${unfreezeAmount.toString()}`,
+        balance: () => `balance + ${unfreezeAmount.toString()}`,
+        frozenBalance: () => `frozen_balance - ${unfreezeAmount.toString()}`,
       })
       .where('userId = :userId AND tokenId = :tokenId', { userId, tokenId })
-      .andWhere(`CAST(frozen_balance AS DECIMAL(30,0)) - ${unfreezeAmount.toString()} >= 0`)
+      .andWhere(`frozen_balance - ${unfreezeAmount.toString()} >= 0`)
       .execute();
 
     if (updateResult.affected === 0) {
@@ -275,10 +275,10 @@ export class WalletService {
       .createQueryBuilder()
       .update(UserWalletEntity)
       .set({
-        frozenBalance: () => `CAST(frozen_balance AS DECIMAL(30,0)) - ${subAmount.toString()}`,
+        frozenBalance: () => `frozen_balance - ${subAmount.toString()}`,
       })
       .where('userId = :userId AND tokenId = :tokenId', { userId, tokenId })
-      .andWhere(`CAST(frozen_balance AS DECIMAL(30,0)) - ${subAmount.toString()} >= 0`)
+      .andWhere(`frozen_balance - ${subAmount.toString()} >= 0`)
       .execute();
 
     if (updateResult.affected === 0) {
