@@ -91,6 +91,14 @@ class EnvironmentVariables {
   @IsString()
   API_VERSION: string = 'v1';
 
+  @IsString()
+  API_DOMAIN: string = 'http://localhost:3000';
+
+  // Swagger
+  @IsBoolean()
+  @Transform(({ value }) => value === 'true')
+  SWAGGER_ENABLE: boolean = false;
+
   // Rate Limiting
   @IsNumber()
   @Transform(({ value }) => parseInt(value, 10))
@@ -111,7 +119,16 @@ class EnvironmentVariables {
   // Encryption
   @IsOptional()
   @IsString()
-  ENCRYPTION_KEY?: string;
+  ENCRYPT_KEY?: string;
+
+  // Signature
+  @IsBoolean()
+  @Transform(({ value }) => value === 'true')
+  SIGNATURE_ENABLED: boolean = false;
+
+  @IsOptional()
+  @IsString()
+  SIGNATURE_SECRET?: string;
 
   // Vault (optional)
   @IsOptional()
@@ -125,6 +142,14 @@ class EnvironmentVariables {
   @IsOptional()
   @IsString()
   VAULT_SECRET_PATH?: string;
+
+  @IsOptional()
+  @IsString()
+  VAULT_ROLE_ID?: string;
+
+  @IsOptional()
+  @IsString()
+  VAULT_SECRET_ID?: string;
 }
 
 export function validate(config: Record<string, unknown>) {

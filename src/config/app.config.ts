@@ -23,9 +23,15 @@ export default registerAs('app', () => ({
     ttl: envNumber('THROTTLE_TTL', 60),
     limit: envNumber('THROTTLE_LIMIT', 10),
   },
+  signature: {
+    enabled: envBoolean('SIGNATURE_ENABLED', false),
+    secret: env('SIGNATURE_SECRET'),
+  },
   vault: {
     address: env('VAULT_ADDR', 'http://localhost:8200'),
     token: env('VAULT_TOKEN', 'dev-root-token'),
     secretPath: env('VAULT_SECRET_PATH', 'secret/data/wallet/privatekeys'),
+    roleId: env('VAULT_ROLE_ID'),
+    secretId: env('VAULT_SECRET_ID'),
   },
 }));

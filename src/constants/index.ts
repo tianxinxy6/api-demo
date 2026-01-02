@@ -8,6 +8,9 @@ export * from './cache.constant';
 // 错误码常量
 export * from './error-code.constant';
 
+// 签名验证常量
+export * from './signature.constant';
+
 // 响应常量
 export * from './response.constant';
 

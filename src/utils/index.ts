@@ -7,6 +7,7 @@ export * from './crypto.util';
 export * from './date.util';
 export * from './file.util';
 export * from './ip.util';
+export * from './signature.util';
 export * from './tool.util';
 export * from './bcrypt.util';
 export * from './eth.util';

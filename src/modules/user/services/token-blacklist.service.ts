@@ -24,7 +24,10 @@ export class TokenBlacklistService {
   async revokeToken(token: string, userId: number): Promise<void> {
     // md5 token
     const md5Token = md5(token);
-    const ttl = this.configService.get<number>('jwt.expires', 3600);
+    // 获取 JWT 过期时间（秒），从配置中读取
+    const expiresIn = this.configService.get<string>('jwt.expiresIn', '1h');
+    // 将时间字符串转换为秒数
+    const ttl = this.parseExpireTime(expiresIn);
     // 存储到黑名单，TTL为token剩余有效期
     const blacklistKey = `${this.BLACKLIST_PREFIX}${md5Token}`;
     await this.redisService.set(blacklistKey, userId.toString(), {
@@ -32,6 +35,23 @@ export class TokenBlacklistService {
     });
 
     this.logger.log(`Revoked token for user ${userId}`);
+  }
+
+  /**
+   * 解析过期时间字符串为秒数
+   * @param expiresIn 如 '1h', '7d', '60s'
+   */
+  private parseExpireTime(expiresIn: string): number {
+    const unit = expiresIn.slice(-1);
+    const value = parseInt(expiresIn.slice(0, -1), 10);
+    
+    switch (unit) {
+      case 's': return value;
+      case 'm': return value * 60;
+      case 'h': return value * 3600;
+      case 'd': return value * 86400;
+      default: return 3600; // 默认1小时
+    }
   }
 
   /**

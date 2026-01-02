@@ -9,6 +9,7 @@ import { IdempotenceInterceptor } from './common/interceptors/idempotence.interc
 import { TimeoutInterceptor } from './common/interceptors/timeout.interceptor';
 import { TransformInterceptor } from './common/interceptors/transform.interceptor';
 import { JwtAuthGuard } from './modules/auth/guards/jwt-auth.guard';
+import { SignatureGuard } from './common/guards/signature.guard';
 import { SharedModule } from './shared/shared.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { HealthModule } from './health/health.module';
@@ -19,6 +20,7 @@ import { TransactionModule } from './modules/transaction/transaction.module';
 import { TaskModule } from './modules/cron/cron.module';
 import { SysModule } from './modules/sys/sys.module';
 import { MarketModule } from './modules/market/market.module';
+import { TestModule } from './modules/test/test.module';
 import { ValidationPipe } from './common/pipes/validation.pipe';
 
 @Module({
@@ -42,6 +44,7 @@ import { ValidationPipe } from './common/pipes/validation.pipe';
     TaskModule,
     SysModule,
     MarketModule,
+    TestModule,
   ],
   providers: [
     { provide: APP_FILTER, useClass: AllExceptionsFilter },
@@ -60,6 +63,9 @@ import { ValidationPipe } from './common/pipes/validation.pipe';
     // 作为全局 Guard 使用时，NestJS 会自动从已导入的模块中解析依赖
     { provide: APP_GUARD, useClass: JwtAuthGuard },
     { provide: APP_GUARD, useClass: ThrottlerGuard },
+    // 签名验证守卫（需要先通过 JWT 认证）
+    // 注意：Guard 的执行顺序与注册顺序相同
+    { provide: APP_GUARD, useClass: SignatureGuard },
 
     {
       provide: 'APP_CONFIG',

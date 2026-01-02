@@ -20,6 +20,56 @@ import { RedisService } from '@/shared/cache/redis.service';
 
 const IdempotenceHeaderKey = 'x-idempotence';
 
+/**
+ * 幂等性拦截器配置选项
+ *
+ * @example
+ * // 基础用法 - 使用默认配置（60秒过期）
+ * @Idempotence()
+ * async createOrder() { ... }
+ *
+ * @example
+ * // 自定义过期时间和错误消息
+ * @Idempotence({
+ *   expired: 300, // 5分钟
+ *   errorMessage: '订单已提交，请勿重复操作',
+ *   pendingMessage: '订单正在处理中，请稍候...'
+ * })
+ * async createOrder() { ... }
+ *
+ * @example
+ * // 使用请求头的幂等 key
+ * // 客户端请求时添加: x-idempotence: <unique-key>
+ * @Idempotence()
+ * async transfer() { ... }
+ *
+ * @example
+ * // 自定义 key 生成规则
+ * @Idempotence({
+ *   generateKey: (req) => {
+ *     const { userId, orderId } = req.body;
+ *     return `order:${userId}:${orderId}`;
+ *   }
+ * })
+ * async updateOrder() { ... }
+ *
+ * @example
+ * // 仅使用请求头的 key，不自动生成
+ * @Idempotence({
+ *   disableGenerateKey: true,
+ *   errorMessage: '请在请求头中添加 x-idempotence 字段'
+ * })
+ * async sensitiveOperation() { ... }
+ *
+ * @example
+ * // 自定义错误处理
+ * @Idempotence({
+ *   handler: (req) => {
+ *     return { code: 409, message: '重复请求', requestId: req.id };
+ *   }
+ * })
+ * async customHandler() { ... }
+ */
 export interface IdempotenceOption {
   errorMessage?: string;
   pendingMessage?: string;
@@ -47,6 +97,36 @@ export interface IdempotenceOption {
   disableGenerateKey?: boolean;
 }
 
+/**
+ * 幂等性拦截器
+ *
+ * 通过 Redis 原子操作防止重复请求和重放攻击
+ *
+ * **工作原理：**
+ * 1. 从请求头 `x-idempotence` 获取幂等 key，或根据请求内容自动生成
+ * 2. 使用 Redis SETNX 原子操作尝试设置 key（值为 '0' 表示处理中）
+ * 3. 如果设置成功（返回 1），允许请求继续，并设置过期时间
+ * 4. 如果设置失败（返回 0），说明是重复请求，抛出 409 异常
+ * 5. 请求成功后，更新 key 值为 '1'（表示已完成）
+ * 6. 请求失败时，删除 key，允许重试
+ *
+ * **防重放攻击机制：**
+ * - 使用 Redis SETNX 确保原子性，即使并发 10000 个相同请求也只有 1 个能通过
+ * - 无竞态条件，不存在 GET→SET 之间的时间窗口漏洞
+ *
+ * **状态说明：**
+ * - `'0'`: 请求处理中
+ * - `'1'`: 请求已完成（成功）
+ * - `null`: key 不存在或已过期
+ *
+ * @example
+ * // 在 Controller 方法上使用
+ * @Post('transfer')
+ * @Idempotence({ expired: 300 })
+ * async transfer(@Body() dto: TransferDto) {
+ *   return await this.walletService.transfer(dto);
+ * }
+ */
 @Injectable()
 export class IdempotenceInterceptor implements NestInterceptor {
   constructor(
@@ -69,10 +149,10 @@ export class IdempotenceInterceptor implements NestInterceptor {
     if (!options) return next.handle();
 
     const {
-      errorMessage = '相同请求成功后在 60 秒内只能发送一次',
+      errorMessage = '相同请求成功后在 30 秒内只能发送一次',
       pendingMessage = '相同请求正在处理中...',
       handler: errorHandler,
-      expired = 60,
+      expired = 30,
       disableGenerateKey = false,
     } = options;
     const redis = this.redisService.getClient();
@@ -90,28 +170,37 @@ export class IdempotenceInterceptor implements NestInterceptor {
     SetMetadata(HTTP_IDEMPOTENCE_KEY, idempotenceKey)(handler);
 
     if (idempotenceKey) {
-      const resultValue: '0' | '1' | null = (await redis.get(
-        idempotenceKey,
-      )) as any;
-      if (resultValue !== null) {
+      // 使用 SETNX (SET if Not eXists) + EXPIRE 实现原子操作，防止竞态条件
+      // 返回 1 表示设置成功（key 不存在），返回 0 表示 key 已存在
+      const setResult = await redis.setnx(idempotenceKey, '0');
+
+      if (setResult === 0) {
+        // key 已存在，说明是重复请求
+        const resultValue: '0' | '1' | null = (await redis.get(
+          idempotenceKey,
+        )) as any;
+
         if (errorHandler) return await errorHandler(request);
 
         const message = {
           1: errorMessage,
           0: pendingMessage,
-        }[resultValue];
+        }[resultValue || '0'];
         throw new ConflictException(message);
-      } else {
-        await redis.set(idempotenceKey, '0', 'EX', expired);
       }
+      // 如果 setResult === 1，说明是第一个请求，设置过期时间
+      await redis.expire(idempotenceKey, expired);
     }
+
     return next.handle().pipe(
       tap(async () => {
         if (idempotenceKey) {
+          // 请求成功，更新状态为完成（1）
           await redis.set(idempotenceKey, '1', 'KEEPTTL');
         }
       }),
       catchError(async (err) => {
+        // 请求失败，删除 key，允许重试
         if (idempotenceKey) await redis.del(idempotenceKey);
 
         throw err;

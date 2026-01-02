@@ -7,21 +7,32 @@ declare global {
     uid: number;
   }
 
+  /**
+   * 链代币信息接口
+   */
   interface IChainToken {
+    /** 代币代码 */
     code: string;
-    contractAddress: string,
-    decimals: number
+    /** 合约地址 */
+    contractAddress: string;
+    /** 精度 */
+    decimals: number;
   }
 
-  export interface IPriceData {
+  /**
+   * 价格数据接口
+   */
+  interface IPriceData {
+    /** 交易对符号 */
     symbol: string;
+    /** 价格 */
     price: string;
   }
 
   /**
    * API 响应基础接口
    */
-  export interface IBaseResponse<T = any> {
+  interface IBaseResponse<T = any> {
     /** 响应消息 */
     message: string;
     /** 状态码 */
@@ -33,7 +44,7 @@ declare global {
   /**
    * 列表响应数据接口
    */
-  export interface IListRespData<T = any> {
+  interface IListRespData<T = any> {
     /** 列表项 */
     items: T[];
     /** 下一页游标 */
@@ -41,29 +52,4 @@ declare global {
   }
 }
 
-/**
- * JWT Payload 接口
- * 定义JWT token中包含的用户信息
- */
-export interface JwtPayload {
-  /**
-   * 用户ID (JWT标准字段)
-   */
-  sub: string;
-
-  /**
-   * 签发时间 (JWT标准字段)
-   */
-  iat?: number;
-
-  /**
-   * 过期时间 (JWT标准字段)
-   */
-  exp?: number;
-
-  /**
-   * 签发者 (JWT标准字段)
-   */
-  iss?: string;
-}
-
+export { };

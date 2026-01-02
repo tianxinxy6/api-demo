@@ -7,15 +7,15 @@ import { SharedModule } from '@/shared/shared.module';
 import { TokenService } from './services/token.service';
 import { TokenPriceService } from './services/token-price.service';
 import { SysWalletAddressService } from './services/sys-wallet.service';
-import { SysWalletController } from './controllers/sys-wallet.controller';
+
+const services = [TokenService, TokenPriceService, SysWalletAddressService];
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([TokenEntity, TokenPriceEntity, SysWalletAddressEntity]),
     SharedModule,
   ],
-  controllers: [SysWalletController],
-  providers: [TokenService, TokenPriceService, SysWalletAddressService],
-  exports: [TokenService, TokenPriceService, SysWalletAddressService],
+  providers: services,
+  exports: services,
 })
 export class SysModule {}
