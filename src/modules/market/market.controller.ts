@@ -24,16 +24,23 @@ export class MarketController {
   @Public()
   @Get('prices')
   @ApiOperation({ summary: '获取所有代币价格列表' })
-  @ApiResponse({ status: 200, type: [TokenPriceResponse], description: '代币价格列表' })
+  @ApiResponse({
+    status: 200,
+    type: [TokenPriceResponse],
+    description: '代币价格列表',
+  })
   async getAllPrices(): Promise<TokenPriceResponse[]> {
     const prices = await this.priceService.getAllPrices();
-    return prices.map(price => new TokenPriceResponse({
-      symbol: price.symbol,
-      token: price.token,
-      quote: price.quote,
-      price: price.price,
-      priceAt: price.priceAt,
-    }));
+    return prices.map(
+      (price) =>
+        new TokenPriceResponse({
+          symbol: price.symbol,
+          token: price.token,
+          quote: price.quote,
+          price: price.price,
+          priceAt: price.priceAt,
+        }),
+    );
   }
 
   /**
@@ -51,7 +58,7 @@ export class MarketController {
     }
 
     const price = await this.marketService.getPrice(symbol.trim());
-    
+
     if (!price) {
       throw new BusinessException(ErrorCode.ErrMarketPriceNotFound);
     }

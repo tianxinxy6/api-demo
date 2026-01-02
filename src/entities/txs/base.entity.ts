@@ -1,7 +1,4 @@
-import {
-  Column,
-  Index,
-} from 'typeorm';
+import { Column, Index } from 'typeorm';
 import { TransactionStatus } from '@/constants';
 import { CommonEntity } from '@/common/entities/common.entity';
 
@@ -13,7 +10,12 @@ import { CommonEntity } from '@/common/entities/common.entity';
 @Index('idx_hash', ['hash'], { unique: true })
 @Index('idx_to', ['to'])
 export abstract class BaseTransactionEntity extends CommonEntity {
-  @Column({ comment: '用户ID', name: 'user_id', type: 'bigint', nullable: true })
+  @Column({
+    comment: '用户ID',
+    name: 'user_id',
+    type: 'bigint',
+    nullable: true,
+  })
   userId?: number;
 
   @Column({

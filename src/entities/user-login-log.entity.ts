@@ -28,7 +28,12 @@ export class UserLoginLogEntity extends CommonCEntity {
   @Column({ comment: '登录状态（0:失败 1:成功）', default: 1, type: 'tinyint' })
   status: number;
 
-  @Column({ comment: '失败原因', name: 'failure_reason', default: '', length: 200 })
+  @Column({
+    comment: '失败原因',
+    name: 'failure_reason',
+    default: '',
+    length: 200,
+  })
   failureReason: string;
 
   @Column({ comment: '登录位置', default: '' })

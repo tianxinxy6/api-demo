@@ -1,8 +1,4 @@
-import {
-  Column,
-  Entity,
-  Index,
-} from 'typeorm';
+import { Column, Entity, Index } from 'typeorm';
 import { WithdrawalStatus } from '@/constants';
 import { OperatorEntity } from '@/common/entities/common.entity';
 
@@ -39,10 +35,22 @@ export class OrderWithdrawEntity extends OperatorEntity {
   @Column({ comment: '提现金额', type: 'decimal', precision: 30, scale: 0 })
   amount: string;
 
-  @Column({ comment: '手续费', type: 'decimal', precision: 30, scale: 0, default: 0 })
+  @Column({
+    comment: '手续费',
+    type: 'decimal',
+    precision: 30,
+    scale: 0,
+    default: 0,
+  })
   fee: string;
 
-  @Column({ comment: '实际到账金额', name: 'actual_amount', type: 'decimal', precision: 30, scale: 0 })
+  @Column({
+    comment: '实际到账金额',
+    name: 'actual_amount',
+    type: 'decimal',
+    precision: 30,
+    scale: 0,
+  })
   actualAmount: string;
 
   @Column({ comment: '提现地址', name: 'to', length: 255 })
@@ -55,7 +63,12 @@ export class OrderWithdrawEntity extends OperatorEntity {
   })
   status: WithdrawalStatus;
 
-  @Column({ comment: '区块链交易哈希', name: 'hash', length: 255, nullable: true })
+  @Column({
+    comment: '区块链交易哈希',
+    name: 'hash',
+    length: 255,
+    nullable: true,
+  })
   hash?: string;
 
   @Column({
@@ -73,6 +86,11 @@ export class OrderWithdrawEntity extends OperatorEntity {
   })
   remark?: string;
 
-  @Column({ comment: '完成时间', name: 'finished_at', type: 'timestamp', nullable: true })
+  @Column({
+    comment: '完成时间',
+    name: 'finished_at',
+    type: 'timestamp',
+    nullable: true,
+  })
   finishedAt?: Date;
 }

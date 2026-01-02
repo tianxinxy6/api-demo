@@ -46,10 +46,10 @@ export class QuerySwapDto extends DateDto {
   @IsString({ message: '目标代币代码必须是字符串' })
   toToken?: string;
 
-  @ApiPropertyOptional({ 
-    description: '订单状态: 1=成功 0=失败', 
+  @ApiPropertyOptional({
+    description: '订单状态: 1=成功 0=失败',
     example: Status.Enabled,
-    enum: Status 
+    enum: Status,
   })
   @IsOptional()
   @IsEnum(Status, { message: '订单状态值无效' })

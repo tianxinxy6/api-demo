@@ -112,7 +112,9 @@ export class TronScanService extends BaseScanService {
         const contractValue = contract.parameter?.value;
         if (contractValue?.amount) {
           type = TYPE_TRX_TRANSFER;
-          from = contractValue.owner_address ? this.hexToTronAddress(contractValue.owner_address) : '';
+          from = contractValue.owner_address
+            ? this.hexToTronAddress(contractValue.owner_address)
+            : '';
           to = contractValue.to_address ? this.hexToTronAddress(contractValue.to_address) : null;
           value = contractValue.amount.toString();
         }
@@ -125,19 +127,27 @@ export class TronScanService extends BaseScanService {
             const { method, recipient, amount } = parseData;
 
             type = TYPE_TRC20_TRANSFER;
-            from = contractValue.owner_address ? this.hexToTronAddress(contractValue.owner_address) : '';
+            from = contractValue.owner_address
+              ? this.hexToTronAddress(contractValue.owner_address)
+              : '';
             to = recipient;
             value = amount;
 
             contractInfo = {
-              address: contractValue.contract_address ? this.hexToTronAddress(contractValue.contract_address) : '',
+              address: contractValue.contract_address
+                ? this.hexToTronAddress(contractValue.contract_address)
+                : '',
               method,
               amount,
             };
           } else {
             type = TYPE_CONTRACT_CALL;
-            from = contractValue.owner_address ? this.hexToTronAddress(contractValue.owner_address) : '';
-            to = contractValue.contract_address ? this.hexToTronAddress(contractValue.contract_address) : null;
+            from = contractValue.owner_address
+              ? this.hexToTronAddress(contractValue.owner_address)
+              : '';
+            to = contractValue.contract_address
+              ? this.hexToTronAddress(contractValue.contract_address)
+              : null;
           }
         }
       }
@@ -173,10 +183,12 @@ export class TronScanService extends BaseScanService {
   /**
    * 分析 TRC20 交易数据
    */
-  private parseTrc20Data(data: string): { method: string; recipient: string; amount: string } | null {
+  private parseTrc20Data(
+    data: string,
+  ): { method: string; recipient: string; amount: string } | null {
     try {
       const TRC20_METHODS = {
-        'a9059cbb': 'transfer',
+        a9059cbb: 'transfer',
         '23b872dd': 'transferFrom',
         '095ea7b3': 'approve',
       };
@@ -241,5 +253,4 @@ export class TronScanService extends BaseScanService {
       return '';
     }
   }
-
 }

@@ -6,7 +6,6 @@ import { Public } from '@/common/decorators/public.decorator';
 @ApiTags('Health - 健康检查')
 @Controller('health')
 export class HealthController {
-
   /**
    * 健康检查
    */

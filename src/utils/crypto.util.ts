@@ -1,4 +1,6 @@
 import * as crypto from 'crypto';
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+import keccak256Hash = require('js-sha3');
 
 /**
  * 加密工具函数（纯函数，无依赖）
@@ -38,10 +40,7 @@ function getEncryptionKey(customKey?: string): string {
 export function aesEncrypt(plaintext: string, secretKey?: string): string {
   try {
     // 密钥必须是 32 字节（256 位）
-    const key = crypto
-      .createHash('sha256')
-      .update(getEncryptionKey(secretKey))
-      .digest();
+    const key = crypto.createHash('sha256').update(getEncryptionKey(secretKey)).digest();
 
     // 为每次加密生成随机 IV（16 字节）
     const iv = crypto.randomBytes(16);
@@ -67,10 +66,7 @@ export function aesEncrypt(plaintext: string, secretKey?: string): string {
  */
 export function aesDecrypt(ciphertext: string, secretKey?: string): string {
   try {
-    const key = crypto
-      .createHash('sha256')
-      .update(getEncryptionKey(secretKey))
-      .digest();
+    const key = crypto.createHash('sha256').update(getEncryptionKey(secretKey)).digest();
 
     // 提取 IV（前 32 个十六进制字符 = 16 字节）
     const iv = Buffer.from(ciphertext.slice(0, 32), 'hex');
@@ -125,8 +121,7 @@ export function md5(data: string): string {
  */
 export function keccak256(data: string): string {
   try {
-    const { keccak_256 } = require('js-sha3');
-    return keccak_256(data);
+    return keccak256Hash.keccak_256(data);
   } catch {
     // 备用方案：使用 SHA3-256（需要 npm install sha3）
     // 注：这是降级方案，生产环境应确保 js-sha3 已安装

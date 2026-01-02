@@ -1,18 +1,5 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Body,
-  Query,
-  Param,
-  ParseIntPipe,
-  Delete,
-} from '@nestjs/common';
-import {
-  ApiTags,
-  ApiOperation,
-  ApiResponse,
-} from '@nestjs/swagger';
+import { Controller, Get, Post, Body, Query, Param, ParseIntPipe, Delete } from '@nestjs/common';
+import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { WithdrawService } from '../services/withdraw.service';
 import { CreateWithdrawDto, QueryWithdrawDto, CancelWithdrawDto } from '../dto/withdraw.dto';
 import { WithdrawOrder } from '../model/withdraw.model';
@@ -35,10 +22,7 @@ export class WithdrawController {
     description: '创建成功',
     type: String,
   })
-  async create(
-    @AuthUser() user: IAuthUser,
-    @Body() createDto: CreateWithdrawDto,
-  ): Promise<string> {
+  async create(@AuthUser() user: IAuthUser, @Body() createDto: CreateWithdrawDto): Promise<string> {
     return this.withdrawService.create(user.uid, createDto);
   }
 
@@ -48,10 +32,7 @@ export class WithdrawController {
     status: 200,
     description: '取消成功',
   })
-  async cancel(
-    @AuthUser() user: IAuthUser,
-    @Param('orderNo') orderNo: string,
-  ): Promise<void> {
+  async cancel(@AuthUser() user: IAuthUser, @Param('orderNo') orderNo: string): Promise<void> {
     return this.withdrawService.cancel(user.uid, orderNo);
   }
 

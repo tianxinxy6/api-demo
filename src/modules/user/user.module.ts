@@ -18,7 +18,12 @@ const providers = [UserService, WalletService, ChainAddressService, TokenBlackli
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([UserEntity, UserWalletEntity, UserWalletLogEntity, UserWalletAddressEntity]),
+    TypeOrmModule.forFeature([
+      UserEntity,
+      UserWalletEntity,
+      UserWalletLogEntity,
+      UserWalletAddressEntity,
+    ]),
     AppCacheModule,
     SharedModule,
   ],
@@ -26,4 +31,4 @@ const providers = [UserService, WalletService, ChainAddressService, TokenBlackli
   providers: [...providers],
   exports: [...providers],
 })
-export class UserModule { }
+export class UserModule {}

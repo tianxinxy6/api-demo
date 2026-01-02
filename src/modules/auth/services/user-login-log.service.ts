@@ -25,7 +25,7 @@ export class UserLoginLogService {
   ): Promise<UserLoginLogEntity> {
     const userAgent = request.headers['user-agent'] || '';
     const loginIp = getClientIp(request);
-    
+
     // 解析用户代理信息
     const deviceInfo = this.parseUserAgent(userAgent);
 

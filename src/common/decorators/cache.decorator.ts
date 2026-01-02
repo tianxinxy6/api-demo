@@ -47,12 +47,10 @@ export const Cached = (ttl?: number) => {
  *   const value = await cacheService.get('mykey');
  * }
  */
-export const InjectCache = createParamDecorator(
-  (data: unknown, ctx: ExecutionContext) => {
-    // 这个装饰器主要用于类型提示，实际注入通过构造器完成
-    return null;
-  },
-);
+export const InjectCache = createParamDecorator((_data: unknown, _ctx: ExecutionContext) => {
+  // 这个装饰器主要用于类型提示，实际注入通过构造器完成
+  return null;
+});
 
 /**
  * 缓存前缀装饰器 - 为整个控制器设置缓存键前缀
@@ -65,5 +63,4 @@ export const InjectCache = createParamDecorator(
  *   // 所有方法的缓存键都会加上 'user:' 前缀
  * }
  */
-export const CachePrefix = (prefix: string) =>
-  SetMetadata('cache_prefix', prefix);
+export const CachePrefix = (prefix: string) => SetMetadata('cache_prefix', prefix);

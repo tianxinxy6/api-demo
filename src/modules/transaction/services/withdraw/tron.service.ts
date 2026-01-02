@@ -30,13 +30,7 @@ export class TronWithdrawService extends BaseWithdrawService {
     databaseService: DatabaseService,
     withdrawService: WithdrawService,
   ) {
-    super(
-      chainService,
-      sysWalletAddressService,
-      dataSource,
-      databaseService,
-      withdrawService,
-    );
+    super(chainService, sysWalletAddressService, dataSource, databaseService, withdrawService);
   }
 
   protected buildEntity(): BaseTransactionEntity {
@@ -86,10 +80,7 @@ export class TronWithdrawService extends BaseWithdrawService {
         return await this.withdrawTRX(order, this.editTxStatus.bind(this));
       }
     } catch (error) {
-      this.logger.error(
-        `Execute withdraw failed for order ${order.id}:`,
-        error.message,
-      );
+      this.logger.error(`Execute withdraw failed for order ${order.id}:`, error.message);
       throw error;
     }
   }
@@ -99,14 +90,15 @@ export class TronWithdrawService extends BaseWithdrawService {
    */
   private async withdrawTRX(
     order: OrderWithdrawEntity,
-    callback: (txId: number, orderId: number, data: any) => void
+    callback: (txId: number, orderId: number, data: any) => void,
   ): Promise<void> {
     try {
       const amount = BigInt(order.actualAmount);
 
       const gasFee = (await this.tronUtil.calculateTrxTransFee(order.to)).toString();
 
-      this.tronUtil.sendTrx(order.to, Number(amount))
+      this.tronUtil
+        .sendTrx(order.to, Number(amount))
         .then(async (hash) => {
           // 创建提现交易记录
           const txEntity = this.buildWithdrawEntity(order);
@@ -135,7 +127,7 @@ export class TronWithdrawService extends BaseWithdrawService {
    */
   private async withdrawTRC20(
     order: OrderWithdrawEntity,
-    callback: (txId: number, orderId: number, data: any) => void
+    callback: (txId: number, orderId: number, data: any) => void,
   ): Promise<void> {
     try {
       const amount = BigInt(order.actualAmount);
@@ -150,27 +142,27 @@ export class TronWithdrawService extends BaseWithdrawService {
       // 检查 ETH 余额是否足够支付 gas费
       const trxBalance = await this.getBalance(fromAddress);
       if (trxBalance < BigInt(gasFee)) {
-        this.logger.error(`Insufficient TRX balance ${trxBalance} to cover gas fee ${gasFee} for TRC20 withdraw`);
+        this.logger.error(
+          `Insufficient TRX balance ${trxBalance} to cover gas fee ${gasFee} for TRC20 withdraw`,
+        );
         return;
       }
 
-      this.tronUtil.sendTrc20(
-        order.to,
-        Number(amount),
-        order.contract!,
-      ).then(async (hash) => {
-        // 创建提现交易记录
-        const txEntity = this.buildWithdrawEntity(order);
-        txEntity.hash = hash;
-        txEntity.amount = amount.toString();
-        txEntity.gasFee = gasFee;
-        const txId = await this.saveTx(txEntity, order);
+      this.tronUtil
+        .sendTrc20(order.to, Number(amount), order.contract)
+        .then(async (hash) => {
+          // 创建提现交易记录
+          const txEntity = this.buildWithdrawEntity(order);
+          txEntity.hash = hash;
+          txEntity.amount = amount.toString();
+          txEntity.gasFee = gasFee;
+          const txId = await this.saveTx(txEntity, order);
 
-        // 监听交易确认
-        this.watchTx(hash, (status, blockNumber) => {
-          callback(txId, order.id, { status, blockNumber });
-        });
-      })
+          // 监听交易确认
+          this.watchTx(hash, (status, blockNumber) => {
+            callback(txId, order.id, { status, blockNumber });
+          });
+        })
         .catch((error) => {
           this.logger.error(`Withdraw TRC20 failed:`, error.message);
           throw error;
@@ -186,11 +178,11 @@ export class TronWithdrawService extends BaseWithdrawService {
    * 使用 getTransaction 作为主要判断依据（更可靠）
    */
   private async watchTx(
-      txHash: string,
-      callback: (status: TransactionStatus, blockNumber?: number) => void,
-      timeoutMs: number = 9 * 1000,
-      intervalMs: number = 3_000,
-    ): Promise<void> {
+    txHash: string,
+    callback: (status: TransactionStatus, blockNumber?: number) => void,
+    timeoutMs: number = 9 * 1000,
+    intervalMs: number = 3_000,
+  ): Promise<void> {
     const start = Date.now();
 
     try {
@@ -210,7 +202,6 @@ export class TronWithdrawService extends BaseWithdrawService {
         } else if (status === 'REVERT') {
           callback(TransactionStatus.FAILED);
           return;
-
         } else {
           // 交易存在但还未确认
           this.logger.debug(`Transaction ${txHash} pending confirmation...`);

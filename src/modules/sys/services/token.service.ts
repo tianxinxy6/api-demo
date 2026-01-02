@@ -31,7 +31,7 @@ export class TokenService {
    */
   async getTokenByCode(code: string): Promise<TokenEntity | null> {
     const cacheKey = `${TokenService.CACHE_PREFIX}${code.toUpperCase()}`;
-    
+
     // 尝试从缓存获取
     const cachedToken = await this.cacheService.get<TokenEntity>(cacheKey);
     if (cachedToken) {
@@ -40,9 +40,9 @@ export class TokenService {
 
     // 缓存未命中，从数据库查询
     const token = await this.tokenRepository.findOne({
-      where: { 
+      where: {
         code: code.toUpperCase(),
-        status: TokenStatus.ACTIVE 
+        status: TokenStatus.ACTIVE,
       },
     });
     if (!token) {
@@ -62,7 +62,7 @@ export class TokenService {
    */
   async getTokenById(id: number): Promise<TokenEntity | null> {
     const cacheKey = `${TokenService.CACHE_PREFIX}id:${id}`;
-    
+
     // 尝试从缓存获取
     const cachedToken = await this.cacheService.get<TokenEntity>(cacheKey);
     if (cachedToken) {
@@ -71,9 +71,9 @@ export class TokenService {
 
     // 缓存未命中，从数据库查询
     const token = await this.tokenRepository.findOne({
-      where: { 
+      where: {
         id,
-        status: TokenStatus.ACTIVE 
+        status: TokenStatus.ACTIVE,
       },
     });
     if (!token) {
@@ -92,7 +92,7 @@ export class TokenService {
    */
   async getAllTokens(): Promise<TokenEntity[]> {
     const cacheKey = `${TokenService.CACHE_PREFIX}all`;
-    
+
     // 尝试从缓存获取
     const cachedTokens = await this.cacheService.get<TokenEntity[]>(cacheKey);
     if (cachedTokens) {
@@ -101,8 +101,8 @@ export class TokenService {
 
     // 缓存未命中，从数据库查询
     const tokens = await this.tokenRepository.find({
-      where: { 
-        status: TokenStatus.ACTIVE 
+      where: {
+        status: TokenStatus.ACTIVE,
       },
       order: {
         id: 'ASC',

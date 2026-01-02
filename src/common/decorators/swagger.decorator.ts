@@ -7,7 +7,7 @@ export const API_SECURITY_AUTH = 'auth';
  * Swagger 认证装饰器
  * 为 Swagger 文档添加认证安全标记
  * 等同于 @ApiSecurity('auth')
- * 
+ *
  * 使用示例：
  * @ApiSecurityAuth()
  * @Controller('users')

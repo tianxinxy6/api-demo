@@ -1,9 +1,5 @@
 import { CommonEntity } from '@/common/entities/common.entity';
-import {
-  Entity,
-  Column,
-  Index,
-} from 'typeorm';
+import { Entity, Column, Index } from 'typeorm';
 
 /**
  * 系统配置表
@@ -20,7 +16,7 @@ export class ConfigEntity extends CommonEntity {
     name: 'key',
     type: 'varchar',
     length: 100,
-    comment: '配置键名'
+    comment: '配置键名',
   })
   key: string;
 
@@ -31,7 +27,7 @@ export class ConfigEntity extends CommonEntity {
     name: 'value',
     type: 'varchar',
     length: 1000,
-    comment: '配置值'
+    comment: '配置值',
   })
   value: string;
 
@@ -43,7 +39,7 @@ export class ConfigEntity extends CommonEntity {
     type: 'varchar',
     length: 255,
     nullable: true,
-    comment: '配置描述'
+    comment: '配置描述',
   })
   description?: string;
 }

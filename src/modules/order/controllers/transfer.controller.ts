@@ -1,15 +1,5 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Body,
-  Query,
-} from '@nestjs/common';
-import {
-  ApiTags,
-  ApiOperation,
-  ApiResponse,
-} from '@nestjs/swagger';
+import { Controller, Get, Post, Body, Query } from '@nestjs/common';
+import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { TransferService } from '../services/transfer.service';
 import { CreateTransferDto, QueryTransferDto } from '../dto/transfer.dto';
 import { TransferOrder } from '../model/transfer.model';
@@ -32,10 +22,7 @@ export class TransferController {
     description: '创建成功，返回订单号',
     type: String,
   })
-  async create(
-    @AuthUser() user: IAuthUser,
-    @Body() createDto: CreateTransferDto,
-  ): Promise<string> {
+  async create(@AuthUser() user: IAuthUser, @Body() createDto: CreateTransferDto): Promise<string> {
     return this.transferService.create(user.uid, createDto);
   }
 

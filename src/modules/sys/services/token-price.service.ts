@@ -22,7 +22,14 @@ export class TokenPriceService {
   /**
    * 批量更新交易对价格
    */
-  async batchUpsert(prices: Array<{ symbol: string; token: string; quote: string; price: string }>): Promise<void> {
+  async batchUpsert(
+    prices: Array<{
+      symbol: string;
+      token: string;
+      quote: string;
+      price: string;
+    }>,
+  ): Promise<void> {
     if (!prices || prices.length === 0) return;
 
     const now = new Date();

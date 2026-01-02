@@ -75,7 +75,7 @@ export class DepositService {
     const depositOrder = await queryRunner.manager.findOne(OrderDepositEntity, {
       where: { hash: transaction.hash },
     });
-    
+
     if (!depositOrder) {
       this.logger.warn(`Deposit order not found for transaction: ${transaction.hash}`);
       throw new BusinessException(ErrorCode.ErrDepositTransactionNotFound);
@@ -85,14 +85,18 @@ export class DepositService {
       this.logger.debug(`Deposit order already processed: ${depositOrder.id}`);
       return;
     }
-    
+
     if (success) {
       // 1. 先更新充值订单状态为成功
-      const updateResult = await queryRunner.manager.update(OrderDepositEntity, { id: depositOrder.id }, {
-        status: DepositStatus.SETTLED,
-        confirmBlock: confirmBlock,
-        updatedAt: new Date(),
-      });
+      const updateResult = await queryRunner.manager.update(
+        OrderDepositEntity,
+        { id: depositOrder.id },
+        {
+          status: DepositStatus.SETTLED,
+          confirmBlock: confirmBlock,
+          updatedAt: new Date(),
+        },
+      );
 
       // 2. 状态更新成功后，增加用户钱包余额
       if (updateResult.affected && updateResult.affected > 0) {
@@ -101,27 +105,28 @@ export class DepositService {
           this.logger.error(`Token not found: ${depositOrder.token}`);
           return;
         }
-        
-        await this.walletService.addBalance(
-          queryRunner,
-          {
-            userId: depositOrder.userId,
-            tokenId: token.id,
-            amount: depositOrder.amount,
-            decimals: token.decimals,
-            type: WalletLogType.DEPOSIT,
-            orderId: depositOrder.id,
-          }
-        );
+
+        await this.walletService.addBalance(queryRunner, {
+          userId: depositOrder.userId,
+          tokenId: token.id,
+          amount: depositOrder.amount,
+          decimals: token.decimals,
+          type: WalletLogType.DEPOSIT,
+          orderId: depositOrder.id,
+        });
       }
     } else {
       // 更新充值订单状态为失败
-      await queryRunner.manager.update(OrderDepositEntity, { id: depositOrder.id }, {
-        status: DepositStatus.FAILED,
-        failureReason: failureReason || 'Transaction failed',
-        updatedAt: new Date(),
-      });
-      
+      await queryRunner.manager.update(
+        OrderDepositEntity,
+        { id: depositOrder.id },
+        {
+          status: DepositStatus.FAILED,
+          failureReason: failureReason || 'Transaction failed',
+          updatedAt: new Date(),
+        },
+      );
+
       this.logger.warn(`Deposit failed: order=${depositOrder.id}, reason=${failureReason}`);
     }
   }
@@ -137,36 +142,46 @@ export class DepositService {
 
     // 应用其他过滤条件
     if (queryDto.chainId) {
-      queryBuilder.andWhere('deposit.chainId = :chainId', { chainId: queryDto.chainId });
+      queryBuilder.andWhere('deposit.chainId = :chainId', {
+        chainId: queryDto.chainId,
+      });
     }
 
     if (queryDto.token) {
-      queryBuilder.andWhere('deposit.token = :token', { token: queryDto.token });
+      queryBuilder.andWhere('deposit.token = :token', {
+        token: queryDto.token,
+      });
     }
 
     if (queryDto.status !== undefined) {
-      queryBuilder.andWhere('deposit.status = :status', { status: queryDto.status });
+      queryBuilder.andWhere('deposit.status = :status', {
+        status: queryDto.status,
+      });
     }
 
     if (queryDto.startDate) {
-      queryBuilder.andWhere('deposit.createdAt >= :startDate', { startDate: queryDto.startDate });
+      queryBuilder.andWhere('deposit.createdAt >= :startDate', {
+        startDate: queryDto.startDate,
+      });
     }
 
     if (queryDto.endDate) {
-      queryBuilder.andWhere('deposit.createdAt <= :endDate', { endDate: queryDto.endDate });
+      queryBuilder.andWhere('deposit.createdAt <= :endDate', {
+        endDate: queryDto.endDate,
+      });
     }
 
     // 游标分页
     if (queryDto.cursor) {
-      queryBuilder.andWhere('deposit.id < :cursor', { cursor: queryDto.cursor });
+      queryBuilder.andWhere('deposit.id < :cursor', {
+        cursor: queryDto.cursor,
+      });
     }
 
     const limit = queryDto.limit || 20;
 
     // 排序和限制
-    queryBuilder
-      .orderBy('deposit.id', 'DESC')
-      .limit(limit);
+    queryBuilder.orderBy('deposit.id', 'DESC').limit(limit);
 
     const deposits = await queryBuilder.getMany();
 
@@ -174,7 +189,7 @@ export class DepositService {
     const nextCursor = deposits.length == limit ? deposits[deposits.length - 1].id : null;
 
     return {
-      items: deposits.map(deposit => this.mapToModel(deposit)),
+      items: deposits.map((deposit) => this.mapToModel(deposit)),
       nextCursor,
     };
   }

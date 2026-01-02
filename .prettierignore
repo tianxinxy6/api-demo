@@ -1,0 +1,25 @@
+# 依赖
+node_modules/
+dist/
+coverage/
+
+# 构建产物
+*.min.js
+*.bundle.js
+*.map
+
+# 日志
+logs/
+*.log
+
+# 生成的文件
+postman.json
+
+# 配置文件
+.env
+.env.*
+!.env.example
+
+# 其他
+.git/
+.DS_Store

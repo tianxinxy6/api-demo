@@ -52,10 +52,10 @@ export class QueryWithdrawDto extends DateDto {
   @IsString({ message: '代币代码必须是字符串' })
   token?: string;
 
-  @ApiPropertyOptional({ 
-    description: '订单状态', 
+  @ApiPropertyOptional({
+    description: '订单状态',
     example: WithdrawalStatus.PENDING,
-    enum: WithdrawalStatus 
+    enum: WithdrawalStatus,
   })
   @IsOptional()
   @IsEnum(WithdrawalStatus, { message: '订单状态值无效' })

@@ -19,20 +19,18 @@ import compression from 'compression';
 declare const module: any;
 
 async function bootstrap() {
-  const app = await NestFactory.create<NestFastifyApplication>(
-    AppModule,
-    fastifyApp,
-    {
-      bufferLogs: true,
-      snapshot: true,
-      // forceCloseConnections: true,
-    },
-  );
+  const app = await NestFactory.create<NestFastifyApplication>(AppModule, fastifyApp, {
+    bufferLogs: true,
+    snapshot: true,
+    // forceCloseConnections: true,
+  });
 
   const configService = app.get(ConfigService);
 
   const { port } = configService.get('app', { infer: true });
-  const { prefix: globalPrefix } = configService.get('app.api', { infer: true });
+  const { prefix: globalPrefix } = configService.get('app.api', {
+    infer: true,
+  });
 
   // class-validator 的 DTO 类中注入 nest 容器的依赖 (用于自定义验证器)
   useContainer(app.select(AppModule), { fallbackOnErrors: true });

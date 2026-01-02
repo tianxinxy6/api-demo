@@ -53,24 +53,16 @@ export class AllExceptionsFilter implements ExceptionFilter {
     let message = this.getErrorMessage(exception);
 
     // 系统内部错误时
-    if (
-      status === HttpStatus.INTERNAL_SERVER_ERROR &&
-      !(exception instanceof BusinessException)
-    ) {
+    if (status === HttpStatus.INTERNAL_SERVER_ERROR && !(exception instanceof BusinessException)) {
       Logger.error(exception, undefined, 'Catch');
 
       // 生产环境下隐藏错误信息
       if (!isDev) message = ErrorCode.ErrInternalServer?.split(':')[1];
     } else {
-      this.logger.warn(
-        `错误信息：(${status}) ${message} Path: ${decodeURI(url)}`,
-      );
+      this.logger.warn(`错误信息：(${status}) ${message} Path: ${decodeURI(url)}`);
     }
 
-    const apiErrorCode =
-      exception instanceof BusinessException
-        ? exception.getErrorCode()
-        : status;
+    const apiErrorCode = exception instanceof BusinessException ? exception.getErrorCode() : status;
 
     // 返回基础响应结果
     const resBody: IBaseResponse = {
@@ -90,7 +82,6 @@ export class AllExceptionsFilter implements ExceptionFilter {
     if (exception instanceof HttpException) {
       return exception.getStatus();
     } else if (exception instanceof QueryFailedError) {
-      // console.log('driverError', exception.driverError.code)
       return HttpStatus.INTERNAL_SERVER_ERROR;
     } else {
       return (
@@ -112,9 +103,7 @@ export class AllExceptionsFilter implements ExceptionFilter {
       return exception.message;
     } else {
       return (
-        (exception as any)?.response?.message ??
-        (exception as MyError)?.message ??
-        `${exception}`
+        (exception as any)?.response?.message ?? (exception as MyError)?.message ?? `${exception}`
       );
     }
   }

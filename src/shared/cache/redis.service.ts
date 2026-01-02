@@ -1,9 +1,4 @@
-import {
-  Injectable,
-  Logger,
-  OnModuleDestroy,
-  OnModuleInit,
-} from '@nestjs/common';
+import { Injectable, Logger, OnModuleDestroy, OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import Redis, { RedisOptions } from 'ioredis';
 
@@ -65,18 +60,12 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
       await this.redis.ping();
       this.logger.log('Redis service initialized successfully');
     } catch (error) {
-      const errorMessage =
-        error instanceof Error ? error.message : String(error);
+      const errorMessage = error instanceof Error ? error.message : String(error);
       const errorStack = error instanceof Error ? error.stack : undefined;
-      this.logger.error(
-        `Failed to initialize Redis service: ${errorMessage}`,
-        errorStack,
-      );
+      this.logger.error(`Failed to initialize Redis service: ${errorMessage}`, errorStack);
 
       // 不抛出错误，允许应用继续启动
-      this.logger.warn(
-        'Redis service will continue to attempt connections in the background',
-      );
+      this.logger.warn('Redis service will continue to attempt connections in the background');
     }
   }
 
@@ -95,11 +84,7 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
   /**
    * 设置缓存
    */
-  async set(
-    key: string,
-    value: any,
-    options?: CacheOptions,
-  ): Promise<'OK' | null> {
+  async set(key: string, value: any, options?: CacheOptions): Promise<'OK' | null> {
     const serializedValue = JSON.stringify(value);
     const ttl = options?.ttl ?? this.defaultTTL;
 
@@ -151,11 +136,7 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
   /**
    * 设置过期时间
    */
-  async expire(
-    key: string,
-    seconds: number,
-    prefix?: string,
-  ): Promise<boolean> {
+  async expire(key: string, seconds: number, prefix?: string): Promise<boolean> {
     if (prefix) {
       key = `${prefix}:${key}`;
     }
@@ -250,8 +231,7 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
         },
       };
     } catch (error) {
-      const errorMessage =
-        error instanceof Error ? error.message : String(error);
+      const errorMessage = error instanceof Error ? error.message : String(error);
       return {
         status: 'error',
         info: {

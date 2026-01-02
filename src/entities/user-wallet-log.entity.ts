@@ -1,8 +1,4 @@
-import {
-  Column,
-  Entity,
-  Index,
-} from 'typeorm';
+import { Column, Entity, Index } from 'typeorm';
 import { WalletLogType } from '../constants';
 import { CommonCEntity } from '@/common/entities/common.entity';
 

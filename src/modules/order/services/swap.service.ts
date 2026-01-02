@@ -80,7 +80,7 @@ export class SwapService {
   ): Promise<SwapCalculation> {
     // 转换为最小单位
     const fromAmount = BigInt(Math.floor(amount * 10 ** fromToken.decimals));
-    
+
     if (fromAmount <= 0n) {
       throw new BusinessException(ErrorCode.ErrSwapAmountInvalid);
     }
@@ -187,10 +187,7 @@ export class SwapService {
       await this.userService.verifyTransferPassword(userId, dto.transPassword);
 
       // 2. 验证代币
-      const [fromToken, toToken] = await this.validateTokens(
-        dto.fromTokenId,
-        dto.toTokenId,
-      );
+      const [fromToken, toToken] = await this.validateTokens(dto.fromTokenId, dto.toTokenId);
 
       // 3. 计算兑换
       const calculation = await this.calculateSwap(
@@ -201,13 +198,7 @@ export class SwapService {
       );
 
       // 4. 执行钱包操作
-      await this.executeWalletOperations(
-        queryRunner,
-        userId,
-        fromToken,
-        toToken,
-        calculation,
-      );
+      await this.executeWalletOperations(queryRunner, userId, fromToken, toToken, calculation);
 
       // 5. 创建订单记录
       const order = this.createOrderEntity(
@@ -249,23 +240,33 @@ export class SwapService {
 
     // 应用其他过滤条件
     if (queryDto.fromToken) {
-      queryBuilder.andWhere('swap.fromToken = :fromToken', { fromToken: queryDto.fromToken });
+      queryBuilder.andWhere('swap.fromToken = :fromToken', {
+        fromToken: queryDto.fromToken,
+      });
     }
 
     if (queryDto.toToken) {
-      queryBuilder.andWhere('swap.toToken = :toToken', { toToken: queryDto.toToken });
+      queryBuilder.andWhere('swap.toToken = :toToken', {
+        toToken: queryDto.toToken,
+      });
     }
 
     if (queryDto.status !== undefined) {
-      queryBuilder.andWhere('swap.status = :status', { status: queryDto.status });
+      queryBuilder.andWhere('swap.status = :status', {
+        status: queryDto.status,
+      });
     }
 
     if (queryDto.startDate) {
-      queryBuilder.andWhere('swap.createdAt >= :startDate', { startDate: queryDto.startDate });
+      queryBuilder.andWhere('swap.createdAt >= :startDate', {
+        startDate: queryDto.startDate,
+      });
     }
 
     if (queryDto.endDate) {
-      queryBuilder.andWhere('swap.createdAt <= :endDate', { endDate: queryDto.endDate });
+      queryBuilder.andWhere('swap.createdAt <= :endDate', {
+        endDate: queryDto.endDate,
+      });
     }
 
     // 游标分页
@@ -276,9 +277,7 @@ export class SwapService {
     const limit = queryDto.limit || 20;
 
     // 排序和限制
-    queryBuilder
-      .orderBy('swap.id', 'DESC')
-      .limit(limit);
+    queryBuilder.orderBy('swap.id', 'DESC').limit(limit);
 
     const swaps = await queryBuilder.getMany();
 
@@ -286,7 +285,7 @@ export class SwapService {
     const nextCursor = swaps.length == limit ? swaps[swaps.length - 1].id : null;
 
     return {
-      items: swaps.map(swap => this.mapToModel(swap)),
+      items: swaps.map((swap) => this.mapToModel(swap)),
       nextCursor,
     };
   }

@@ -32,14 +32,9 @@ export class AuthService {
    */
   async login(dto: UserLoginDto, req: FastifyRequest) {
     const user = await this.userService.verifyLogin(dto.username, dto.password);
-    
+
     if (!user) {
-      await this.userLoginLogService.recordLoginLog(
-        0,
-        req,
-        0,
-        `密码错误: ${dto.username}`,
-      );
+      await this.userLoginLogService.recordLoginLog(0, req, 0, `密码错误: ${dto.username}`);
       throw new BusinessException(ErrorCode.ErrAuthLogin);
     }
 
@@ -75,7 +70,7 @@ export class AuthService {
 
     // 验证刷新令牌
     const user = await this.tokenService.verifyRefreshToken(refreshToken);
-    
+
     // 验证用户是否存在
     const userInfo = await this.userService.findUserById(user.uid);
     if (!userInfo) {
@@ -89,7 +84,7 @@ export class AuthService {
 
     // 作废旧的刷新令牌和旧的访问令牌(如果存在)
     await this.tokenBlacklistService.revokeToken(refreshToken, user.uid);
-    
+
     // 撤销旧的 accessToken,防止令牌刷新后旧令牌依然可用
     if (req.accessToken) {
       await this.tokenBlacklistService.revokeToken(req.accessToken, user.uid);

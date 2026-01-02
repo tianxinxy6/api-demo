@@ -102,7 +102,8 @@ export class EthScanService extends BaseScanService {
     // 检查是否为 ERC20 交易
     if (input && input.length > 2) {
       const parseData = this.parseErc20Data(input);
-      if (parseData) {// ERC20 转账交易 to 字段为合约地址
+      if (parseData) {
+        // ERC20 转账交易 to 字段为合约地址
         const { method, recipient, amount } = parseData;
         to = recipient || '';
         contract = {
@@ -139,14 +140,16 @@ export class EthScanService extends BaseScanService {
   /**
    * 分析 ERC20 交易数据
    */
-  private parseErc20Data(input: string): { method: string; recipient: string; amount: string } | null {
+  private parseErc20Data(
+    input: string,
+  ): { method: string; recipient: string; amount: string } | null {
     try {
       if (input.length < 10) {
         return null;
       }
 
       const ERC20_METHODS = {
-        'a9059cbb': 'transfer',
+        a9059cbb: 'transfer',
         '23b872dd': 'transferFrom',
         '095ea7b3': 'approve',
       };

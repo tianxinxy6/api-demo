@@ -1,8 +1,4 @@
-import {
-  Column,
-  Entity,
-  Index,
-} from 'typeorm';
+import { Column, Entity, Index } from 'typeorm';
 import { TransferStatus } from '@/constants';
 import { CommonEntity } from '@/common/entities/common.entity';
 

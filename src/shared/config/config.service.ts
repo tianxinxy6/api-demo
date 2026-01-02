@@ -28,9 +28,9 @@ export class ConfigService {
   async get(key: string, defaultValue?: string): Promise<string | undefined> {
     try {
       const config = await this.configRepository.findOne({
-        where: { 
-          key, 
-        }
+        where: {
+          key,
+        },
       });
 
       return config?.value ?? defaultValue;
@@ -47,23 +47,20 @@ export class ConfigService {
    * @param description 配置描述
    * @param groupName 配置分组
    */
-  async set(
-    key: string, 
-    value: string, 
-  ): Promise<void> {
+  async set(key: string, value: string): Promise<void> {
     try {
       const existing = await this.configRepository.findOne({
-        where: { key }
+        where: { key },
       });
 
       if (existing) {
         // 更新现有配置
         await this.configRepository.update(
           { key },
-          { 
+          {
             value,
-            updatedAt: new Date()
-          }
+            updatedAt: new Date(),
+          },
         );
       } else {
         // 创建新配置
@@ -90,9 +87,9 @@ export class ConfigService {
     if (value === undefined) {
       return defaultValue || 0;
     }
-    
+
     const numValue = parseInt(value, 10);
-    return isNaN(numValue) ? (defaultValue || 0) : numValue;
+    return isNaN(numValue) ? defaultValue || 0 : numValue;
   }
 
   /**
@@ -102,10 +99,7 @@ export class ConfigService {
    * @param description 配置描述
    * @param groupName 配置分组
    */
-  async setNumber(
-    key: string, 
-    value: number, 
-  ): Promise<void> {
+  async setNumber(key: string, value: number): Promise<void> {
     await this.set(key, value.toString());
   }
 
@@ -140,7 +134,7 @@ export class ConfigService {
     if (value === undefined) {
       return defaultValue || false;
     }
-    
+
     return value.toLowerCase() === 'true' || value === '1';
   }
 
@@ -151,10 +145,7 @@ export class ConfigService {
    * @param description 配置描述
    * @param groupName 配置分组
    */
-  async setBoolean(
-    key: string, 
-    value: boolean, 
-  ): Promise<void> {
+  async setBoolean(key: string, value: boolean): Promise<void> {
     await this.set(key, value.toString());
   }
 

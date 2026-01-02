@@ -1,8 +1,4 @@
-import {
-  Column,
-  Entity,
-  Index,
-} from 'typeorm';
+import { Column, Entity, Index } from 'typeorm';
 import { TokenStatus } from '@/constants';
 import { CommonEntity } from '@/common/entities/common.entity';
 
@@ -36,7 +32,12 @@ export class TokenEntity extends CommonEntity {
   decimals: number;
 
   // 手续费 json 字符串，定义 type
-  @Column({ comment: '提现手续费配置', name: 'withdraw_fee', type: 'json', nullable: true })
+  @Column({
+    comment: '提现手续费配置',
+    name: 'withdraw_fee',
+    type: 'json',
+    nullable: true,
+  })
   withdrawFee?: FeeConfig;
 
   @Column({

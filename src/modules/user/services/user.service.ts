@@ -5,10 +5,7 @@ import { Repository } from 'typeorm';
 import type { FastifyRequest } from 'fastify';
 import { UserEntity } from '@/entities/user.entity';
 import { UserRegisterDto } from '../dto/user.dto';
-import { 
-  UserProfileResponse, 
-  UserBasicResponse,
-} from '../model';
+import { UserProfileResponse, UserBasicResponse } from '../model';
 import { CacheService } from '@/shared/cache/cache.service';
 import { TokenBlacklistService } from './token-blacklist.service';
 import * as bcrypt from 'bcrypt';
@@ -118,9 +115,7 @@ export class UserService {
   /**
    * 用户注册
    */
-  async createUser(
-    dto: UserRegisterDto,
-  ): Promise<UserBasicResponse> {
+  async createUser(dto: UserRegisterDto): Promise<UserBasicResponse> {
     // 检查用户名是否已存在
     const exists = await this.userRepository.findOne({
       where: { username: dto.username },
@@ -157,10 +152,7 @@ export class UserService {
   /**
    * 验证用户密码（用于登录）
    */
-  async verifyPassword(
-    username: string,
-    password: string,
-  ): Promise<UserEntity | null> {
+  async verifyPassword(username: string, password: string): Promise<UserEntity | null> {
     const user = await this.findUserByUserName(username);
     if (!user) {
       return null;
@@ -183,17 +175,14 @@ export class UserService {
     safeUser.gender = user.gender;
     safeUser.loginTime = user.loginTime;
     safeUser.createdAt = user.createdAt;
-    
+
     return safeUser;
   }
 
   /**
    * 验证用户登录并返回登录响应模型
    */
-  async verifyLogin(
-    username: string,
-    password: string,
-  ): Promise<UserBasicResponse | null> {
+  async verifyLogin(username: string, password: string): Promise<UserBasicResponse | null> {
     const user = await this.verifyPassword(username, password);
     return user ? this.toBasicResponse(user) : null;
   }
@@ -209,19 +198,19 @@ export class UserService {
     }
 
     // 禁止直接修改密码和敏感字段
-    const { 
+    const {
       email,
       phone,
-      password, 
-      status, 
-      username, 
-      loginIp, 
-      loginTime, 
+      password,
+      status,
+      username,
+      loginIp,
+      loginTime,
       lastToken,
       createdAt,
       updatedAt,
       id: userId,
-      ...safeUpdates 
+      ...safeUpdates
     } = updates;
 
     if (Object.keys(safeUpdates).length === 0) {
@@ -245,7 +234,7 @@ export class UserService {
    * 同时将用户的 token 拉黑,防止已删除用户继续使用旧 token
    */
   async deleteUser(id: number, req: FastifyRequest): Promise<void> {
-    const user = await this.userRepository.findOne({ 
+    const user = await this.userRepository.findOne({
       where: { id },
       select: ['id', 'lastToken'],
     });
@@ -256,11 +245,11 @@ export class UserService {
 
     await this.userRepository.softDelete(id);
     await this.clearUserCache(id);
-    
+
     if (req.accessToken) {
       await this.tokenBlacklistService.revokeToken(req.accessToken, id);
     }
-    
+
     this.logger.warn(`User ${id} account deleted and tokens revoked`);
   }
 
@@ -269,7 +258,7 @@ export class UserService {
    */
   async restoreUser(id: number): Promise<void> {
     const result = await this.userRepository.restore(id);
-    
+
     if (result.affected === 0) {
       throw new BusinessException(ErrorCode.ErrUserNotDeleted);
     }
@@ -455,11 +444,11 @@ export class UserService {
    */
   async updateLoginInfo(userId: number, req: FastifyRequest, accessToken: string): Promise<void> {
     const loginIp = getClientIp(req);
-    
+
     await this.userRepository.update(userId, {
       loginIp,
       loginTime: new Date(),
-      lastToken: md5(accessToken)
+      lastToken: md5(accessToken),
     });
 
     await this.clearUserCache(userId);

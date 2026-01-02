@@ -42,8 +42,7 @@ app.getInstance().addHook('onRequest', (request, reply, done) => {
   }
 
   // skip favicon request
-  if (url.match(/favicon.ico$/) || url.match(/manifest.json$/))
-    return reply.code(204).send();
+  if (url.match(/favicon.ico$/) || url.match(/manifest.json$/)) return reply.code(204).send();
 
   done();
 });

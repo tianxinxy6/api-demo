@@ -11,19 +11,13 @@ import { ChainController } from './chain.controller';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([
-      ChainEntity, 
-      ChainTokenEntity,
-    ]), 
+    TypeOrmModule.forFeature([ChainEntity, ChainTokenEntity]),
     ConfigModule,
     HttpModule,
     SharedModule,
   ],
   controllers: [ChainController],
-  providers: [
-    ChainService,
-    TokenService,
-  ],
+  providers: [ChainService, TokenService],
   exports: [
     // 导出核心服务供其他模块使用
     ChainService,

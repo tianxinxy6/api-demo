@@ -1,7 +1,16 @@
 import { StringField } from '@/common/decorators/field.decorator';
 import { ApiProperty } from '@nestjs/swagger';
 import { IsRepeat } from '@/common/validators/repeat.validator';
-import { IsString, IsNotEmpty, MinLength, MaxLength, IsOptional, IsNumber, IsEmail, IsIn } from 'class-validator';
+import {
+  IsString,
+  IsNotEmpty,
+  MinLength,
+  MaxLength,
+  IsOptional,
+  IsNumber,
+  IsEmail,
+  IsIn,
+} from 'class-validator';
 
 /**
  * 用户注册 DTO
@@ -107,17 +116,21 @@ export class UpdateUserDto {
 
   @IsOptional()
   @StringField({ required: false, maxLength: 255 })
-  @ApiProperty({ example: 'https://example.com/avatar.jpg', description: '头像URL', required: false })
+  @ApiProperty({
+    example: 'https://example.com/avatar.jpg',
+    description: '头像URL',
+    required: false,
+  })
   avatar?: string;
 
   @IsOptional()
   @IsNumber({}, { message: '性别必须是数字' })
   @IsIn([0, 1, 2], { message: '性别值无效，只能是0、1或2' })
-  @ApiProperty({ 
-    example: 1, 
-    description: '性别（0:未设置 1:男 2:女）', 
-    required: false, 
-    enum: [0, 1, 2] 
+  @ApiProperty({
+    example: 1,
+    description: '性别（0:未设置 1:男 2:女）',
+    required: false,
+    enum: [0, 1, 2],
   })
   gender?: number;
 }

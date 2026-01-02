@@ -15,11 +15,7 @@ import { ApiSecurityAuth } from '@/common/decorators/swagger.decorator';
 import { AuthUser } from '@/common/decorators/auth-user.decorator';
 import { UserService } from '../services/user.service';
 import { UserProfileResponse } from '../model';
-import { 
-  ChangePasswordDto, 
-  UpdateUserDto, 
-  SetPasswordDto
-} from '../dto/user.dto';
+import { ChangePasswordDto, UpdateUserDto, SetPasswordDto } from '../dto/user.dto';
 import type { FastifyRequest } from 'fastify';
 
 @ApiTags('User - 用户管理')
@@ -59,10 +55,7 @@ export class UserController {
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: '修改登录密码' })
   @ApiResponse({ status: 200, description: '密码修改成功' })
-  async changePassword(
-    @AuthUser() user: IAuthUser,
-    @Body() dto: ChangePasswordDto,
-  ): Promise<void> {
+  async changePassword(@AuthUser() user: IAuthUser, @Body() dto: ChangePasswordDto): Promise<void> {
     await this.userService.changePassword(
       user.uid,
       dto.oldPassword,
@@ -82,11 +75,7 @@ export class UserController {
     @AuthUser() user: IAuthUser,
     @Body() dto: SetPasswordDto,
   ): Promise<void> {
-    await this.userService.setTransferPassword(
-      user.uid,
-      dto.password,
-      dto.confirmPassword,
-    );
+    await this.userService.setTransferPassword(user.uid, dto.password, dto.confirmPassword);
   }
 
   /**
@@ -115,10 +104,7 @@ export class UserController {
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: '注销账户' })
   @ApiResponse({ status: 200, description: '账户注销成功' })
-  async deactivateAccount(
-    @AuthUser() user: IAuthUser,
-    @Req() req: FastifyRequest,
-  ): Promise<void> {
+  async deactivateAccount(@AuthUser() user: IAuthUser, @Req() req: FastifyRequest): Promise<void> {
     await this.userService.deleteUser(user.uid, req);
   }
 }

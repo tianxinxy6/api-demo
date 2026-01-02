@@ -1,13 +1,6 @@
-import {
-  ValidationArguments,
-  ValidationOptions,
-  registerDecorator,
-} from 'class-validator';
+import { ValidationArguments, ValidationOptions, registerDecorator } from 'class-validator';
 
-export function IsRepeat(
-  property: string,
-  validationOptions?: ValidationOptions,
-) {
+export function IsRepeat(property: string, validationOptions?: ValidationOptions) {
   return function (object: any, propertyName: string) {
     registerDecorator({
       name: 'IsRepeat',

@@ -34,7 +34,7 @@ export class ChainService {
    */
   async getSupportedChains(): Promise<SupportedChainResponse[]> {
     const cacheKey = `${this.CACHE_PREFIX}supported`;
-    
+
     const cached = await this.cacheService.get<SupportedChainResponse[]>(cacheKey);
     if (cached) {
       return cached;
@@ -46,15 +46,20 @@ export class ChainService {
       order: { id: 'ASC' },
     });
 
-    const supportedChains = chains.map(chain => new SupportedChainResponse({
-      id: chain.id,
-      code: chain.code,
-      name: chain.name,
-      logo: chain.logo,
-      type: chain.type,
-    }));
+    const supportedChains = chains.map(
+      (chain) =>
+        new SupportedChainResponse({
+          id: chain.id,
+          code: chain.code,
+          name: chain.name,
+          logo: chain.logo,
+          type: chain.type,
+        }),
+    );
 
-    await this.cacheService.set(cacheKey, supportedChains, { ttl: this.CACHE_TTL });
+    await this.cacheService.set(cacheKey, supportedChains, {
+      ttl: this.CACHE_TTL,
+    });
     return supportedChains;
   }
 
@@ -67,7 +72,7 @@ export class ChainService {
     }
 
     const cacheKey = `${this.CACHE_PREFIX}config:${code}`;
-    
+
     const cached = await this.cacheService.get<ChainEntity>(cacheKey);
     if (cached) {
       return cached;
@@ -89,7 +94,7 @@ export class ChainService {
    */
   async getChainById(id: number): Promise<ChainEntity | null> {
     const cacheKey = `${this.CACHE_PREFIX}id:${id}`;
-    
+
     const cached = await this.cacheService.get<ChainEntity>(cacheKey);
     if (cached) {
       return cached;

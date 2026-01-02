@@ -40,11 +40,15 @@ export class WithdrawOrder {
   @ApiProperty({
     description: '订单状态',
     example: WithdrawalStatus.PENDING,
-    enum: WithdrawalStatus
+    enum: WithdrawalStatus,
   })
   status: WithdrawalStatus;
 
-  @ApiProperty({ description: '区块链交易哈希', example: '0x1234567890abcdef...', required: false })
+  @ApiProperty({
+    description: '区块链交易哈希',
+    example: '0x1234567890abcdef...',
+    required: false,
+  })
   hash?: string;
 
   @ApiProperty({ description: '失败原因', example: null, required: false })
@@ -56,26 +60,36 @@ export class WithdrawOrder {
   @ApiProperty({ description: '创建时间', example: '2025-12-20 15:00:00' })
   createdAt: string;
 
-  @ApiProperty({ description: '完成时间', example: '2025-12-20 15:00:00', required: false })
+  @ApiProperty({
+    description: '完成时间',
+    example: '2025-12-20 15:00:00',
+    required: false,
+  })
   finishedAt?: string;
 
-  constructor(partial: Partial<Omit<WithdrawOrder, 'createdAt' | 'finishedAt' | 'amount' | 'fee' | 'actualAmount'>> & { 
-    createdAt?: Date; 
-    finishedAt?: Date;
-    amount?: string;
-    fee?: string;
-    actualAmount?: string;
-    decimals: number;
-  }) {
+  constructor(
+    partial: Partial<
+      Omit<WithdrawOrder, 'createdAt' | 'finishedAt' | 'amount' | 'fee' | 'actualAmount'>
+    > & {
+      createdAt?: Date;
+      finishedAt?: Date;
+      amount?: string;
+      fee?: string;
+      actualAmount?: string;
+      decimals: number;
+    },
+  ) {
     Object.assign(this, partial);
-    
+
     // 格式化日期
     this.createdAt = partial.createdAt ? formatToDateTime(partial.createdAt) : '';
     this.finishedAt = partial.finishedAt ? formatToDateTime(partial.finishedAt) : undefined;
-    
+
     // 格式化金额：使用 bigint 安全转换为 number
     this.amount = partial.amount ? Number(formatTokenAmount(partial.amount, partial.decimals)) : 0;
     this.fee = partial.fee ? Number(formatTokenAmount(partial.fee, partial.decimals)) : 0;
-    this.actualAmount = partial.actualAmount ? Number(formatTokenAmount(partial.actualAmount, partial.decimals)) : 0;
+    this.actualAmount = partial.actualAmount
+      ? Number(formatTokenAmount(partial.actualAmount, partial.decimals))
+      : 0;
   }
 }

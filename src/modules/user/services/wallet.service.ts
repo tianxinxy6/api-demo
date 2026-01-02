@@ -18,7 +18,9 @@ export interface editBalanceParams {
 
 @Injectable()
 export class WalletService {
-  private readonly MAX_AMOUNT = BigInt('115792089237316195423570985008687907853269984665640564039457584007913129639935');
+  private readonly MAX_AMOUNT = BigInt(
+    '115792089237316195423570985008687907853269984665640564039457584007913129639935',
+  );
 
   constructor(
     @InjectRepository(UserWalletEntity)
@@ -57,10 +59,7 @@ export class WalletService {
    * @param queryRunner 事务查询器
    * @param params 增加参数
    */
-  async addBalance(
-    queryRunner: QueryRunner,
-    params: editBalanceParams,
-  ): Promise<UserWalletEntity> {
+  async addBalance(queryRunner: QueryRunner, params: editBalanceParams): Promise<UserWalletEntity> {
     const { userId, tokenId, amount } = params;
     const addAmount = this.validateAmount(amount, '增加');
 
@@ -115,10 +114,7 @@ export class WalletService {
    * @param queryRunner 事务查询器
    * @param params 减少参数
    */
-  async subBalance(
-    queryRunner: QueryRunner,
-    params: editBalanceParams,
-  ): Promise<UserWalletEntity> {
+  async subBalance(queryRunner: QueryRunner, params: editBalanceParams): Promise<UserWalletEntity> {
     const { userId, tokenId, amount } = params;
     const subAmount = this.validateAmount(amount, '减少');
 
@@ -331,7 +327,7 @@ export class WalletService {
     afterBalance: string,
   ): Promise<void> {
     const { userId, tokenId, amount, type, orderId, remark } = params;
-    
+
     const walletLog = queryRunner.manager.create(UserWalletLogEntity, {
       userId,
       tokenId,
@@ -342,7 +338,7 @@ export class WalletService {
       orderId: orderId || 0,
       remark,
     });
-    
+
     await queryRunner.manager.save(UserWalletLogEntity, walletLog);
   }
 
@@ -365,7 +361,7 @@ export class WalletService {
       frozenBalance: '0',
       status: WalletStatus.ACTIVE,
     });
-    
+
     await queryRunner.manager.save(UserWalletEntity, userWallet);
     return userWallet;
   }

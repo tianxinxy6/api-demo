@@ -32,13 +32,10 @@ export class MarketService {
   private async fetchBinancePrices(symbol?: string): Promise<IPriceData[]> {
     try {
       const { data } = await firstValueFrom(
-        this.httpService.get<IPriceData | IPriceData[]>(
-          this.BINANCE_API_URL,
-          {
-            params: symbol ? { symbol: symbol.toUpperCase() } : undefined,
-            timeout: this.REQUEST_TIMEOUT,
-          },
-        ),
+        this.httpService.get<IPriceData | IPriceData[]>(this.BINANCE_API_URL, {
+          params: symbol ? { symbol: symbol.toUpperCase() } : undefined,
+          timeout: this.REQUEST_TIMEOUT,
+        }),
       );
 
       return Array.isArray(data) ? data : [data];
@@ -94,8 +91,8 @@ export class MarketService {
 
     try {
       const allPrices = await this.fetchBinancePrices();
-      const upperSymbols = symbols.map(s => s.toUpperCase());
-      return allPrices.filter(item => upperSymbols.includes(item.symbol));
+      const upperSymbols = symbols.map((s) => s.toUpperCase());
+      return allPrices.filter((item) => upperSymbols.includes(item.symbol));
     } catch (error) {
       this.logger.error(`Batch get real-time prices failed: ${error.message}`);
       if (error instanceof BusinessException) {
@@ -111,16 +108,14 @@ export class MarketService {
   async updatePrices(quote: string = this.DEFAULT_QUOTE): Promise<void> {
     try {
       const tokens = await this.tokenService.getAllTokens();
-      
+
       if (!tokens?.length) {
         this.logger.warn('No tokens configured in system');
         return;
       }
 
       // 过滤出需要更新的代币（排除计价币种本身）
-      const validTokens = tokens.filter(t => 
-        t.code.toUpperCase() !== quote.toUpperCase()
-      );
+      const validTokens = tokens.filter((t) => t.code.toUpperCase() !== quote.toUpperCase());
 
       if (!validTokens.length) {
         return;
@@ -128,11 +123,11 @@ export class MarketService {
 
       // 批量获取所有价格
       const allPrices = await this.fetchBinancePrices();
-      const priceMap = new Map(allPrices.map(p => [p.symbol, p.price]));
+      const priceMap = new Map(allPrices.map((p) => [p.symbol, p.price]));
 
       // 构建更新数据
       const updates = validTokens
-        .map(token => {
+        .map((token) => {
           const symbol = this.buildSymbol(token.code, quote);
           const price = priceMap.get(symbol);
 

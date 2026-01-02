@@ -6,6 +6,4 @@ import { BaseTransactionEntity } from '../base.entity';
  * 记录所有TRON链上的交易
  */
 @Entity({ name: 'transaction_in_tron', comment: 'TRON交易记录' })
-export class TransactionTronEntity extends BaseTransactionEntity {
-  
-}
+export class TransactionTronEntity extends BaseTransactionEntity {}

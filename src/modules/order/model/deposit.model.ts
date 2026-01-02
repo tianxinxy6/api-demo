@@ -25,16 +25,19 @@ export class DepositOrder {
   @ApiProperty({ description: '充值金额', example: 10.5 })
   amount: number;
 
-  @ApiProperty({ description: '区块链交易哈希', example: '0x1234567890abcdef...' })
+  @ApiProperty({
+    description: '区块链交易哈希',
+    example: '0x1234567890abcdef...',
+  })
   hash: string;
 
   @ApiProperty({ description: '确认区块', example: 12 })
   confirmBlock: number;
 
-  @ApiProperty({ 
-    description: '订单状态', 
+  @ApiProperty({
+    description: '订单状态',
     example: DepositStatus.PENDING,
-    enum: DepositStatus 
+    enum: DepositStatus,
   })
   status: DepositStatus;
 
@@ -53,16 +56,18 @@ export class DepositOrder {
   @ApiProperty({ description: '创建时间', example: '2025-12-20 15:00:00' })
   createdAt: string;
 
-  constructor(partial: Partial<Omit<DepositOrder, 'createdAt' | 'amount'>> & { 
-    createdAt?: Date;
-    amount?: string;
-    decimals: number;
-  }) {
+  constructor(
+    partial: Partial<Omit<DepositOrder, 'createdAt' | 'amount'>> & {
+      createdAt?: Date;
+      amount?: string;
+      decimals: number;
+    },
+  ) {
     Object.assign(this, partial);
-    
+
     // 格式化日期
     this.createdAt = partial.createdAt ? formatToDateTime(partial.createdAt) : '';
-    
+
     // 格式化金额：使用 bigint 安全转换为 number
     this.amount = partial.amount ? Number(formatTokenAmount(partial.amount, partial.decimals)) : 0;
   }

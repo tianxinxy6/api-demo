@@ -9,7 +9,7 @@ import { RESPONSE_SUCCESS_CODE } from '@/constants/response.constant';
  * 1. 统一处理业务逻辑异常
  * 2. 支持错误码和自定义消息
  * 3. 返回 HTTP 200 状态码，通过 code 字段区分错误
- * 
+ *
  * 使用示例：
  * - throw new BusinessException(ErrorCode.ErrUserNotFound)
  * - throw new BusinessException('自定义错误消息')

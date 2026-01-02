@@ -28,13 +28,12 @@ export abstract class BaseConfirmService {
     protected readonly chainService: ChainService,
     protected readonly depositService: DepositService,
     protected readonly databaseService: DatabaseService,
-  ) { }
+  ) {}
 
   /**
    * 确认待处理交易
    */
   async confirm(): Promise<void> {
-
     if (this.isConfirming) {
       this.logger.debug(`${this.chainCode} confirm running, skip`);
       return;
@@ -72,7 +71,7 @@ export abstract class BaseConfirmService {
         }
 
         await this.triggerCollect(tx);
-        
+
         // 标记该地址已处理
         toAddresses.add(tx.to);
       } catch (error) {
@@ -111,11 +110,7 @@ export abstract class BaseConfirmService {
         }
         const isSuccess = await this.checkStatus(tx.hash);
 
-        await this.confirmTx(
-          tx.hash,
-          latestBlock,
-          isSuccess,
-        );
+        await this.confirmTx(tx.hash, latestBlock, isSuccess);
 
         // 如果交易确认成功，触发归集
         if (isSuccess) {
@@ -146,7 +141,7 @@ export abstract class BaseConfirmService {
       .orderBy('tx.createdAt', 'ASC')
       .limit(limit);
 
-    return await queryBuilder.getMany() as BaseTransactionEntity[];
+    return (await queryBuilder.getMany()) as BaseTransactionEntity[];
   }
 
   /**
@@ -155,17 +150,13 @@ export abstract class BaseConfirmService {
    * @param confirmBlock 确认区块号
    * @param success 是否成功
    */
-  async confirmTx(
-    txHash: string,
-    confirmBlock?: number,
-    success?: boolean,
-  ): Promise<void> {
+  async confirmTx(txHash: string, confirmBlock?: number, success?: boolean): Promise<void> {
     const entity = this.buildEntity();
     await this.databaseService.runTransaction(async (queryRunner) => {
       try {
         // 1. 先获取交易记录
         const transaction = await queryRunner.manager.findOne(entity.constructor, {
-          where: { hash: txHash }
+          where: { hash: txHash },
         } as any);
 
         if (!transaction) {

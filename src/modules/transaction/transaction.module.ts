@@ -31,7 +31,7 @@ import { TronWithdrawService } from './services/withdraw/tron.service';
       TransactionCollectTronEntity,
       TransactionOutEthEntity,
       TransactionOutTronEntity,
-      ChainEntity
+      ChainEntity,
     ]),
     OrderModule,
     ChainModule,

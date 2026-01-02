@@ -2,9 +2,9 @@ import * as crypto from 'crypto';
 
 /**
  * 签名工具类
- * 
+ *
  * **签名规则：** HMAC-SHA256(timestamp + JSON.stringify(body), secret)
- * 
+ *
  * **安全机制：**
  * - 时间戳验证：防止过期请求（5分钟）
  * - 签名验证：防止参数篡改
@@ -14,7 +14,10 @@ export class SignatureUtil {
   /**
    * 生成签名
    */
-  static generate(secret: string, body: any = {}): {
+  static generate(
+    secret: string,
+    body: any = {},
+  ): {
     signature: string;
     timestamp: number;
   } {
@@ -52,10 +55,7 @@ export class SignatureUtil {
 
     // 安全比较（防止时序攻击）
     try {
-      const valid = crypto.timingSafeEqual(
-        Buffer.from(signature),
-        Buffer.from(computedSignature),
-      );
+      const valid = crypto.timingSafeEqual(Buffer.from(signature), Buffer.from(computedSignature));
       return { valid, error: valid ? undefined : '签名无效' };
     } catch (error) {
       return { valid: false, error: '签名格式错误' };

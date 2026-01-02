@@ -13,52 +13,52 @@ import { TransactionTronEntity } from '@/entities/txs/deposit/transaction-tron.e
  */
 @Injectable()
 export class TronConfirmService extends BaseConfirmService {
-    protected readonly chainCode = 'TRON';
-    protected readonly chainType = 1;
-    protected readonly requiredConfirm = 19;
+  protected readonly chainCode = 'TRON';
+  protected readonly chainType = 1;
+  protected readonly requiredConfirm = 19;
 
-    private tronUtil: TronUtil;
+  private tronUtil: TronUtil;
 
-    constructor(
-        chainService: ChainService,
-        depositService: DepositService,
-        databaseService: DatabaseService,
-        private readonly tronCollectService: TronCollectService,
-    ) {
-        super(chainService, depositService, databaseService);
+  constructor(
+    chainService: ChainService,
+    depositService: DepositService,
+    databaseService: DatabaseService,
+    private readonly tronCollectService: TronCollectService,
+  ) {
+    super(chainService, depositService, databaseService);
+  }
+
+  protected init(chain): void {
+    this.tronUtil = new TronUtil(chain.rpcUrl);
+  }
+
+  /**
+   * 检查TRON交易确认状态
+   */
+  protected async checkStatus(txHash: string): Promise<boolean> {
+    return await this.tronUtil.isTransactionSuccess(txHash);
+  }
+
+  /**
+   * 实现基类抽象方法：获取最新区块号
+   */
+  protected async getLatestBlockNumber(): Promise<number> {
+    return await this.tronUtil.getLatestBlockNumber();
+  }
+
+  protected buildEntity(): TransactionTronEntity {
+    return new TransactionTronEntity();
+  }
+
+  /**
+   * 触发归集
+   */
+  protected async triggerCollect(tx: BaseTransactionEntity): Promise<void> {
+    try {
+      this.logger.log(`Triggering collect for TRON transaction ${tx.hash}`);
+      await this.tronCollectService.collect(tx);
+    } catch (error) {
+      this.logger.error(`Failed to trigger collect for transaction ${tx.hash}:`, error.message);
     }
-
-    protected init(chain): void {
-        this.tronUtil = new TronUtil(chain.rpcUrl);
-    }
-
-    /**
-     * 检查TRON交易确认状态
-     */
-    protected async checkStatus(txHash: string): Promise<boolean> {
-        return await this.tronUtil.isTransactionSuccess(txHash);
-    }
-
-    /**
-     * 实现基类抽象方法：获取最新区块号
-     */
-    protected async getLatestBlockNumber(): Promise<number> {
-        return await this.tronUtil.getLatestBlockNumber();
-    }
-
-    protected buildEntity(): TransactionTronEntity {
-        return new TransactionTronEntity();
-    }
-
-    /**
-     * 触发归集
-     */
-    protected async triggerCollect(tx: BaseTransactionEntity): Promise<void> {
-        try {
-            this.logger.log(`Triggering collect for TRON transaction ${tx.hash}`);
-            await this.tronCollectService.collect(tx);
-        } catch (error) {
-            this.logger.error(`Failed to trigger collect for transaction ${tx.hash}:`, error.message);
-        }
-    }
+  }
 }

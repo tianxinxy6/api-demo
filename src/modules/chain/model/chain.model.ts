@@ -14,7 +14,10 @@ export class SupportedChainResponse {
   @ApiProperty({ description: '链名称', example: 'Ethereum' })
   name: string;
 
-  @ApiProperty({ description: '链logo', example: 'https://example.com/eth.png' })
+  @ApiProperty({
+    description: '链logo',
+    example: 'https://example.com/eth.png',
+  })
   logo: string;
 
   @ApiProperty({ description: '链类型' })
@@ -39,10 +42,17 @@ export class ChainTokenResponse {
   @ApiProperty({ description: '代币名称', example: 'Tether USD' })
   name: string;
 
-  @ApiProperty({ description: '代币logo', example: 'https://example.com/usdt.png' })
+  @ApiProperty({
+    description: '代币logo',
+    example: 'https://example.com/usdt.png',
+  })
   logo: string;
 
-  @ApiProperty({ description: '合约地址（原生代币为null）', nullable: true, example: '0xdAC17F958D2ee523a2206206994597C13D831ec7' })
+  @ApiProperty({
+    description: '合约地址（原生代币为null）',
+    nullable: true,
+    example: '0xdAC17F958D2ee523a2206206994597C13D831ec7',
+  })
   contract: string | null;
 
   @ApiProperty({ description: '精度位数', example: 6 })

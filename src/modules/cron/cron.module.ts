@@ -10,10 +10,7 @@ import { MarketModule } from '../market/market.module';
  * 任务模块 - 管理定时任务
  */
 @Module({
-  imports: [
-    TransactionModule,
-    MarketModule,
-  ],
+  imports: [TransactionModule, MarketModule],
   providers: [
     // 定时任务
     ScanTask,

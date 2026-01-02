@@ -55,9 +55,7 @@ export class DatabaseService implements OnModuleInit {
    * @param operation 事务操作
    * @returns 事务结果
    */
-  async runTransaction<T>(
-    operation: (queryRunner: QueryRunner) => Promise<T>,
-  ): Promise<T> {
+  async runTransaction<T>(operation: (queryRunner: QueryRunner) => Promise<T>): Promise<T> {
     const queryRunner = this.createQueryRunner();
     await queryRunner.connect();
     await queryRunner.startTransaction();
@@ -111,8 +109,7 @@ export class DatabaseService implements OnModuleInit {
         info: this.getConnectionInfo(),
       };
     } catch (error) {
-      const errorMessage =
-        error instanceof Error ? error.message : String(error);
+      const errorMessage = error instanceof Error ? error.message : String(error);
       return {
         status: 'error',
         info: this.getConnectionInfo(),

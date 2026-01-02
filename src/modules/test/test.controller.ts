@@ -22,10 +22,7 @@ class TestSignatureDto {
 @Controller('test')
 @Public() // 跳过 JWT 验证
 export class TestController {
-
-    constructor(
-        private readonly sysWalletAddressService: SysWalletAddressService,
-      ) {}
+  constructor(private readonly sysWalletAddressService: SysWalletAddressService) {}
 
   /**
    * 需要签名验证的接口

@@ -34,7 +34,7 @@ export class TransferOrder {
   @ApiProperty({
     description: '订单状态',
     example: TransferStatus.SUCCESS,
-    enum: TransferStatus
+    enum: TransferStatus,
   })
   status: TransferStatus;
 
@@ -44,16 +44,18 @@ export class TransferOrder {
   @ApiProperty({ description: '创建时间', example: '2025-12-29 15:00:00' })
   createdAt: string;
 
-  constructor(partial: Partial<Omit<TransferOrder, 'createdAt' | 'amount'>> & { 
-    createdAt?: Date;
-    amount?: string;
-    decimals: number;
-  }) {
+  constructor(
+    partial: Partial<Omit<TransferOrder, 'createdAt' | 'amount'>> & {
+      createdAt?: Date;
+      amount?: string;
+      decimals: number;
+    },
+  ) {
     Object.assign(this, partial);
-    
+
     // 格式化日期
     this.createdAt = partial.createdAt ? formatToDateTime(partial.createdAt) : '';
-    
+
     // 格式化金额：使用 bigint 安全转换为 number
     this.amount = partial.amount ? Number(formatTokenAmount(partial.amount, partial.decimals)) : 0;
   }

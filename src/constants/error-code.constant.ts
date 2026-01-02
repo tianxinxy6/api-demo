@@ -25,8 +25,8 @@ export enum ErrorCode {
   ErrInvalidTransaction = '10018:Invalid transaction',
   ErrEncrypt = '10019:Encrypting the user password error',
   ErrServiceUnavailable = '10020:Service Unavailable',
-  ErrRepeatOperation = '10021:Repeat Operation',
-  ErrDataNotFound = '10022:Data Not Found',
+  ErrRepeatOperation = '10024:Repeat Operation',
+  ErrDataNotFound = '10025:Data Not Found',
 
   // user (20xxx)
   ErrUsernameNotFound = '20101:用户名不存在',

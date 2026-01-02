@@ -1,10 +1,6 @@
 import { CommonEntity } from '@/common/entities/common.entity';
 import { WalletStatus } from '@/constants';
-import {
-  Column,
-  Entity,
-  Index,
-} from 'typeorm';
+import { Column, Entity, Index } from 'typeorm';
 
 /**
  * 用户中心化钱包表

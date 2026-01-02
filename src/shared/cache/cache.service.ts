@@ -56,11 +56,7 @@ export class CacheService {
    * @param value - 缓存值
    * @param options - 缓存选项（ttl: 毫秒）
    */
-  async set<T = any>(
-    key: string,
-    value: T,
-    options?: CacheOptions,
-  ): Promise<void> {
+  async set<T = any>(key: string, value: T, options?: CacheOptions): Promise<void> {
     try {
       const cacheKey = this.generateKey(key, options?.prefix);
       await this.cacheManager.set(cacheKey, value, options?.ttl);
@@ -104,14 +100,9 @@ export class CacheService {
   async clear(): Promise<void> {
     try {
       // 获取所有存储并清空
-      if (
-        'stores' in this.cacheManager &&
-        Array.isArray(this.cacheManager.stores)
-      ) {
+      if ('stores' in this.cacheManager && Array.isArray(this.cacheManager.stores)) {
         await Promise.all(
-          this.cacheManager.stores.map((store) =>
-            store.clear?.().catch(() => null),
-          ),
+          this.cacheManager.stores.map((store) => store.clear?.().catch(() => null)),
         );
       }
     } catch (error) {
@@ -164,10 +155,7 @@ export class CacheService {
       const value = await this.get(key, options);
       return value !== null;
     } catch (error) {
-      this.logger.error(
-        `Failed to check cache existence for key: ${key}`,
-        error,
-      );
+      this.logger.error(`Failed to check cache existence for key: ${key}`, error);
       return false;
     }
   }

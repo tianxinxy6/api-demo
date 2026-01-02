@@ -1,23 +1,10 @@
-import {
-  Controller,
-  Get,
-  Param,
-  ParseIntPipe,
-} from '@nestjs/common';
-import {
-  ApiTags,
-  ApiOperation,
-  ApiResponse,
-  ApiParam,
-} from '@nestjs/swagger';
+import { Controller, Get, Param, ParseIntPipe } from '@nestjs/common';
+import { ApiTags, ApiOperation, ApiResponse, ApiParam } from '@nestjs/swagger';
 
 import { ApiSecurityAuth } from '@/common/decorators/swagger.decorator';
 import { ChainService } from './services/chain.service';
 import { TokenService } from './services/token.service';
-import {
-  SupportedChainResponse,
-  ChainTokenResponse,
-} from './model';
+import { SupportedChainResponse, ChainTokenResponse } from './model';
 import { BusinessException } from '@/common/exceptions/biz.exception';
 import { ErrorCode } from '@/constants';
 
@@ -38,7 +25,7 @@ export class ChainController {
   @ApiResponse({
     status: 200,
     type: [SupportedChainResponse],
-    description: '支持的区块链列表'
+    description: '支持的区块链列表',
   })
   async getSupportedChains(): Promise<SupportedChainResponse[]> {
     return this.chainService.getSupportedChains();
@@ -53,12 +40,12 @@ export class ChainController {
     name: 'chainId',
     description: '区块链ID',
     example: 1,
-    type: 'number'
+    type: 'number',
   })
   @ApiResponse({
     status: 200,
     type: [ChainTokenResponse],
-    description: '链上代币列表'
+    description: '链上代币列表',
   })
   @ApiResponse({ status: 404, description: '区块链不存在' })
   async getChainTokens(

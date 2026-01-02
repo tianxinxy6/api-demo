@@ -29,13 +29,7 @@ export class EthCollectService extends BaseCollectService {
     dataSource: DataSource,
     databaseService: DatabaseService,
   ) {
-    super(
-      chainService,
-      chainAddressService,
-      sysWalletAddressService,
-      dataSource,
-      databaseService,
-    );
+    super(chainService, chainAddressService, sysWalletAddressService, dataSource, databaseService);
   }
 
   /**
@@ -96,14 +90,18 @@ export class EthCollectService extends BaseCollectService {
   private async collectETH(
     wallet: ethers.Wallet,
     relTx: BaseTransactionEntity,
-    callback: (txID: number, data: any) => void
+    callback: (txID: number, data: any) => void,
   ): Promise<void> {
     try {
       // 获取当前余额
       const totalAmount = await this.getBalance(wallet.address);
 
       // 获取 gas 价格
-      const gasInfo = await this.ethUtil.estimateGas(wallet.address, this.collectAddress, totalAmount);
+      const gasInfo = await this.ethUtil.estimateGas(
+        wallet.address,
+        this.collectAddress,
+        totalAmount,
+      );
 
       // 计算实际转账金额（总额 - gas 费）
       const amount = totalAmount - gasInfo.gasFee;
@@ -112,21 +110,23 @@ export class EthCollectService extends BaseCollectService {
       }
 
       // 发送交易
-      wallet.sendTransaction({
-        to: this.collectAddress,
-        value: amount,
-        gasLimit: gasInfo.gasLimit,
-        gasPrice: gasInfo.gasPrice,
-      }).then((tx: ethers.TransactionResponse) => {
-        // 创建归集交易记录
-        const txEntity = this.buildCollectEntity(relTx);
-        txEntity.hash = tx.hash;
-        txEntity.amount = amount.toString();
-        txEntity.gasFee = gasInfo.gasFee.toString();
-        this.saveTx(txEntity, relTx).then((txId: number) => {
-          this.waitTx(tx, txId, callback);
-        });
-      })
+      wallet
+        .sendTransaction({
+          to: this.collectAddress,
+          value: amount,
+          gasLimit: gasInfo.gasLimit,
+          gasPrice: gasInfo.gasPrice,
+        })
+        .then((tx: ethers.TransactionResponse) => {
+          // 创建归集交易记录
+          const txEntity = this.buildCollectEntity(relTx);
+          txEntity.hash = tx.hash;
+          txEntity.amount = amount.toString();
+          txEntity.gasFee = gasInfo.gasFee.toString();
+          this.saveTx(txEntity, relTx).then((txId: number) => {
+            this.waitTx(tx, txId, callback);
+          });
+        })
         .catch((error) => {
           this.logger.error(`Collect ETH transaction failed:`, error.message);
         });
@@ -141,19 +141,21 @@ export class EthCollectService extends BaseCollectService {
   private async collectERC20Token(
     wallet: ethers.Wallet,
     relTx: BaseTransactionEntity,
-    callback: (txID: number, data: any) => void
+    callback: (txID: number, data: any) => void,
   ): Promise<void> {
     try {
       const gasInfo = await this.ethUtil.estimateERC20Gas(
         wallet.address,
-        relTx.contract!,
+        relTx.contract,
         this.collectAddress,
-        BigInt(relTx.amount)
+        BigInt(relTx.amount),
       );
 
       const ethBalance = await this.ethUtil.getETHBalance(wallet.address);
 
-      this.logger.debug(`Estimated gas: ${gasInfo.gasLimit}, gas price: ${gasInfo.gasPrice}, gas fee: ${gasInfo.gasFee}, ETH balance: ${ethBalance}`);
+      this.logger.debug(
+        `Estimated gas: ${gasInfo.gasLimit}, gas price: ${gasInfo.gasPrice}, gas fee: ${gasInfo.gasFee}, ETH balance: ${ethBalance}`,
+      );
 
       // 如果 ETH 不足，先转 gas
       if (ethBalance < gasInfo.gasFee) {
@@ -173,7 +175,8 @@ export class EthCollectService extends BaseCollectService {
               this.transferERC20(wallet, relTx, gasInfo, callback);
             }
             this.saveGasTx(txEntity, relTx);
-          });
+          },
+        );
       }
 
       // ETH 足够，直接转 ERC20
@@ -191,10 +194,10 @@ export class EthCollectService extends BaseCollectService {
     wallet: ethers.Wallet,
     relTx: BaseTransactionEntity,
     gasInfo: EthGasInfo,
-    callback: (txID: number, data: any) => void
+    callback: (txID: number, data: any) => void,
   ): Promise<void> {
     try {
-      const contract = this.ethUtil.getContract(relTx.contract!, wallet);
+      const contract = this.ethUtil.getContract(relTx.contract, wallet);
       // 获取当前余额（已经是最小单位，无需转换）
       const amount = await contract.balanceOf(wallet.address);
       if (amount === 0n) {
@@ -202,21 +205,24 @@ export class EthCollectService extends BaseCollectService {
         return;
       }
 
-      contract.transfer(this.collectAddress, amount, {
-        gasLimit: gasInfo.gasLimit,
-        gasPrice: gasInfo.gasPrice,
-      }).then((tx: ethers.ContractTransactionResponse) => {
-        // 创建归集交易记录
-        const txEntity = this.buildCollectEntity(relTx) as TransactionCollectEthEntity;
-        txEntity.hash = tx.hash;
-        txEntity.amount = amount.toString();
-        txEntity.gasFee = gasInfo.gasFee.toString();
-        this.saveTx(txEntity, relTx).then((txId: number) => {
-          this.waitTx(tx, txId, callback);
+      contract
+        .transfer(this.collectAddress, amount, {
+          gasLimit: gasInfo.gasLimit,
+          gasPrice: gasInfo.gasPrice,
+        })
+        .then((tx: ethers.ContractTransactionResponse) => {
+          // 创建归集交易记录
+          const txEntity = this.buildCollectEntity(relTx) as TransactionCollectEthEntity;
+          txEntity.hash = tx.hash;
+          txEntity.amount = amount.toString();
+          txEntity.gasFee = gasInfo.gasFee.toString();
+          this.saveTx(txEntity, relTx).then((txId: number) => {
+            this.waitTx(tx, txId, callback);
+          });
+        })
+        .catch((error) => {
+          this.logger.error(`Transfer ERC20 transaction failed:`, error.message);
         });
-      }).catch((error) => {
-        this.logger.error(`Transfer ERC20 transaction failed:`, error.message);
-      });
     } catch (error) {
       this.logger.error(`Transfer ERC20 failed:`, error.message);
       return;
@@ -229,7 +235,7 @@ export class EthCollectService extends BaseCollectService {
   private async fundGas(
     toAddress: string,
     gasFee: bigint,
-    callback: (from: string, txHash: string, status: number) => void
+    callback: (from: string, txHash: string, status: number) => void,
   ): Promise<void> {
     try {
       const feePrivateKey = await this.getGasWalletPrivateKey();
@@ -247,24 +253,29 @@ export class EthCollectService extends BaseCollectService {
       }
       const from = wallet.address;
 
-      wallet.sendTransaction({
-        to: toAddress,
-        value: gasFee,
-      }).then((tx: ethers.TransactionResponse) => {
-        // 等待交易确认
-        tx.wait().then((receipt) => {
-          if (receipt && receipt.status === 1) {
-            callback(from, tx.hash, TransactionStatus.CONFIRMED);
-          } else {
-            callback(from, tx.hash, TransactionStatus.FAILED);
-          }
-        }).catch((err) => {
-          this.logger.error(`Collect ETH transaction failed:`, err.message);
-          callback(from, tx.hash, TransactionStatus.FAILED);
+      wallet
+        .sendTransaction({
+          to: toAddress,
+          value: gasFee,
+        })
+        .then((tx: ethers.TransactionResponse) => {
+          // 等待交易确认
+          tx.wait()
+            .then((receipt) => {
+              if (receipt && receipt.status === 1) {
+                callback(from, tx.hash, TransactionStatus.CONFIRMED);
+              } else {
+                callback(from, tx.hash, TransactionStatus.FAILED);
+              }
+            })
+            .catch((err) => {
+              this.logger.error(`Collect ETH transaction failed:`, err.message);
+              callback(from, tx.hash, TransactionStatus.FAILED);
+            });
+        })
+        .catch((error) => {
+          this.logger.error(`Fund gas transaction failed:`, error.message);
         });
-      }).catch((error) => {
-        this.logger.error(`Fund gas transaction failed:`, error.message);
-      });
     } catch (error) {
       this.logger.error(`Fund gas failed:`, error.message);
       return;
@@ -277,22 +288,26 @@ export class EthCollectService extends BaseCollectService {
   private waitTx(
     tx: ethers.TransactionResponse,
     txId: number,
-    callback: (txID: number, data: any) => void
+    callback: (txID: number, data: any) => void,
   ): void {
     // 等待交易确认
-    tx.wait().then((receipt: ethers.TransactionReceipt) => {
-      const gasLimitUsed = receipt.gasUsed;
-      const gasPrice = receipt.gasPrice;
-      const actualGasFee = gasLimitUsed * gasPrice;
-      callback(txId, {
-        status: receipt && receipt.status === 1 ? TransactionStatus.CONFIRMED : TransactionStatus.FAILED,
-        gasFee: actualGasFee.toString(),
-        blockNumber: receipt.blockNumber,
+    tx.wait()
+      .then((receipt: ethers.TransactionReceipt) => {
+        const gasLimitUsed = receipt.gasUsed;
+        const gasPrice = receipt.gasPrice;
+        const actualGasFee = gasLimitUsed * gasPrice;
+        callback(txId, {
+          status:
+            receipt && receipt.status === 1
+              ? TransactionStatus.CONFIRMED
+              : TransactionStatus.FAILED,
+          gasFee: actualGasFee.toString(),
+          blockNumber: receipt.blockNumber,
+        });
+      })
+      .catch((err) => {
+        this.logger.error(`Collect ETH transaction failed:`, err.message);
+        callback(txId, { status: TransactionStatus.FAILED });
       });
-    }).catch((err) => {
-      this.logger.error(`Collect ETH transaction failed:`, err.message);
-      callback(txId, { status: TransactionStatus.FAILED });
-    });
   }
-
 }

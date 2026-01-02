@@ -201,11 +201,7 @@ export class TronUtil {
       }
 
       // 构建交易
-      const transaction = await this.tronWeb.transactionBuilder.sendTrx(
-        to,
-        amount,
-        fromAddress as string,
-      );
+      const transaction = await this.tronWeb.transactionBuilder.sendTrx(to, amount, fromAddress);
 
       // 签名交易
       const signedTx = await this.tronWeb.trx.sign(transaction);
@@ -234,11 +230,8 @@ export class TronUtil {
       }
 
       const contractInstance = await this.getContract(contract);
-      return await contractInstance.transfer(
-        to,
-        amount,
-      ).send({
-        from: fromAddress as string,
+      return await contractInstance.transfer(to, amount).send({
+        from: fromAddress,
       });
     } catch (error) {
       throw new Error(`Failed to send TRC20: ${error.message}`);
@@ -246,7 +239,7 @@ export class TronUtil {
   }
 
   getFromAddress(): string | false {
-    return this.tronWeb.defaultAddress.base58
+    return this.tronWeb.defaultAddress.base58;
   }
 
   /**
@@ -326,15 +319,12 @@ export class TronUtil {
   }
 
   /**
-     * 计算 TRX 转账所需的手续费
-     * @param address 转账地址
-     * @param balance 地址余额（可选，不传则自动查询）
-     * @returns 实际需要燃烧的 TRX（单位：SUN）
-     */
-  private async calculateTrxFee(
-    address: string,
-    bandwidth: number,
-  ): Promise<bigint> {
+   * 计算 TRX 转账所需的手续费
+   * @param address 转账地址
+   * @param balance 地址余额（可选，不传则自动查询）
+   * @returns 实际需要燃烧的 TRX（单位：SUN）
+   */
+  private async calculateTrxFee(address: string, bandwidth: number): Promise<bigint> {
     // 获取账户资源信息
     const accountResources = await this.tronWeb.trx.getAccountResources(address);
     const freeNetLimit = accountResources.freeNetLimit || 0;
@@ -345,17 +335,18 @@ export class TronUtil {
     const { bandwidthPrice } = await this.getResourcePrices();
 
     // 计算需要燃烧的 TRX（如果带宽不足）
-    const bandwidthShortage = availableBandwidth < bandwidth
-      ? bandwidth
-      : 0;
+    const bandwidthShortage = availableBandwidth < bandwidth ? bandwidth : 0;
 
     return BigInt(bandwidthShortage) * bandwidthPrice;
   }
 
   /**
-     * 获取链上资源价格
-     */
-  private async getResourcePrices(): Promise<{ energyPrice: bigint; bandwidthPrice: bigint }> {
+   * 获取链上资源价格
+   */
+  private async getResourcePrices(): Promise<{
+    energyPrice: bigint;
+    bandwidthPrice: bigint;
+  }> {
     try {
       const chainParameters = await this.tronWeb.trx.getChainParameters();
 

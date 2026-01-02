@@ -6,6 +6,4 @@ import { BaseTransactionEntity } from '../base.entity';
  * 记录所有以太坊链上的交易
  */
 @Entity({ name: 'transaction_collect_eth', comment: 'ETH交易归集记录' })
-export class TransactionCollectEthEntity extends BaseTransactionEntity {
-    
-}
+export class TransactionCollectEthEntity extends BaseTransactionEntity {}

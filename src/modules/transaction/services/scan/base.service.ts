@@ -34,7 +34,7 @@ export abstract class BaseScanService {
     protected readonly tokenService: TokenService,
     protected readonly depositService: DepositService,
     protected readonly databaseService: DatabaseService,
-  ) { }
+  ) {}
 
   /**
    * 主要扫描方法 - 由子类通过定时器调用
@@ -97,7 +97,7 @@ export abstract class BaseScanService {
       if (foundTxCount > 0) {
         this.logger.log(
           `${this.chainCode}: Scan completed, found ${foundTxCount} transactions ` +
-          `in blocks ${startBlock}-${endBlock}`
+            `in blocks ${startBlock}-${endBlock}`,
         );
       }
 
@@ -105,7 +105,6 @@ export abstract class BaseScanService {
       if (this.currentScannedBlock > lastScannedBlock) {
         await this.configService.setLastScannedBlock(this.chainCode, this.currentScannedBlock);
       }
-
     } catch (error) {
       this.logger.error(`${this.chainCode} scan failed:`, error.message);
     }
@@ -127,7 +126,7 @@ export abstract class BaseScanService {
         this.currentScannedBlock = blockNum;
       }
       // 避免过快扫描，稍作休息
-      await new Promise(resolve => setTimeout(resolve, 100));
+      await new Promise((resolve) => setTimeout(resolve, 100));
     }
 
     return foundTxCount;
@@ -152,9 +151,9 @@ export abstract class BaseScanService {
       // Step 3: 批量查询监控地址
       const monitoredAddresses = await this.chainAddressService.getAddressesByChain(
         this.chainType,
-        Array.from(receiverAddresses)
+        Array.from(receiverAddresses),
       );
-      const monitoredSet = new Set(monitoredAddresses.map(addr => addr.toLowerCase()));
+      const monitoredSet = new Set(monitoredAddresses.map((addr) => addr.toLowerCase()));
 
       // Step 4: 批量处理目标交易
       const targetTransactions = this.filterMonitoredTxs(allTxs, monitoredSet);
@@ -191,9 +190,9 @@ export abstract class BaseScanService {
    */
   protected filterMonitoredTxs(
     transactions: ChainTransaction[],
-    monitoredAddressSet: Set<string>
+    monitoredAddressSet: Set<string>,
   ): ChainTransaction[] {
-    return transactions.filter(tx => {
+    return transactions.filter((tx) => {
       const receiverAddress = this.receiverOf(tx);
 
       // 检查接收地址是否在监控列表中
@@ -235,7 +234,7 @@ export abstract class BaseScanService {
   protected receiversOf(txs: ChainTransaction[]): Set<string> {
     const receivers = new Set<string>();
 
-    txs.forEach(tx => {
+    txs.forEach((tx) => {
       const receiver = this.receiverOf(tx);
       if (receiver) {
         receivers.add(receiver);
@@ -273,7 +272,7 @@ export abstract class BaseScanService {
 
         // 先检查 hash 是否已经存在
         const exists = await queryRunner.manager.findOne(txEntity.constructor, {
-          where: { hash: tx.hash }
+          where: { hash: tx.hash },
         });
         if (exists) {
           this.logger.debug(`Transaction hash already exists: ${tx.hash}`);
@@ -346,7 +345,12 @@ export abstract class BaseScanService {
    * 解析链交易 - 子类实现
    * @param tx 链上交易原始数据
    */
-  protected abstract parseTx(tx: any, blockNumber: number, blockTimestamp: number, options?: any): ChainTransaction;
+  protected abstract parseTx(
+    tx: any,
+    blockNumber: number,
+    blockTimestamp: number,
+    options?: any,
+  ): ChainTransaction;
 
   protected abstract buildEntity(): BaseTransactionEntity;
 }

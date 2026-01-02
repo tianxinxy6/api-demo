@@ -1,14 +1,5 @@
-import {
-  Controller,
-  Get,
-  Param,
-} from '@nestjs/common';
-import {
-  ApiTags,
-  ApiOperation,
-  ApiResponse,
-  ApiParam,
-} from '@nestjs/swagger';
+import { Controller, Get, Param } from '@nestjs/common';
+import { ApiTags, ApiOperation, ApiResponse, ApiParam } from '@nestjs/swagger';
 
 import { ApiSecurityAuth } from '@/common/decorators/swagger.decorator';
 import { ParseIntPipe } from '@/common/pipes/parse-int.pipe';
@@ -21,9 +12,7 @@ import { ChainAddressResponse } from '../model';
 @ApiSecurityAuth()
 @Controller('wallet')
 export class WalletController {
-  constructor(
-    private readonly chainAddressService: ChainAddressService,
-  ) {}
+  constructor(private readonly chainAddressService: ChainAddressService) {}
 
   /**
    * 获取用户所有区块链地址
@@ -31,9 +20,7 @@ export class WalletController {
   @Get('addresses')
   @ApiOperation({ summary: '获取所有区块链地址' })
   @ApiResponse({ status: 200, type: [ChainAddressResponse] })
-  async getAddresses(
-    @AuthUser() user: IAuthUser,
-  ): Promise<ChainAddressResponse[]> {
+  async getAddresses(@AuthUser() user: IAuthUser): Promise<ChainAddressResponse[]> {
     return this.chainAddressService.getChainAddresses(user.uid);
   }
 
@@ -42,10 +29,10 @@ export class WalletController {
    */
   @Get('addresses/:chainType')
   @ApiOperation({ summary: '获取指定区块链地址（不存在则创建）' })
-  @ApiParam({ 
-    name: 'chainType', 
+  @ApiParam({
+    name: 'chainType',
     enum: ChainType,
-    example: ChainType.ETH 
+    example: ChainType.ETH,
   })
   @ApiResponse({ status: 200, type: ChainAddressResponse })
   @ApiResponse({ status: 400, description: '不支持的区块链类型' })

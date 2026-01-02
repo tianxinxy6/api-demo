@@ -1,5 +1,5 @@
 import { ethers } from 'ethers';
-import { formatEther, parseEther, formatUnits } from 'ethers';
+import { formatEther, parseEther } from 'ethers';
 
 export interface EthAddressInfo {
   address: string;
@@ -41,7 +41,7 @@ export class EthUtil {
   }
 
   getWallet(privateKey?: string): ethers.Wallet {
-    if(this.wallet) return this.wallet;
+    if (this.wallet) return this.wallet;
     return new ethers.Wallet(privateKey, this.provider);
   }
 
@@ -89,7 +89,7 @@ export class EthUtil {
   static validateAddress(address: string): boolean {
     try {
       return ethers.isAddress(address);
-    } catch (error) {
+    } catch (_error) {
       return false;
     }
   }
@@ -101,7 +101,7 @@ export class EthUtil {
     try {
       const cleanKey = privateKey.startsWith('0x') ? privateKey.slice(2) : privateKey;
       return /^[a-fA-F0-9]{64}$/.test(cleanKey);
-    } catch (error) {
+    } catch (_error) {
       return false;
     }
   }
@@ -147,7 +147,7 @@ export class EthUtil {
     from: string,
     to: string,
     value: bigint,
-    data: string = '0x'
+    data: string = '0x',
   ): Promise<EthGasInfo> {
     const [gasLimit, feeData] = await Promise.all([
       this.provider.estimateGas({
@@ -170,7 +170,7 @@ export class EthUtil {
     from: string,
     contract: string,
     to: string,
-    amount: bigint
+    amount: bigint,
   ): Promise<EthGasInfo> {
     const erc20 = new ethers.Contract(contract, EthUtil.ERC20_ABI, this.provider);
     const data = erc20.interface.encodeFunctionData('transfer', [to, amount]);
@@ -209,7 +209,8 @@ export class EthUtil {
   async getBlockWithFullTransactions(blockNumber: number | string): Promise<any> {
     try {
       // 转换为十六进制格式
-      const blockHex = typeof blockNumber === 'string' ? blockNumber : `0x${blockNumber.toString(16)}`;
+      const blockHex =
+        typeof blockNumber === 'string' ? blockNumber : `0x${blockNumber.toString(16)}`;
 
       // 直接使用 JSON-RPC 调用，确保获取完整交易详情
       return await this.provider.send('eth_getBlockByNumber', [blockHex, true]);
@@ -229,8 +230,8 @@ export class EthUtil {
       for (let i = 0; i < txHashes.length; i += batchSize) {
         const batch = txHashes.slice(i, i + batchSize);
 
-        const batchPromises = batch.map(hash =>
-          this.provider.send('eth_getTransactionByHash', [hash])
+        const batchPromises = batch.map((hash) =>
+          this.provider.send('eth_getTransactionByHash', [hash]),
         );
 
         const batchResults = await Promise.all(batchPromises);
@@ -304,5 +305,4 @@ export class EthUtil {
       throw new Error(`Failed to get transaction count: ${error.message}`);
     }
   }
-
 }

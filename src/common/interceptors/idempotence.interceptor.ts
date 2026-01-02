@@ -1,8 +1,4 @@
-import type {
-  CallHandler,
-  ExecutionContext,
-  NestInterceptor,
-} from '@nestjs/common';
+import type { CallHandler, ExecutionContext, NestInterceptor } from '@nestjs/common';
 
 import type { FastifyRequest } from 'fastify';
 import { ConflictException, Injectable, SetMetadata } from '@nestjs/common';
@@ -164,8 +160,7 @@ export class IdempotenceInterceptor implements NestInterceptor {
         ? options.generateKey(request)
         : this.generateKey(request);
 
-    const idempotenceKey =
-      !!(idempotence || key) && `idempotence:${idempotence || key}`;
+    const idempotenceKey = !!(idempotence || key) && `idempotence:${idempotence || key}`;
 
     SetMetadata(HTTP_IDEMPOTENCE_KEY, idempotenceKey)(handler);
 
@@ -176,9 +171,7 @@ export class IdempotenceInterceptor implements NestInterceptor {
 
       if (setResult === 0) {
         // key 已存在，说明是重复请求
-        const resultValue: '0' | '1' | null = (await redis.get(
-          idempotenceKey,
-        )) as any;
+        const resultValue: '0' | '1' | null = (await redis.get(idempotenceKey)) as any;
 
         if (errorHandler) return await errorHandler(request);
 

@@ -1,13 +1,5 @@
-import {
-  Controller,
-  Get,
-  Query,
-} from '@nestjs/common';
-import {
-  ApiTags,
-  ApiOperation,
-  ApiResponse,
-} from '@nestjs/swagger';
+import { Controller, Get, Query } from '@nestjs/common';
+import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { DepositService } from '../services/deposit.service';
 import { QueryDepositDto } from '../dto/deposit.dto';
 import { DepositOrder } from '../model/deposit.model';

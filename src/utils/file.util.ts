@@ -14,8 +14,7 @@ export function getFileType(extName: string) {
   const documents = 'txt doc pdf ppt pps xlsx xls docx';
   const music = 'mp3 wav wma mpa ram ra aac aif m4a';
   const video = 'avi mpg mpe mpeg asf wmv mov qt rm mp4 flv m4v webm ogv ogg';
-  const image =
-    'bmp dib pcp dif wmf gif jpg tif eps psd cdr iff tga pcd mpt png jpeg';
+  const image = 'bmp dib pcp dif wmf gif jpg tif eps psd cdr iff tga pcd mpt png jpeg';
   if (image.includes(extName)) return Type.IMAGE;
 
   if (documents.includes(extName)) return Type.TXT;
@@ -66,13 +65,7 @@ export async function saveLocalFile(
   currentDate: string,
   type: string,
 ) {
-  const filePath = path.join(
-    __dirname,
-    '../../',
-    'public/upload/',
-    `${currentDate}/`,
-    `${type}/`,
-  );
+  const filePath = path.join(__dirname, '../../', 'public/upload/', `${currentDate}/`, `${type}/`);
   try {
     // 判断是否有该文件夹
     await fs.promises.stat(filePath);

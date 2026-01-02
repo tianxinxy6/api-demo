@@ -6,10 +6,7 @@ import { API_SECURITY_AUTH } from './common/decorators/swagger.decorator';
 import { CommonEntity } from './common/entities/common.entity';
 import { ResOp, TreeResult } from './common/model/response.model';
 
-export function setupSwagger(
-  app: INestApplication,
-  configService: ConfigService,
-) {
+export function setupSwagger(app: INestApplication, configService: ConfigService) {
   const appConfig = configService.get('app')!;
   const { name, swagger } = appConfig;
   const { enable } = swagger;

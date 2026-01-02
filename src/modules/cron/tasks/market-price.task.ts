@@ -10,9 +10,7 @@ import { MarketService } from '@/modules/market/market.service';
 export class MarketPriceTask {
   private readonly logger = new Logger(MarketPriceTask.name);
 
-  constructor(
-    private readonly marketService: MarketService,
-  ) {}
+  constructor(private readonly marketService: MarketService) {}
 
   /**
    * 每5秒更新价格

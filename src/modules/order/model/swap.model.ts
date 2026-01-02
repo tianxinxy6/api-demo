@@ -28,10 +28,10 @@ export class SwapOrder {
   @ApiProperty({ description: '兑换比例', example: '21.00000000' })
   rate: string;
 
-  @ApiProperty({ 
-    description: '订单状态: 1=成功 0=失败', 
+  @ApiProperty({
+    description: '订单状态: 1=成功 0=失败',
     example: Status.Enabled,
-    enum: Status 
+    enum: Status,
   })
   status: Status;
 

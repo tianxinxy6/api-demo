@@ -131,7 +131,9 @@ export class TransferService {
 
     // 按代币筛选
     if (dto.tokenId) {
-      queryBuilder.andWhere('transfer.tokenId = :tokenId', { tokenId: dto.tokenId });
+      queryBuilder.andWhere('transfer.tokenId = :tokenId', {
+        tokenId: dto.tokenId,
+      });
     }
 
     // 按时间范围筛选
@@ -154,9 +156,7 @@ export class TransferService {
     const limit = dto.limit || 20;
 
     // 排序和限制
-    queryBuilder
-      .orderBy('transfer.id', 'DESC')
-      .limit(limit);
+    queryBuilder.orderBy('transfer.id', 'DESC').limit(limit);
 
     const transfers = await queryBuilder.getMany();
 
@@ -164,7 +164,7 @@ export class TransferService {
     const nextCursor = transfers.length === limit ? transfers[transfers.length - 1].id : null;
 
     return {
-      items: transfers.map(transfer => this.mapToModel(transfer)),
+      items: transfers.map((transfer) => this.mapToModel(transfer)),
       nextCursor,
     };
   }

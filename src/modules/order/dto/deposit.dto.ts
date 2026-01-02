@@ -19,10 +19,10 @@ export class QueryDepositDto extends DateDto {
   @IsString({ message: '代币代码必须是字符串' })
   token?: string;
 
-  @ApiPropertyOptional({ 
-    description: '订单状态', 
+  @ApiPropertyOptional({
+    description: '订单状态',
     example: DepositStatus.PENDING,
-    enum: DepositStatus 
+    enum: DepositStatus,
   })
   @IsOptional()
   @IsEnum(DepositStatus, { message: '订单状态值无效' })

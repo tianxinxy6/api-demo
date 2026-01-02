@@ -1,9 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 
-import {
-  RESPONSE_SUCCESS_CODE,
-  RESPONSE_SUCCESS_MSG,
-} from '@/constants/response.constant';
+import { RESPONSE_SUCCESS_CODE, RESPONSE_SUCCESS_MSG } from '@/constants/response.constant';
 
 /**
  * 响应数据封装类

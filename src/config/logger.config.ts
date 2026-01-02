@@ -11,7 +11,9 @@ export default registerAs('logger', (): WinstonModuleOptions => {
     winston.format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }),
     winston.format.colorize({ all: true }),
     winston.format.printf(({ timestamp, level, message, context }) => {
-      const ctx = context ? `[${typeof context === 'string' ? context : JSON.stringify(context)}] ` : '';
+      const ctx = context
+        ? `[${typeof context === 'string' ? context : JSON.stringify(context)}] `
+        : '';
       return `${String(timestamp)} ${String(level)}: ${ctx}${String(message)}`;
     }),
   );
@@ -23,8 +25,15 @@ export default registerAs('logger', (): WinstonModuleOptions => {
   if (isProduction) {
     const fileFormat = winston.format.combine(winston.format.timestamp(), winston.format.json());
     transports.push(
-      new winston.transports.File({ filename: 'logs/error.log', level: 'error', format: fileFormat }),
-      new winston.transports.File({ filename: 'logs/combined.log', format: fileFormat }),
+      new winston.transports.File({
+        filename: 'logs/error.log',
+        level: 'error',
+        format: fileFormat,
+      }),
+      new winston.transports.File({
+        filename: 'logs/combined.log',
+        format: fileFormat,
+      }),
     );
   }
 

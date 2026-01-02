@@ -35,7 +35,11 @@ export class UserProfileResponse extends UserBasicResponse {
   @ApiProperty({ description: '邮箱', nullable: true })
   email?: string;
 
-  @ApiProperty({ description: '手机号', nullable: true, example: '138****8888' })
+  @ApiProperty({
+    description: '手机号',
+    nullable: true,
+    example: '138****8888',
+  })
   phone?: string;
 
   @ApiProperty({ description: '性别: 0-未知 1-男 2-女' })
@@ -44,10 +48,19 @@ export class UserProfileResponse extends UserBasicResponse {
   @ApiProperty({ description: '创建时间', example: '2025-12-20 15:00:00' })
   createdAt: string;
 
-  @ApiProperty({ description: '最后登录时间', nullable: true, example: '2025-12-20 15:00:00' })
+  @ApiProperty({
+    description: '最后登录时间',
+    nullable: true,
+    example: '2025-12-20 15:00:00',
+  })
   loginTime?: string;
 
-  constructor(partial: Partial<Omit<UserProfileResponse, 'createdAt' | 'loginTime'>> & { createdAt?: Date; loginTime?: Date }) {
+  constructor(
+    partial: Partial<Omit<UserProfileResponse, 'createdAt' | 'loginTime'>> & {
+      createdAt?: Date;
+      loginTime?: Date;
+    },
+  ) {
     super(partial);
     this.email = partial.email ? maskEmail(partial.email) : null;
     this.phone = partial.phone ? maskPhone(partial.phone) : null;
@@ -56,4 +69,3 @@ export class UserProfileResponse extends UserBasicResponse {
     this.loginTime = partial.loginTime ? formatToDateTime(partial.loginTime) : undefined;
   }
 }
-

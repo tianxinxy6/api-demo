@@ -14,8 +14,7 @@ export class TokenService {
   constructor(
     private jwtService: JwtService,
     private configService: ConfigService,
-  ) {
-  }
+  ) {}
 
   /**
    * 验证Token是否正确,如果正确则返回所属用户对象
@@ -54,8 +53,8 @@ export class TokenService {
       const refreshExpiresIn = this.configService.get('jwt.refreshExpiresIn', '7d');
       // 刷新令牌使用不同的载荷标识
       return await this.jwtService.signAsync(
-        { ...payload, type: 'refresh' }, 
-        { expiresIn: refreshExpiresIn }
+        { ...payload, type: 'refresh' },
+        { expiresIn: refreshExpiresIn },
       );
     } catch (error) {
       this.logger.error(`Refresh token generation failed: ${error.message}`);
@@ -71,12 +70,12 @@ export class TokenService {
   async verifyRefreshToken(token: string): Promise<IAuthUser> {
     try {
       const payload = await this.jwtService.verifyAsync(token);
-      
+
       // 验证是否为刷新令牌
       if (payload.type !== 'refresh') {
         throw new BusinessException(ErrorCode.ErrAuthRefreshTokenInvalid);
       }
-      
+
       // 移除type字段，返回原始用户信息
       const { type, ...userPayload } = payload;
       return userPayload as IAuthUser;
