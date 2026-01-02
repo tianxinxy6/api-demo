@@ -90,12 +90,12 @@ export class TransferService {
         amount: amount.toString(),
         decimals: token.decimals,
         type: WalletLogType.TRANSFER_IN,
-        remark: dto.remark || `来自 ${user.username} 的转账`,
+        remark: dto.remark || '',
       });
 
       // 7. 创建转账订单
       const order = queryRunner.manager.create(OrderTransferEntity, {
-        fromUserId: userId,
+        userId,
         toUserId: toUser.id,
         orderNo: generateOrderNo(),
         tokenId: token.id,
@@ -103,7 +103,7 @@ export class TransferService {
         decimals: token.decimals,
         amount: amount.toString(),
         status: TransferStatus.SUCCESS,
-        remark: dto.remark,
+        remark: dto.remark ?? '',
         finishedAt: new Date(),
       });
 

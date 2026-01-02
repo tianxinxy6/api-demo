@@ -59,9 +59,9 @@ export enum TokenStatus {
  * 中心化钱包状态
  */
 export enum WalletStatus {
-  ACTIVE = 0, // 正常
-  FROZEN = 1, // 冻结
-  DISABLED = 2, // 禁用
+  DISABLED = 0, // 禁用
+  ACTIVE = 1, // 正常
+  FROZEN = 2, // 冻结
 }
 
 /**

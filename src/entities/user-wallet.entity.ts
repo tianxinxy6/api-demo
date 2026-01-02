@@ -1,4 +1,5 @@
 import { CommonEntity } from '@/common/entities/common.entity';
+import { WalletStatus } from '@/constants';
 import {
   Column,
   Entity,
@@ -49,7 +50,7 @@ export class UserWalletEntity extends CommonEntity {
   @Column({
     comment: '钱包状态: 0=正常 1=冻结 2=禁用',
     type: 'tinyint',
-    default: 0,
+    default: WalletStatus.ACTIVE,
   })
   status: number;
 }
