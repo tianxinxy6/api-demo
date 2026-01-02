@@ -6,7 +6,7 @@ import { ParseIntPipe } from '@/common/pipes/parse-int.pipe';
 import { AuthUser } from '@/common/decorators/auth-user.decorator';
 import { ChainType } from '@/constants';
 import { ChainAddressService } from '../services/chain-address.service';
-import { ChainAddressResponse } from '../model';
+import { ChainAddressResponse } from '../vo';
 
 @ApiTags('Wallet - 钱包管理')
 @ApiSecurityAuth()
@@ -40,6 +40,6 @@ export class WalletController {
     @AuthUser() user: IAuthUser,
     @Param('chainType', ParseIntPipe) chainType: ChainType,
   ): Promise<ChainAddressResponse> {
-    return this.chainAddressService.createChainAddress(user.uid, chainType);
+    return this.chainAddressService.createAndGet(user.uid, chainType);
   }
 }

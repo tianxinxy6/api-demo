@@ -50,6 +50,14 @@ declare global {
     /** 下一页游标 */
     nextCursor?: number;
   }
+
+  interface GeneratedAddress {
+    address: string;
+    publicKey: string;
+    privateKey: string;
+    secKey: string;
+    hexAddress?: string;
+  }
 }
 
 export {};

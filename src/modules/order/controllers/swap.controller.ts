@@ -2,7 +2,7 @@ import { Body, Controller, Post, Get, Query } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { SwapService } from '../services/swap.service';
 import { CreateSwapDto, QuerySwapDto } from '../dto/swap.dto';
-import { SwapOrder } from '../model/swap.model';
+import { SwapOrder } from '../vo/swap.model';
 import { AuthUser } from '@/common/decorators/auth-user.decorator';
 import { ApiSecurityAuth } from '@/common/decorators/swagger.decorator';
 

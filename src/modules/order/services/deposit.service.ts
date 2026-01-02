@@ -4,7 +4,7 @@ import { Repository, QueryRunner } from 'typeorm';
 import { OrderDepositEntity } from '@/entities/order-deposit.entity';
 import { WalletService } from '@/modules/user/services/wallet.service';
 import { QueryDepositDto } from '../dto/deposit.dto';
-import { DepositOrder } from '../model/deposit.model';
+import { DepositOrder } from '../vo/deposit.model';
 import { DepositStatus, WalletLogType, ErrorCode } from '@/constants';
 import { BaseTransactionEntity } from '@/entities/txs/base.entity';
 import { TokenService } from '@/modules/sys/services/token.service';

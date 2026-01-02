@@ -2,7 +2,7 @@ import { Controller, Get, Query } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { DepositService } from '../services/deposit.service';
 import { QueryDepositDto } from '../dto/deposit.dto';
-import { DepositOrder } from '../model/deposit.model';
+import { DepositOrder } from '../vo/deposit.model';
 import { AuthUser } from '@/common/decorators/auth-user.decorator';
 import { ApiSecurityAuth } from '@/common/decorators/swagger.decorator';
 

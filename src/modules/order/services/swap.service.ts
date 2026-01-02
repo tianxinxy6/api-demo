@@ -8,7 +8,7 @@ import { UserService } from '@/modules/user/services/user.service';
 import { TokenService } from '@/modules/sys/services/token.service';
 import { MarketService } from '@/modules/market/market.service';
 import { CreateSwapDto, QuerySwapDto } from '../dto/swap.dto';
-import { SwapOrder } from '../model/swap.model';
+import { SwapOrder } from '../vo/swap.model';
 import { Status, WalletLogType, ErrorCode } from '@/constants';
 import { generateOrderNo } from '@/utils';
 import { BusinessException } from '@/common/exceptions/biz.exception';

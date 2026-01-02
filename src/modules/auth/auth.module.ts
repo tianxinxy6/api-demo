@@ -7,13 +7,12 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { UserModule } from '../user/user.module';
 import { AuthController } from './auth.controller';
 import { AuthService } from './services/auth.service';
-import { TokenService } from './services/token.service';
+import { JwtTokenService } from './services/token.service';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { UserLoginLogService } from './services/user-login-log.service';
-import { TransactionModule } from '@/modules/transaction/transaction.module';
 import { UserLoginLogEntity } from '@/entities/user-login-log.entity';
 
-const providers = [AuthService, TokenService, UserLoginLogService];
+const providers = [AuthService, JwtTokenService, UserLoginLogService];
 const strategies = [JwtStrategy];
 
 @Module({
@@ -35,8 +34,7 @@ const strategies = [JwtStrategy];
       },
       inject: [ConfigService],
     }),
-    UserModule, // 同时获取 UserService 和 RateLimitService
-    TransactionModule, // 导入以获取 AuditLogService
+    UserModule,
   ],
   controllers: [AuthController],
   providers: [...providers, ...strategies],

@@ -2,17 +2,15 @@ import { HttpModule } from '@nestjs/axios';
 import { Global, Module } from '@nestjs/common';
 import { ScheduleModule } from '@nestjs/schedule';
 import { ThrottlerModule } from '@nestjs/throttler';
-
-import { AppCacheModule } from './cache/cache.module';
-import { DatabaseModule } from './database/database.module';
 import { WinstonModule } from 'nest-winston';
 import { ConfigService } from '@nestjs/config';
 import { ClsModule } from 'nestjs-cls';
 import { FastifyRequest } from 'fastify';
 
-// 导入新的服务
-import { ConfigService as AppConfigService } from './config/config.service';
-import { WalletService } from './services/wallet.service';
+import { AppCacheModule } from './cache/cache.module';
+import { DatabaseModule } from './database/database.module';
+import { AppConfigService } from './config/config.service';
+import { AddressMgrService } from './services/wallet.service';
 
 @Global()
 @Module({
@@ -55,7 +53,7 @@ import { WalletService } from './services/wallet.service';
     // database
     DatabaseModule,
   ],
-  providers: [AppConfigService, WalletService],
-  exports: [HttpModule, AppCacheModule, DatabaseModule, AppConfigService, WalletService],
+  providers: [AppConfigService, AddressMgrService],
+  exports: [HttpModule, AppCacheModule, DatabaseModule, AppConfigService, AddressMgrService],
 })
 export class SharedModule {}

@@ -44,7 +44,7 @@ import { ValidationPipe } from './common/pipes/validation.pipe';
     TaskModule,
     SysModule,
     MarketModule,
-    TestModule,
+    // TestModule,
   ],
   providers: [
     { provide: APP_FILTER, useClass: AllExceptionsFilter },

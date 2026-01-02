@@ -5,9 +5,9 @@ import { OrderWithdrawEntity } from '@/entities/order-withdraw.entity';
 import { WalletService } from '@/modules/user/services/wallet.service';
 import { UserService } from '@/modules/user/services/user.service';
 import { TokenService } from '@/modules/sys/services/token.service';
-import { TokenService as ChainTokenService } from '@/modules/chain/services/token.service';
+import { ChainTokenService } from '@/modules/chain/services/token.service';
 import { CreateWithdrawDto, QueryWithdrawDto } from '../dto/withdraw.dto';
-import { WithdrawOrder } from '../model/withdraw.model';
+import { WithdrawOrder } from '../vo/withdraw.model';
 import { WithdrawalStatus, WalletLogType, ErrorCode } from '@/constants';
 import { generateOrderNo } from '@/utils';
 import { BusinessException } from '@/common/exceptions/biz.exception';
@@ -75,9 +75,8 @@ export class WithdrawService {
         throw new BusinessException(ErrorCode.ErrWithdrawAmountInvalid);
       }
 
-      // 3. 计算手续费和实际到账金额
-      // TODO: 从配置或token表获取手续费率
-      const feeRate = BigInt(token.withdrawFee?.rate || 0); // 0% 手续费，可根据需求调整
+      // 3. 计算手续费和实际到账金额（从代币配置表读取手续费率）
+      const feeRate = BigInt(token.withdrawFee?.rate || 0);
       let fee = (amount * feeRate) / BigInt(10000);
       // 应用最小和最大手续费限制
       const minFee = BigInt(token.withdrawFee?.min || 0);

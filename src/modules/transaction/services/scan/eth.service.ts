@@ -5,8 +5,8 @@ import { BaseScanService } from './base.service';
 import { ChainTransaction, ContractInfo } from '../../transaction.constant';
 import { ChainService } from '@/modules/chain/services/chain.service';
 import { ChainAddressService } from '@/modules/user/services/chain-address.service';
-import { TokenService } from '@/modules/chain/services/token.service';
-import { ConfigService } from '@/shared/config/config.service';
+import { ChainTokenService } from '@/modules/chain/services/token.service';
+import { AppConfigService } from '@/shared/config/config.service';
 import { DepositService } from '@/modules/order/services/deposit.service';
 import { DatabaseService } from '@/shared/database/database.service';
 import { TransactionEthEntity } from '@/entities/txs/deposit/transaction-eth.entity';
@@ -31,8 +31,8 @@ export class EthScanService extends BaseScanService {
   constructor(
     chainService: ChainService,
     chainAddressService: ChainAddressService,
-    configService: ConfigService,
-    tokenService: TokenService,
+    configService: AppConfigService,
+    tokenService: ChainTokenService,
     depositService: DepositService,
     databaseService: DatabaseService,
   ) {

@@ -4,7 +4,7 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 import { API_SECURITY_AUTH } from './common/decorators/swagger.decorator';
 import { CommonEntity } from './common/entities/common.entity';
-import { ResOp, TreeResult } from './common/model/response.model';
+import { ResOp, TreeResult } from './common/vo/response.model';
 
 export function setupSwagger(app: INestApplication, configService: ConfigService) {
   const appConfig = configService.get('app')!;

@@ -7,7 +7,7 @@ import { WalletService } from '@/modules/user/services/wallet.service';
 import { UserService } from '@/modules/user/services/user.service';
 import { TokenService } from '@/modules/sys/services/token.service';
 import { CreateTransferDto, QueryTransferDto } from '../dto/transfer.dto';
-import { TransferOrder } from '../model/transfer.model';
+import { TransferOrder } from '../vo/transfer.model';
 import { TransferStatus, WalletLogType, ErrorCode } from '@/constants';
 import { generateOrderNo } from '@/utils';
 import { BusinessException } from '@/common/exceptions/biz.exception';

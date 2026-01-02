@@ -2,7 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { TokenEntity } from '@/entities/token.entity';
-import { TokenStatus } from '@/constants';
+import { TokenStatus, CacheConfigs } from '@/constants';
 import { CacheService } from '@/shared/cache/cache.service';
 
 /**
@@ -15,8 +15,7 @@ import { CacheService } from '@/shared/cache/cache.service';
 @Injectable()
 export class TokenService {
   private readonly logger = new Logger(TokenService.name);
-  private static readonly CACHE_PREFIX = 'token:';
-  private readonly CACHE_TTL = 3600000; // 1小时缓存
+  private readonly cacheConfig = CacheConfigs.TOKEN;
 
   constructor(
     @InjectRepository(TokenEntity)
@@ -30,7 +29,7 @@ export class TokenService {
    * @returns 代币实体
    */
   async getTokenByCode(code: string): Promise<TokenEntity | null> {
-    const cacheKey = `${TokenService.CACHE_PREFIX}${code.toUpperCase()}`;
+    const cacheKey = `${this.cacheConfig.prefix}${code.toUpperCase()}`;
 
     // 尝试从缓存获取
     const cachedToken = await this.cacheService.get<TokenEntity>(cacheKey);
@@ -50,7 +49,7 @@ export class TokenService {
     }
 
     // 缓存查询结果
-    await this.cacheService.set(cacheKey, token, { ttl: this.CACHE_TTL });
+    await this.cacheService.set(cacheKey, token, { ttl: this.cacheConfig.ttl });
 
     return token;
   }
@@ -61,7 +60,7 @@ export class TokenService {
    * @returns 代币实体
    */
   async getTokenById(id: number): Promise<TokenEntity | null> {
-    const cacheKey = `${TokenService.CACHE_PREFIX}id:${id}`;
+    const cacheKey = `${this.cacheConfig.prefix}id:${id}`;
 
     // 尝试从缓存获取
     const cachedToken = await this.cacheService.get<TokenEntity>(cacheKey);
@@ -81,7 +80,7 @@ export class TokenService {
     }
 
     // 缓存查询结果
-    await this.cacheService.set(cacheKey, token, { ttl: this.CACHE_TTL });
+    await this.cacheService.set(cacheKey, token, { ttl: this.cacheConfig.ttl });
 
     return token;
   }
@@ -91,7 +90,7 @@ export class TokenService {
    * @returns 代币实体数组
    */
   async getAllTokens(): Promise<TokenEntity[]> {
-    const cacheKey = `${TokenService.CACHE_PREFIX}all`;
+    const cacheKey = `${this.cacheConfig.prefix}all`;
 
     // 尝试从缓存获取
     const cachedTokens = await this.cacheService.get<TokenEntity[]>(cacheKey);
@@ -110,7 +109,7 @@ export class TokenService {
     });
 
     // 缓存查询结果
-    await this.cacheService.set(cacheKey, tokens, { ttl: this.CACHE_TTL });
+    await this.cacheService.set(cacheKey, tokens, { ttl: this.cacheConfig.ttl });
 
     return tokens;
   }

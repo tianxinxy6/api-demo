@@ -5,19 +5,18 @@ import { Repository } from 'typeorm';
 import type { FastifyRequest } from 'fastify';
 import { UserEntity } from '@/entities/user.entity';
 import { UserRegisterDto } from '../dto/user.dto';
-import { UserProfileResponse, UserBasicResponse } from '../model';
+import { UserProfileResponse, UserBasicResponse } from '../vo';
 import { CacheService } from '@/shared/cache/cache.service';
 import { TokenBlacklistService } from './token-blacklist.service';
 import * as bcrypt from 'bcrypt';
-import { UserStatus, ErrorCode } from '@/constants';
+import { UserStatus, ErrorCode, CacheConfigs } from '@/constants';
 import { getClientIp, md5 } from '@/utils';
 import { BusinessException } from '@/common/exceptions/biz.exception';
 
 @Injectable()
 export class UserService {
   private readonly logger = new Logger(UserService.name);
-  private readonly CACHE_PREFIX = 'user:';
-  private readonly CACHE_TTL = 3600000; // 1小时
+  private readonly cacheConfig = CacheConfigs.USER;
 
   constructor(
     @InjectRepository(UserEntity)
@@ -62,7 +61,7 @@ export class UserService {
    * 根据 ID 查找用户
    */
   async findUserById(id: number): Promise<UserEntity | null> {
-    const cacheKey = `${this.CACHE_PREFIX}${id}`;
+    const cacheKey = `${this.cacheConfig.prefix}${id}`;
 
     // 从缓存获取
     let user = await this.cacheService.get<UserEntity>(cacheKey);
@@ -76,7 +75,7 @@ export class UserService {
       });
 
       if (user) {
-        await this.cacheService.set(cacheKey, user, { ttl: this.CACHE_TTL });
+        await this.cacheService.set(cacheKey, user, { ttl: this.cacheConfig.ttl });
       }
     }
 
@@ -226,7 +225,7 @@ export class UserService {
    * @private
    */
   private async clearUserCache(id: number): Promise<void> {
-    await this.cacheService.del(`${this.CACHE_PREFIX}${id}`);
+    await this.cacheService.del(`${this.cacheConfig.prefix}${id}`);
   }
 
   /**

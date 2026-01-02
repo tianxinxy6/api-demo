@@ -1,20 +1,19 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, Not, IsNull } from 'typeorm';
+import { Repository } from 'typeorm';
 import { ChainTokenEntity } from '@/entities/chain-token.entity';
-import { TokenStatus } from '@/constants';
+import { TokenStatus, CacheConfigs } from '@/constants';
 import { CacheService } from '@/shared/cache/cache.service';
-import { ChainTokenResponse } from '../model';
+import { ChainTokenResponse } from '../vo';
 
 /**
  * 代币服务 - 钱包系统核心功能
  * 提供钱包业务必需的代币查询和缓存功能
  */
 @Injectable()
-export class TokenService {
-  private readonly logger = new Logger(TokenService.name);
-  private readonly CACHE_TTL = 3600000; // 1小时
-  private readonly CACHE_PREFIX = 'token:';
+export class ChainTokenService {
+  private readonly logger = new Logger(ChainTokenService.name);
+  private readonly cacheConfig = CacheConfigs.CHAIN_TOKEN;
 
   constructor(
     @InjectRepository(ChainTokenEntity)
@@ -27,7 +26,7 @@ export class TokenService {
    * @private
    */
   private async getChainTokenData(chainId: number): Promise<Array<IChainToken>> {
-    const cacheKey = `${this.CACHE_PREFIX}data:${chainId}`;
+    const cacheKey = `${this.cacheConfig.prefix}data:${chainId}`;
 
     const cached = await this.cacheService.get<Array<IChainToken>>(cacheKey);
     if (cached) {
@@ -48,7 +47,7 @@ export class TokenService {
       decimals: token.decimals,
     }));
 
-    await this.cacheService.set(cacheKey, tokenData, { ttl: this.CACHE_TTL });
+    await this.cacheService.set(cacheKey, tokenData, { ttl: this.cacheConfig.ttl });
     return tokenData;
   }
 
@@ -87,7 +86,7 @@ export class TokenService {
    * 获取链上所有支持的代币列表（包括原生代币）
    */
   async getChainTokenList(chainId: number): Promise<ChainTokenResponse[]> {
-    const cacheKey = `${this.CACHE_PREFIX}list:${chainId}`;
+    const cacheKey = `${this.cacheConfig.prefix}list:${chainId}`;
 
     const cached = await this.cacheService.get<ChainTokenResponse[]>(cacheKey);
     if (cached) {
@@ -115,7 +114,7 @@ export class TokenService {
         }),
     );
 
-    await this.cacheService.set(cacheKey, tokenList, { ttl: this.CACHE_TTL });
+    await this.cacheService.set(cacheKey, tokenList, { ttl: this.cacheConfig.ttl });
     return tokenList;
   }
 
@@ -125,8 +124,8 @@ export class TokenService {
    */
   private async clearTokenCache(chainId: number): Promise<void> {
     await Promise.all([
-      this.cacheService.del(`${this.CACHE_PREFIX}data:${chainId}`),
-      this.cacheService.del(`${this.CACHE_PREFIX}list:${chainId}`),
+      this.cacheService.del(`${this.cacheConfig.prefix}data:${chainId}`),
+      this.cacheService.del(`${this.cacheConfig.prefix}list:${chainId}`),
     ]);
   }
 }

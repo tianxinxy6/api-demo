@@ -61,6 +61,6 @@ export class TestController {
   @ApiOperation({ summary: '创建系统钱包地址' })
   @ApiResponse({ status: 201, description: '创建成功' })
   async createAddress(@Body() dto: CreateSysWalletAddressDto): Promise<void> {
-    await this.sysWalletAddressService.createAddress(dto.chainType, dto.type);
+    await this.sysWalletAddressService.create(dto.chainType, dto.type);
   }
 }

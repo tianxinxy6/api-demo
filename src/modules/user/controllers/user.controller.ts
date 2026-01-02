@@ -14,7 +14,7 @@ import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { ApiSecurityAuth } from '@/common/decorators/swagger.decorator';
 import { AuthUser } from '@/common/decorators/auth-user.decorator';
 import { UserService } from '../services/user.service';
-import { UserProfileResponse } from '../model';
+import { UserProfileResponse } from '../vo';
 import { ChangePasswordDto, UpdateUserDto, SetPasswordDto } from '../dto/user.dto';
 import type { FastifyRequest } from 'fastify';
 

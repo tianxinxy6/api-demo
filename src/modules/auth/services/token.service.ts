@@ -8,8 +8,8 @@ import { ErrorCode } from '@/constants';
  * 令牌服务
  */
 @Injectable()
-export class TokenService {
-  private readonly logger = new Logger(TokenService.name);
+export class JwtTokenService {
+  private readonly logger = new Logger(JwtTokenService.name);
 
   constructor(
     private jwtService: JwtService,

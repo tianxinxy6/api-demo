@@ -2,7 +2,7 @@ import { Controller, Get, Post, Body, Query, Param, ParseIntPipe, Delete } from 
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { WithdrawService } from '../services/withdraw.service';
 import { CreateWithdrawDto, QueryWithdrawDto, CancelWithdrawDto } from '../dto/withdraw.dto';
-import { WithdrawOrder } from '../model/withdraw.model';
+import { WithdrawOrder } from '../vo/withdraw.model';
 import { AuthUser } from '@/common/decorators/auth-user.decorator';
 import { ApiSecurityAuth } from '@/common/decorators/swagger.decorator';
 

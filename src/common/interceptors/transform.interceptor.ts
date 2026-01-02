@@ -5,7 +5,7 @@ import qs from 'qs';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 
-import { ResOp } from '../model/response.model';
+import { ResOp } from '../vo/response.model';
 import { BYPASS_KEY } from '../decorators/bypass.decorator';
 
 /**

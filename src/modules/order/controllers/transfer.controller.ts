@@ -2,7 +2,7 @@ import { Controller, Get, Post, Body, Query } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { TransferService } from '../services/transfer.service';
 import { CreateTransferDto, QueryTransferDto } from '../dto/transfer.dto';
-import { TransferOrder } from '../model/transfer.model';
+import { TransferOrder } from '../vo/transfer.model';
 import { AuthUser } from '@/common/decorators/auth-user.decorator';
 import { ApiSecurityAuth } from '@/common/decorators/swagger.decorator';
 

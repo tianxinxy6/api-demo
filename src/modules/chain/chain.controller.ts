@@ -3,8 +3,8 @@ import { ApiTags, ApiOperation, ApiResponse, ApiParam } from '@nestjs/swagger';
 
 import { ApiSecurityAuth } from '@/common/decorators/swagger.decorator';
 import { ChainService } from './services/chain.service';
-import { TokenService } from './services/token.service';
-import { SupportedChainResponse, ChainTokenResponse } from './model';
+import { ChainTokenService } from './services/token.service';
+import { SupportedChainResponse, ChainTokenResponse } from './vo';
 import { BusinessException } from '@/common/exceptions/biz.exception';
 import { ErrorCode } from '@/constants';
 
@@ -14,7 +14,7 @@ import { ErrorCode } from '@/constants';
 export class ChainController {
   constructor(
     private readonly chainService: ChainService,
-    private readonly tokenService: TokenService,
+    private readonly tokenService: ChainTokenService,
   ) {}
 
   /**

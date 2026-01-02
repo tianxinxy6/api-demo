@@ -4,9 +4,7 @@ import path from 'node:path';
 import { Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
-
 import { NestFastifyApplication } from '@nestjs/platform-fastify';
-
 import { useContainer } from 'class-validator';
 
 import { AppModule } from './app.module';

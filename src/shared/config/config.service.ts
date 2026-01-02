@@ -11,8 +11,8 @@ import { ConfigEntity } from '@/entities/config.entity';
  * 3. 管理区块链扫描进度
  */
 @Injectable()
-export class ConfigService {
-  private readonly logger = new Logger(ConfigService.name);
+export class AppConfigService {
+  private readonly logger = new Logger(AppConfigService.name);
 
   constructor(
     @InjectRepository(ConfigEntity)

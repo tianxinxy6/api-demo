@@ -2,9 +2,9 @@ import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { ChainEntity } from '@/entities/chain.entity';
-import { ChainStatus } from '@/constants';
+import { ChainStatus, CacheConfigs } from '@/constants';
 import { CacheService } from '@/shared/cache/cache.service';
-import { SupportedChainResponse } from '../model';
+import { SupportedChainResponse } from '../vo';
 
 export interface ChainConfig {
   rpcUrl: string;
@@ -20,8 +20,7 @@ export interface ChainConfig {
 @Injectable()
 export class ChainService {
   private readonly logger = new Logger(ChainService.name);
-  private readonly CACHE_TTL = 3600000; // 1小时
-  private readonly CACHE_PREFIX = 'chain:';
+  private readonly cacheConfig = CacheConfigs.CHAIN;
 
   constructor(
     @InjectRepository(ChainEntity)
@@ -33,7 +32,7 @@ export class ChainService {
    * 获取所有支持的区块链
    */
   async getSupportedChains(): Promise<SupportedChainResponse[]> {
-    const cacheKey = `${this.CACHE_PREFIX}supported`;
+    const cacheKey = `${this.cacheConfig.prefix}supported`;
 
     const cached = await this.cacheService.get<SupportedChainResponse[]>(cacheKey);
     if (cached) {
@@ -58,7 +57,7 @@ export class ChainService {
     );
 
     await this.cacheService.set(cacheKey, supportedChains, {
-      ttl: this.CACHE_TTL,
+      ttl: this.cacheConfig.ttl,
     });
     return supportedChains;
   }
@@ -71,7 +70,7 @@ export class ChainService {
       return null;
     }
 
-    const cacheKey = `${this.CACHE_PREFIX}config:${code}`;
+    const cacheKey = `${this.cacheConfig.prefix}config:${code}`;
 
     const cached = await this.cacheService.get<ChainEntity>(cacheKey);
     if (cached) {
@@ -83,7 +82,7 @@ export class ChainService {
     });
 
     if (chain) {
-      await this.cacheService.set(cacheKey, chain, { ttl: this.CACHE_TTL });
+      await this.cacheService.set(cacheKey, chain, { ttl: this.cacheConfig.ttl });
     }
 
     return chain;
@@ -93,7 +92,7 @@ export class ChainService {
    * 根据链ID获取区块链信息
    */
   async getChainById(id: number): Promise<ChainEntity | null> {
-    const cacheKey = `${this.CACHE_PREFIX}id:${id}`;
+    const cacheKey = `${this.cacheConfig.prefix}id:${id}`;
 
     const cached = await this.cacheService.get<ChainEntity>(cacheKey);
     if (cached) {
@@ -105,7 +104,7 @@ export class ChainService {
     });
 
     if (chain) {
-      await this.cacheService.set(cacheKey, chain, { ttl: this.CACHE_TTL });
+      await this.cacheService.set(cacheKey, chain, { ttl: this.cacheConfig.ttl });
     }
 
     return chain;
@@ -117,8 +116,8 @@ export class ChainService {
    */
   private async clearChainCache(chainId?: number): Promise<void> {
     if (chainId) {
-      await this.cacheService.del(`${this.CACHE_PREFIX}id:${chainId}`);
+      await this.cacheService.del(`${this.cacheConfig.prefix}id:${chainId}`);
     }
-    await this.cacheService.del(`${this.CACHE_PREFIX}supported`);
+    await this.cacheService.del(`${this.cacheConfig.prefix}supported`);
   }
 }

@@ -16,6 +16,3 @@ export * from './response.constant';
 
 // 数据模型枚举常量
 export * from './model.constant';
-
-// 链相关常量
-export * from './chain.constant';

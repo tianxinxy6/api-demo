@@ -2,7 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import type { FastifyRequest } from 'fastify';
 
 import { UserService } from '../../user/services/user.service';
-import { TokenService } from './token.service';
+import { JwtTokenService } from './token.service';
 import { TokenBlacklistService } from '@/modules/user/services/token-blacklist.service';
 import { UserLoginLogService } from './user-login-log.service';
 import { UserRegisterDto, UserLoginDto } from '../../user/dto/user.dto';
@@ -15,7 +15,7 @@ export class AuthService {
 
   constructor(
     private userService: UserService,
-    private tokenService: TokenService,
+    private tokenService: JwtTokenService,
     private tokenBlacklistService: TokenBlacklistService,
     private userLoginLogService: UserLoginLogService,
   ) {}

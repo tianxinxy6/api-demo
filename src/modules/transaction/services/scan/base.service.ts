@@ -1,8 +1,8 @@
 import { Logger } from '@nestjs/common';
 import { ChainService } from '@/modules/chain/services/chain.service';
 import { ChainAddressService } from '@/modules/user/services/chain-address.service';
-import { TokenService } from '@/modules/chain/services/token.service';
-import { ConfigService } from '@/shared/config/config.service';
+import { ChainTokenService } from '@/modules/chain/services/token.service';
+import { AppConfigService } from '@/shared/config/config.service';
 import { ChainEntity } from '@/entities/chain.entity';
 import { ChainTransaction } from '../../transaction.constant';
 import { BaseTransactionEntity } from '@/entities/txs/base.entity';
@@ -30,8 +30,8 @@ export abstract class BaseScanService {
   constructor(
     protected readonly chainService: ChainService,
     protected readonly chainAddressService: ChainAddressService,
-    protected readonly configService: ConfigService,
-    protected readonly tokenService: TokenService,
+    protected readonly configService: AppConfigService,
+    protected readonly tokenService: ChainTokenService,
     protected readonly depositService: DepositService,
     protected readonly databaseService: DatabaseService,
   ) {}
