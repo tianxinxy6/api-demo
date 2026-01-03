@@ -12,13 +12,7 @@ const ALGORITHM = 'aes-256-cbc';
 /**
  * 获取加密密钥
  */
-function getEncryptionKey(customKey?: string): string {
-  const key = customKey || process.env['ENCRYPTION_KEY'];
-  if (!key) {
-    throw new Error(
-      'Encryption key is required. Set ENCRYPTION_KEY environment variable or pass it as parameter.',
-    );
-  }
+function getEncryptionKey(key: string): string {
   if (key.length < 32) {
     throw new Error('Encryption key must be at least 32 characters long');
   }
@@ -37,7 +31,7 @@ function getEncryptionKey(customKey?: string): string {
  * @param secretKey 32 字节密钥（可从环境变量读取）
  * @returns hex 编码的 IV + 密文
  */
-export function aesEncrypt(plaintext: string, secretKey?: string): string {
+export function aesEncrypt(plaintext: string, secretKey: string): string {
   try {
     // 密钥必须是 32 字节（256 位）
     const key = crypto.createHash('sha256').update(getEncryptionKey(secretKey)).digest();
@@ -64,7 +58,7 @@ export function aesEncrypt(plaintext: string, secretKey?: string): string {
  * @param secretKey 32 字节密钥
  * @returns 解密后的明文
  */
-export function aesDecrypt(ciphertext: string, secretKey?: string): string {
+export function aesDecrypt(ciphertext: string, secretKey: string): string {
   try {
     const key = crypto.createHash('sha256').update(getEncryptionKey(secretKey)).digest();
 

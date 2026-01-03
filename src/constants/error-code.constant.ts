@@ -96,6 +96,7 @@ export enum ErrorCode {
   ErrWithdrawAmountInvalid = '27105:提现金额必须大于0',
   ErrWithdrawStatusInvalid = '27106:订单状态不正确',
   ErrWithdrawCancelForbidden = '27107:只能取消待审核状态的订单',
+  ErrAddressInvalid = '27108:地址格式不正确',
 
   // order-transfer (28xxx)
   ErrTransferUserNotFound = '28101:转入用户不存在',

@@ -12,4 +12,3 @@ export * from './tool.util';
 export * from './bcrypt.util';
 export * from './eth.util';
 export * from './tron.util';
-export * from './vault.util';

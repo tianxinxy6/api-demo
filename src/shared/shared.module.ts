@@ -9,8 +9,9 @@ import { FastifyRequest } from 'fastify';
 
 import { AppCacheModule } from './cache/cache.module';
 import { DatabaseModule } from './database/database.module';
-import { AppConfigService } from './config/config.service';
+import { AppConfigService } from './services/config.service';
 import { AddressMgrService } from './services/wallet.service';
+import { VaultService } from './services/vault.service';
 
 @Global()
 @Module({
@@ -53,7 +54,14 @@ import { AddressMgrService } from './services/wallet.service';
     // database
     DatabaseModule,
   ],
-  providers: [AppConfigService, AddressMgrService],
-  exports: [HttpModule, AppCacheModule, DatabaseModule, AppConfigService, AddressMgrService],
+  providers: [AppConfigService, AddressMgrService, VaultService],
+  exports: [
+    HttpModule,
+    AppCacheModule,
+    DatabaseModule,
+    VaultService,
+    AppConfigService,
+    AddressMgrService,
+  ],
 })
 export class SharedModule {}

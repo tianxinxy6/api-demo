@@ -4,7 +4,7 @@ import { Repository } from 'typeorm';
 import { ChainType, Status, SysWalletType, ErrorCode, CacheConfigs } from '@/constants';
 import { SysWalletAddressEntity } from '@/entities/sys-wallet-address.entity';
 import { AddressMgrService } from '@/shared/services/wallet.service';
-import { AppConfigService } from '@/shared/config/config.service';
+import { AppConfigService } from '@/shared/services/config.service';
 import { BusinessException } from '@/common/exceptions/biz.exception';
 
 /**

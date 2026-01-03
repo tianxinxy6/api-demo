@@ -1,17 +1,7 @@
-import { Logger, BadRequestException } from '@nestjs/common';
-import { firstValueFrom } from 'rxjs';
+import { Injectable, Logger, BadRequestException } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { HttpService } from '@nestjs/axios';
-
-/**
- * Vault 工具类配置接口
- */
-export interface VaultConfig {
-  address: string;
-  secretPath: string;
-  token?: string;
-  roleId?: string;
-  secretId?: string;
-}
+import { firstValueFrom } from 'rxjs';
 
 /**
  * 私钥存储数据接口
@@ -33,7 +23,7 @@ interface TokenCache {
 }
 
 /**
- * HashiCorp Vault 工具类
+ * HashiCorp Vault 服务
  *
  * 提供安全的密钥存储和管理功能，包括：
  * - Vault 连接和健康检查
@@ -43,37 +33,44 @@ interface TokenCache {
  *
  * @example
  * ```typescript
- * const vaultUtil = new VaultUtil({
- *   address: 'http://localhost:8200',
- *   secretPath: 'secret/data/wallet/privatekeys',
- *   roleId: 'your-role-id',
- *   secretId: 'your-secret-id'
- * }, httpService);
- *
  * // 存储私钥
- * await vaultUtil.storePrivateKey('wallet-123', {
+ * await vaultService.storePrivateKey('wallet-123', {
  *   privateKey: '0x...',
  *   publicKey: '0x...',
  *   createdAt: new Date().toISOString()
  * });
  *
  * // 获取私钥
- * const keyData = await vaultUtil.getPrivateKey('wallet-123');
+ * const keyData = await vaultService.getPrivateKey('wallet-123');
  * ```
  */
-export class VaultUtil {
-  private readonly logger = new Logger(VaultUtil.name);
+@Injectable()
+export class VaultService {
+  private readonly logger = new Logger(VaultService.name);
   private tokenCache: TokenCache = { token: '', expiry: 0 };
 
+  private readonly address: string;
+  private readonly secretPath: string;
+  private readonly token?: string;
+  private readonly roleId?: string;
+  private readonly secretId?: string;
+
   constructor(
-    private readonly config: VaultConfig,
+    private readonly configService: ConfigService,
     private readonly httpService: HttpService,
   ) {
-    if (!config.address || !config.secretPath) {
+    const vaultConfig = this.configService.get('app.vault');
+
+    this.address = vaultConfig.address;
+    this.secretPath = vaultConfig.secretPath;
+    this.token = vaultConfig.token;
+    this.roleId = vaultConfig.roleId;
+    this.secretId = vaultConfig.secretId;
+
+    if (!this.address || !this.secretPath) {
       throw new Error('Vault address and secretPath are required');
     }
 
-    this.logger.log('Vault utility initialized');
     this.initializeVault();
   }
 
@@ -83,7 +80,7 @@ export class VaultUtil {
   private async initializeVault(): Promise<void> {
     try {
       const healthResponse = await firstValueFrom(
-        this.httpService.get(`${this.config.address}/v1/sys/health`, {
+        this.httpService.get(`${this.address}/v1/sys/health`, {
           validateStatus: () => true,
           timeout: 5000,
         }),
@@ -116,24 +113,24 @@ export class VaultUtil {
     }
 
     // 如果有预设的 token，直接使用
-    if (this.config.token) {
-      this.tokenCache.token = this.config.token;
+    if (this.token) {
+      this.tokenCache.token = this.token;
       this.tokenCache.expiry = Date.now() + 3600000; // 1 hour
-      return this.config.token;
+      return this.token;
     }
 
     // 使用 AppRole 认证获取新 token
     try {
-      if (!this.config.roleId || !this.config.secretId) {
+      if (!this.roleId || !this.secretId) {
         throw new BadRequestException('Vault AppRole credentials (roleId/secretId) not configured');
       }
 
       const authResponse = await firstValueFrom(
         this.httpService.post(
-          `${this.config.address}/v1/auth/approle/login`,
+          `${this.address}/v1/auth/approle/login`,
           {
-            role_id: this.config.roleId,
-            secret_id: this.config.secretId,
+            role_id: this.roleId,
+            secret_id: this.secretId,
           },
           { timeout: 10000 },
         ),
@@ -162,7 +159,7 @@ export class VaultUtil {
    *
    * @example
    * ```typescript
-   * await vaultUtil.storePrivateKey('wallet-123', {
+   * await vaultService.storePrivateKey('wallet-123', {
    *   privateKey: '0x1234...',
    *   publicKey: '0x5678...',
    *   createdAt: new Date().toISOString()
@@ -172,7 +169,7 @@ export class VaultUtil {
   async storePrivateKey(walletId: string, keyData: PrivateKeyData): Promise<void> {
     try {
       const token = await this.getVaultToken();
-      const secretPath = `${this.config.secretPath}/${walletId}`;
+      const secretPath = `${this.secretPath}/${walletId}`;
 
       const payload = {
         data: {
@@ -182,15 +179,13 @@ export class VaultUtil {
       };
 
       await firstValueFrom(
-        this.httpService.post(`${this.config.address}/v1/${secretPath}`, payload, {
+        this.httpService.post(`${this.address}/v1/${secretPath}`, payload, {
           headers: {
             'X-Vault-Token': token,
           },
           timeout: 10000,
         }),
       );
-
-      this.logger.log(`Successfully stored private key for wallet ${walletId}`);
     } catch (error) {
       this.logger.error(`Failed to store private key in Vault: ${error.message}`);
       throw new BadRequestException('Failed to store private key securely');
@@ -206,7 +201,7 @@ export class VaultUtil {
    *
    * @example
    * ```typescript
-   * const keyData = await vaultUtil.getPrivateKey('wallet-123');
+   * const keyData = await vaultService.getPrivateKey('wallet-123');
    * if (keyData) {
    *   console.log('Private key:', keyData.privateKey);
    * }
@@ -215,10 +210,10 @@ export class VaultUtil {
   async getPrivateKey(walletId: string): Promise<PrivateKeyData | null> {
     try {
       const token = await this.getVaultToken();
-      const secretPath = `${this.config.secretPath}/${walletId}`;
+      const secretPath = `${this.secretPath}/${walletId}`;
 
       const response = await firstValueFrom(
-        this.httpService.get(`${this.config.address}/v1/${secretPath}`, {
+        this.httpService.get(`${this.address}/v1/${secretPath}`, {
           headers: {
             'X-Vault-Token': token,
           },
@@ -253,7 +248,7 @@ export class VaultUtil {
    *
    * @example
    * ```typescript
-   * const exists = await vaultUtil.hasPrivateKey('wallet-123');
+   * const exists = await vaultService.hasPrivateKey('wallet-123');
    * if (exists) {
    *   console.log('Private key exists');
    * }
@@ -276,7 +271,7 @@ export class VaultUtil {
    *
    * @example
    * ```typescript
-   * const walletIds = await vaultUtil.listWallets();
+   * const walletIds = await vaultService.listWallets();
    * console.log('All wallets:', walletIds);
    * ```
    */
@@ -287,7 +282,7 @@ export class VaultUtil {
       const response = await firstValueFrom(
         this.httpService.request({
           method: 'LIST',
-          url: `${this.config.address}/v1/${this.config.secretPath}`,
+          url: `${this.address}/v1/${this.secretPath}`,
           headers: {
             'X-Vault-Token': token,
           },
@@ -319,7 +314,7 @@ export class VaultUtil {
   async getVaultStatus(): Promise<any> {
     try {
       const response = await firstValueFrom(
-        this.httpService.get(`${this.config.address}/v1/sys/health`, {
+        this.httpService.get(`${this.address}/v1/sys/health`, {
           timeout: 5000,
         }),
       );

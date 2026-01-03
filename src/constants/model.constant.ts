@@ -29,8 +29,8 @@ export enum SysWalletType {
  * 区块链类型
  */
 export enum ChainType {
-  TRON = 1, // TRON 链
-  ETH = 2, // 以太坊
+  ETH = 1, // 以太坊
+  TRON = 2, // TRON 链
 }
 
 /**

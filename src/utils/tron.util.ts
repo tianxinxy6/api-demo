@@ -1,4 +1,3 @@
-import { Contract } from 'ethers';
 import { TronWeb, Types } from 'tronweb';
 
 export interface TronAddressInfo {
@@ -6,12 +5,6 @@ export interface TronAddressInfo {
   publicKey: string;
   privateKey: string;
   hexAddress: string;
-}
-
-export interface TronBalanceInfo {
-  address: string;
-  balance: bigint; // TRX balance in SUN
-  balanceTrx: string; // TRX balance in TRX
 }
 
 /**
@@ -22,7 +15,7 @@ export class TronUtil {
 
   // TRON 资源消耗常量（固定值）
   private readonly TRX_BANDWIDTH = 270; // TRX 转账固定消耗
-  private readonly TRC20_BANDWIDTH = 350; // TRC20 转账固定消耗
+  private readonly TRC20_BANDWIDTH = 360; // TRC20 转账固定消耗
 
   constructor(nodeUrl: string, privateKey?: string) {
     this.tronWeb = new TronWeb({
@@ -220,10 +213,6 @@ export class TronUtil {
 
   async sendTrc20(to: string, amount: number, contract: string): Promise<string> {
     try {
-      if (!this.tronWeb.defaultPrivateKey) {
-        throw new Error('Private key not provided in constructor');
-      }
-
       const fromAddress = this.getFromAddress();
       if (!fromAddress) {
         throw new Error('Failed to derive address from private key');

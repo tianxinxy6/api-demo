@@ -11,6 +11,7 @@ declare global {
    * 链代币信息接口
    */
   interface IChainToken {
+    chainType: number;
     /** 代币代码 */
     code: string;
     /** 合约地址 */

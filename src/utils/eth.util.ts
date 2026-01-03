@@ -7,12 +7,6 @@ export interface EthAddressInfo {
   privateKey: string;
 }
 
-export interface EthBalanceInfo {
-  address: string;
-  balance: string; // Wei 格式
-  balanceEth: string; // ETH 格式
-}
-
 export interface EthGasInfo {
   gasPrice: bigint; // Gwei 格式
   gasFee: bigint;
@@ -216,31 +210,6 @@ export class EthUtil {
       return await this.provider.send('eth_getBlockByNumber', [blockHex, true]);
     } catch (error) {
       throw new Error(`Failed to get block with full transactions: ${error.message}`);
-    }
-  }
-
-  /**
-   * 批量获取交易详情
-   * 用于大量交易的高效处理
-   */
-  async batchGetTransactions(txHashes: string[], batchSize: number = 10): Promise<any[]> {
-    try {
-      const results = [];
-
-      for (let i = 0; i < txHashes.length; i += batchSize) {
-        const batch = txHashes.slice(i, i + batchSize);
-
-        const batchPromises = batch.map((hash) =>
-          this.provider.send('eth_getTransactionByHash', [hash]),
-        );
-
-        const batchResults = await Promise.all(batchPromises);
-        results.push(...batchResults);
-      }
-
-      return results;
-    } catch (error) {
-      throw new Error(`Failed to batch get transactions: ${error.message}`);
     }
   }
 

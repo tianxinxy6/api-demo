@@ -13,6 +13,7 @@ import { AppCacheModule } from '@/shared/cache/cache.module';
 import { WalletController } from './controllers/wallet.controller';
 import { SharedModule } from '@/shared/shared.module';
 import { TokenBlacklistService } from './services/token-blacklist.service';
+import { SysModule } from '@/modules/sys/sys.module';
 
 const providers = [UserService, WalletService, ChainAddressService, TokenBlacklistService];
 
@@ -26,6 +27,7 @@ const providers = [UserService, WalletService, ChainAddressService, TokenBlackli
     ]),
     AppCacheModule,
     SharedModule,
+    SysModule,
   ],
   controllers: [UserController, WalletController],
   providers: [...providers],

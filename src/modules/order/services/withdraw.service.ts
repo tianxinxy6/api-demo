@@ -11,6 +11,7 @@ import { WithdrawOrder } from '../vo/withdraw.model';
 import { WithdrawalStatus, WalletLogType, ErrorCode } from '@/constants';
 import { generateOrderNo } from '@/utils';
 import { BusinessException } from '@/common/exceptions/biz.exception';
+import { AddressMgrService } from '@/shared/services/wallet.service';
 
 /**
  * 提现订单服务
@@ -32,6 +33,7 @@ export class WithdrawService {
     private readonly userService: UserService,
     private readonly tokenService: TokenService,
     private readonly chainTokenService: ChainTokenService,
+    private readonly addressMgrService: AddressMgrService,
     private readonly dataSource: DataSource,
   ) {}
 
@@ -67,6 +69,10 @@ export class WithdrawService {
       const chainToken = await this.chainTokenService.getAddressByCode(dto.chainId, token.code);
       if (!chainToken) {
         throw new BusinessException(ErrorCode.ErrWithdrawChainTokenNotFound);
+      }
+
+      if (this.addressMgrService.validateAddress(chainToken.chainType, dto.toAddress) === false) {
+        throw new BusinessException(ErrorCode.ErrAddressInvalid);
       }
 
       // 2. 验证金额

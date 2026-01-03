@@ -72,6 +72,12 @@ export abstract class BaseWithdrawService {
         return;
       }
 
+      // 查询待处理的提现订单（从 WithdrawService 获取）
+      const orders = await this.withdrawService.getPendingWithdraws(this.chain.id);
+      if (orders.length === 0) {
+        return;
+      }
+
       // 3. 获取提现钱包私钥
       const privateKey = await this.sysWalletAddressService.getWithdrawWallet(this.chainType);
       if (!privateKey) {
@@ -81,12 +87,6 @@ export abstract class BaseWithdrawService {
 
       // 2. 初始化链连接
       await this.init(privateKey);
-
-      // 4. 查询待处理的提现订单（从 WithdrawService 获取）
-      const orders = await this.withdrawService.getPendingWithdraws(this.chain.id);
-      if (orders.length === 0) {
-        return;
-      }
 
       this.logger.debug(`Found ${orders.length} approved withdraw orders for ${this.chainCode}`);
 

@@ -91,15 +91,9 @@ export class SignatureGuard implements CanActivate {
     }
 
     // 验证签名
-    const result = SignatureUtil.verify(this.secret, signature, timestamp, request.body);
-
-    if (!result.valid) {
-      this.logger.warn(`签名验证失败: ${result.error}`);
-      throw new BusinessException(
-        result.error?.includes('时间戳')
-          ? ErrorCode.ErrTimestampInvalid
-          : ErrorCode.ErrSignatureInvalid,
-      );
+    const isValid = SignatureUtil.verify(this.secret, signature, timestamp, request.body);
+    if (!isValid) {
+      throw new BusinessException(ErrorCode.ErrSignatureInvalid);
     }
   }
 }

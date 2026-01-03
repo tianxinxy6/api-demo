@@ -1,11 +1,10 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { HttpService } from '@nestjs/axios';
 import { ConfigService } from '@nestjs/config';
 import * as crypto from 'crypto';
 import { ChainType, ErrorCode } from '@/constants';
 import { EthUtil } from '@/utils/eth.util';
 import { TronUtil } from '@/utils/tron.util';
-import { VaultUtil, VaultConfig } from '@/utils/vault.util';
+import { VaultService } from './vault.service';
 import { BusinessException } from '@/common/exceptions/biz.exception';
 
 /**
@@ -19,14 +18,24 @@ import { BusinessException } from '@/common/exceptions/biz.exception';
 @Injectable()
 export class AddressMgrService {
   private readonly logger = new Logger(AddressMgrService.name);
-  private readonly vaultUtil: VaultUtil;
 
   constructor(
     private readonly configService: ConfigService,
-    private readonly httpService: HttpService,
-  ) {
-    const vaultConfig: VaultConfig = this.configService.get('app.vault');
-    this.vaultUtil = new VaultUtil(vaultConfig, this.httpService);
+    private readonly vaultService: VaultService,
+  ) {}
+
+  /**
+   * 验证区块链地址格式
+   */
+  validateAddress(chainType: ChainType, address: string): boolean {
+    switch (chainType) {
+      case ChainType.TRON:
+        return TronUtil.validateAddress(address);
+      case ChainType.ETH:
+        return EthUtil.validateAddress(address);
+      default:
+        return false;
+    }
   }
 
   /**
@@ -70,7 +79,7 @@ export class AddressMgrService {
         addressInfo.secKey,
       );
 
-      await this.vaultUtil.storePrivateKey(vaultKey, {
+      await this.vaultService.storePrivateKey(vaultKey, {
         privateKey: encryptedData,
         address: addressInfo.address,
         publicKey: addressInfo.publicKey,
@@ -89,7 +98,7 @@ export class AddressMgrService {
     try {
       const vaultKey = this.genrateVaultKey(addressId, userId);
 
-      const data = await this.vaultUtil.getPrivateKey(vaultKey);
+      const data = await this.vaultService.getPrivateKey(vaultKey);
       return this.decryptPrivateKey(data.privateKey, data.keyHash, addressId, userId, key);
     } catch (error) {
       this.logger.error(

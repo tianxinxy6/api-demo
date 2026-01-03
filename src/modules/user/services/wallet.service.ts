@@ -5,6 +5,8 @@ import { UserWalletEntity } from '@/entities/user-wallet.entity';
 import { UserWalletLogEntity } from '@/entities/user-wallet-log.entity';
 import { WalletLogType, WalletStatus, ErrorCode } from '@/constants';
 import { BusinessException } from '@/common/exceptions/biz.exception';
+import { TokenService } from '@/modules/sys/services/token.service';
+import { WalletResponse, WalletTokenInfo } from '../vo';
 
 export interface editBalanceParams {
   userId: number;
@@ -25,6 +27,7 @@ export class WalletService {
   constructor(
     @InjectRepository(UserWalletEntity)
     private readonly userWalletRepository: Repository<UserWalletEntity>,
+    private readonly tokenService: TokenService,
   ) {}
 
   /**
@@ -382,6 +385,40 @@ export class WalletService {
     return await this.userWalletRepository.find({
       where: { userId },
       order: { tokenId: 'ASC' },
+    });
+  }
+
+  /**
+   * 获取用户所有钱包（包含代币信息）
+   */
+  async getUserWalletsWithToken(userId: number): Promise<WalletResponse[]> {
+    const wallets = await this.userWalletRepository
+      .createQueryBuilder('wallet')
+      .where('wallet.userId = :userId', { userId })
+      .orderBy('wallet.tokenId', 'ASC')
+      .getMany();
+
+    if (wallets.length === 0) {
+      return [];
+    }
+
+    // 使用 TokenService 一次性获取所有代币信息（带缓存）
+    const allTokens = await this.tokenService.getAllTokens();
+    const tokenMap = new Map(allTokens.map((t) => [t.id, t]));
+
+    // 组装返回数据
+    return wallets.map((wallet) => {
+      const token = tokenMap.get(wallet.tokenId);
+      return new WalletResponse({
+        token: new WalletTokenInfo({
+          code: token?.code || '',
+          name: token?.name || '',
+          logo: token?.logo || '',
+        }),
+        balance: wallet.balance,
+        frozenBalance: wallet.frozenBalance,
+        decimals: wallet.decimals,
+      });
     });
   }
 }

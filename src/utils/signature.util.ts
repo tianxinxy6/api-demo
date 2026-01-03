@@ -37,11 +37,11 @@ export class SignatureUtil {
     timestamp: number,
     body: any = {},
     tolerance: number = 5 * 60 * 1000, // 5分钟
-  ): { valid: boolean; error?: string } {
+  ): boolean {
     // 验证时间戳
     const timeDiff = Math.abs(Date.now() - timestamp);
     if (timeDiff > tolerance) {
-      return { valid: false, error: '时间戳已过期' };
+      return false;
     }
 
     // 计算签名
@@ -50,15 +50,14 @@ export class SignatureUtil {
 
     // 检查签名长度是否匹配（防止 timingSafeEqual 抛出异常）
     if (signature.length !== computedSignature.length) {
-      return { valid: false, error: '签名无效' };
+      return false;
     }
 
     // 安全比较（防止时序攻击）
     try {
-      const valid = crypto.timingSafeEqual(Buffer.from(signature), Buffer.from(computedSignature));
-      return { valid, error: valid ? undefined : '签名无效' };
+      return crypto.timingSafeEqual(Buffer.from(signature), Buffer.from(computedSignature));
     } catch (error) {
-      return { valid: false, error: '签名格式错误' };
+      return false;
     }
   }
 }

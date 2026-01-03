@@ -10,7 +10,6 @@ import { FastifyReply, FastifyRequest } from 'fastify';
 import { QueryFailedError } from 'typeorm';
 
 import { BusinessException } from '@/common/exceptions/biz.exception';
-import { ErrorCode } from '@/constants/error-code.constant';
 
 import { isDev } from '@/global/env';
 
@@ -54,10 +53,10 @@ export class AllExceptionsFilter implements ExceptionFilter {
 
     // 系统内部错误时
     if (status === HttpStatus.INTERNAL_SERVER_ERROR && !(exception instanceof BusinessException)) {
-      Logger.error(exception, undefined, 'Catch');
+      this.logger.error(`错误信息：(${status}) ${message} Path: ${decodeURI(url)}`);
 
       // 生产环境下隐藏错误信息
-      if (!isDev) message = ErrorCode.ErrInternalServer?.split(':')[1];
+      if (!isDev) message = 'Internal server error';
     } else {
       this.logger.warn(`错误信息：(${status}) ${message} Path: ${decodeURI(url)}`);
     }

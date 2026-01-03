@@ -2,9 +2,10 @@ import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { ChainTokenEntity } from '@/entities/chain-token.entity';
-import { TokenStatus, CacheConfigs } from '@/constants';
+import { TokenStatus, CacheConfigs, ChainType } from '@/constants';
 import { CacheService } from '@/shared/cache/cache.service';
 import { ChainTokenResponse } from '../vo';
+import { chain } from 'lodash';
 
 /**
  * 代币服务 - 钱包系统核心功能
@@ -38,11 +39,11 @@ export class ChainTokenService {
         chainId,
         status: TokenStatus.ACTIVE,
       },
-      select: ['code', 'contract', 'decimals'],
     });
 
     const tokenData = tokens.map((token) => ({
       code: token.code,
+      chainType: token.chainType,
       contractAddress: token.contract,
       decimals: token.decimals,
     }));

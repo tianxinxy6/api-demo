@@ -2,7 +2,7 @@ import { Inject, Logger } from '@nestjs/common';
 import { ChainService } from '@/modules/chain/services/chain.service';
 import { ChainAddressService } from '@/modules/user/services/chain-address.service';
 import { ChainTokenService } from '@/modules/chain/services/token.service';
-import { AppConfigService } from '@/shared/config/config.service';
+import { AppConfigService } from '@/shared/services/config.service';
 import { ChainEntity } from '@/entities/chain.entity';
 import { ChainTransaction } from '../../transaction.constant';
 import { BaseTransactionEntity } from '@/entities/txs/base.entity';

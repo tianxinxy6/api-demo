@@ -19,6 +19,13 @@ export class ChainTokenEntity extends CommonEntity {
   @Column({ comment: '所属链 ID', name: 'chain_id', type: 'bigint' })
   chainId: number;
 
+  @Column({
+    comment: '区块链类型',
+    name: 'chain_type',
+    type: 'tinyint',
+  })
+  chainType: number;
+
   /**
    * 代币代码 - 链内唯一
    * 原生代币：TRX, ETH
