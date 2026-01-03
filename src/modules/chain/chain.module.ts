@@ -7,7 +7,7 @@ import { ChainTokenService } from './services/token.service';
 import { ChainEntity } from '@/entities/chain.entity';
 import { ChainTokenEntity } from '@/entities/chain-token.entity';
 import { SharedModule } from '@/shared/shared.module';
-import { ChainController } from './chain.controller';
+import { ChainController } from './controllers/chain.controller';
 
 const providers = [ChainService, ChainTokenService];
 

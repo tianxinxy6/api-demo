@@ -2,9 +2,9 @@ import { Controller, Get, Param, ParseIntPipe } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiParam } from '@nestjs/swagger';
 
 import { ApiSecurityAuth } from '@/common/decorators/swagger.decorator';
-import { ChainService } from './services/chain.service';
-import { ChainTokenService } from './services/token.service';
-import { SupportedChainResponse, ChainTokenResponse } from './vo';
+import { ChainService } from '../services/chain.service';
+import { ChainTokenService } from '../services/token.service';
+import { SupportedChainResponse, ChainTokenResponse } from '../vo';
 import { BusinessException } from '@/common/exceptions/biz.exception';
 import { ErrorCode } from '@/constants';
 

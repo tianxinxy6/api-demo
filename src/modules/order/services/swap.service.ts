@@ -6,7 +6,7 @@ import { TokenEntity } from '@/entities/token.entity';
 import { WalletService } from '@/modules/user/services/wallet.service';
 import { UserService } from '@/modules/user/services/user.service';
 import { TokenService } from '@/modules/sys/services/token.service';
-import { MarketService } from '@/modules/market/market.service';
+import { MarketService } from '@/modules/market/services/market.service';
 import { CreateSwapDto, QuerySwapDto } from '../dto/swap.dto';
 import { SwapOrder } from '../vo/swap.model';
 import { Status, WalletLogType, ErrorCode } from '@/constants';

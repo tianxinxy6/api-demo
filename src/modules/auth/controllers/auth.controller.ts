@@ -5,10 +5,10 @@ import type { FastifyRequest } from 'fastify';
 import { ApiSecurityAuth } from '@/common/decorators/swagger.decorator';
 import { Public } from '@/common/decorators/public.decorator';
 import { AuthUser } from '@/common/decorators/auth-user.decorator';
-import { AuthService } from './services/auth.service';
-import { UserRegisterDto, UserLoginDto } from '../user/dto/user.dto';
-import { RefreshTokenDto } from './dto/auth.dto';
-import { UserProfileResponse } from '../user/vo';
+import { AuthService } from '../services/auth.service';
+import { UserRegisterDto, UserLoginDto } from '../../user/dto/user.dto';
+import { RefreshTokenDto } from '../dto/auth.dto';
+import { UserProfileResponse } from '../../user/vo';
 
 @ApiTags('Auth - 认证模块')
 @Controller({ path: 'auth', version: '1' })

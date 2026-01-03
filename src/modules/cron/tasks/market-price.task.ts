@@ -1,6 +1,6 @@
+import { MarketService } from '@/modules/market/services/market.service';
 import { Injectable, Logger } from '@nestjs/common';
 import { Cron } from '@nestjs/schedule';
-import { MarketService } from '@/modules/market/market.service';
 
 /**
  * 市场价格定时任务

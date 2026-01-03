@@ -1,8 +1,8 @@
 import { Controller, Get, Param } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiParam } from '@nestjs/swagger';
-import { MarketService } from './market.service';
+import { MarketService } from '../services/market.service';
 import { TokenPriceService } from '@/modules/sys/services/token-price.service';
-import { TokenPriceResponse } from './vo';
+import { TokenPriceResponse } from '../vo';
 import { Public } from '@/common/decorators/public.decorator';
 import { BusinessException } from '@/common/exceptions/biz.exception';
 import { ErrorCode } from '@/constants';
