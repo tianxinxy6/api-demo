@@ -10,7 +10,7 @@ import { ErrorCode } from '@/constants';
 
 @ApiTags('Chain - 区块链管理')
 @ApiSecurityAuth()
-@Controller('chains')
+@Controller({ path: 'chains', version: '1' })
 export class ChainController {
   constructor(
     private readonly chainService: ChainService,

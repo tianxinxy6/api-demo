@@ -18,16 +18,26 @@ export function setupSwagger(app: INestApplication, configService: ConfigService
   if (!enable) return;
 
   const swaggerPath = `${serverUrl}/${path}`;
+  const baseUrl = `${serverUrl}/${appConfig.api.prefix}`;
 
   const documentBuilder = new DocumentBuilder()
     .setTitle(name)
     .setDescription(
       `
-🔷 **Base URL**: \`${serverUrl}/${appConfig.api.prefix}\` <br>
-🧾 **Swagger JSON**: [查看文档 JSON](${swaggerPath}/json)`,
+🔷 **Base URL**: \`${baseUrl}\` <br>
+📦 **API 版本控制**: 本 API 支持多版本控制 <br>
+  - V1: \`${baseUrl}/v1/...\` <br>
+  - V2: \`${baseUrl}/v2/...\` <br>
+🧾 **Swagger JSON**: [查看文档 JSON](${swaggerPath}/json) <br>
+ℹ️ **版本说明**:
+  - V1 为稳定版本，包含所有基础功能
+  - V2 为增强版本，提供新功能和改进
+  - 未指定版本时，默认使用 V1`,
     )
     .setVersion('1.0')
-    .addServer(`${serverUrl}/${appConfig.api.prefix}`, 'Base URL');
+    .addServer(`${baseUrl}/v1`, 'API V1 (默认版本)')
+    .addServer(`${baseUrl}/v2`, 'API V2 (增强版本)')
+    .addServer(baseUrl, 'Base URL (使用默认版本)');
 
   // auth security
   documentBuilder.addSecurity(API_SECURITY_AUTH, {

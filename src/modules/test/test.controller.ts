@@ -19,7 +19,7 @@ class TestSignatureDto {
  * 用于测试签名验证功能
  */
 @ApiTags('Test - 测试接口')
-@Controller('test')
+@Controller({ path: 'test', version: '1' })
 @Public() // 跳过 JWT 验证
 export class TestController {
   constructor(private readonly sysWalletAddressService: SysWalletAddressService) {}

@@ -11,7 +11,7 @@ import { ChainAddressResponse, WalletResponse } from '../vo';
 
 @ApiTags('Wallet - 钱包管理')
 @ApiSecurityAuth()
-@Controller('wallet')
+@Controller({ path: 'wallet', version: '1' })
 export class WalletController {
   constructor(
     private readonly chainAddressService: ChainAddressService,

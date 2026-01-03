@@ -1,7 +1,7 @@
 import cluster from 'node:cluster';
 
 import path from 'node:path';
-import { Logger } from '@nestjs/common';
+import { Logger, VersioningType } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
 import { NestFastifyApplication } from '@nestjs/platform-fastify';
@@ -46,6 +46,13 @@ async function bootstrap() {
   app.use(compression());
 
   app.setGlobalPrefix(globalPrefix);
+
+  // 启用 API 版本控制
+  app.enableVersioning({
+    type: VersioningType.URI, // 使用 URI 版本控制 (e.g., /api/v1/users, /api/v2/users)
+    defaultVersion: '1', // 默认版本为 v1
+  });
+
   app.useStaticAssets({ root: path.join(__dirname, '..', 'public') });
   // Starts listening for shutdown hooks
   !isDev && app.enableShutdownHooks();

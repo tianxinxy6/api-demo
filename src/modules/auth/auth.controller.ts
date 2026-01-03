@@ -11,7 +11,7 @@ import { RefreshTokenDto } from './dto/auth.dto';
 import { UserProfileResponse } from '../user/vo';
 
 @ApiTags('Auth - 认证模块')
-@Controller('auth')
+@Controller({ path: 'auth', version: '1' })
 export class AuthController {
   constructor(private authService: AuthService) {}
 

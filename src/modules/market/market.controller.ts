@@ -11,7 +11,7 @@ import { ErrorCode } from '@/constants';
  * 市场行情控制器
  */
 @ApiTags('Market - 市场行情')
-@Controller('market')
+@Controller({ path: 'market', version: '1' })
 export class MarketController {
   constructor(
     private readonly marketService: MarketService,

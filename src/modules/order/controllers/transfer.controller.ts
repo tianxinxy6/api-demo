@@ -12,7 +12,7 @@ import { Idempotence } from '@/common/decorators/idempotence.decorator';
  */
 @ApiTags('Order - Transfer')
 @ApiSecurityAuth()
-@Controller('order/transfer')
+@Controller({ path: 'order/transfer', version: '1' })
 export class TransferController {
   constructor(private readonly transferService: TransferService) {}
 

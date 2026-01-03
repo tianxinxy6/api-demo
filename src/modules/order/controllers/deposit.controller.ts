@@ -11,7 +11,7 @@ import { ApiSecurityAuth } from '@/common/decorators/swagger.decorator';
  */
 @ApiTags('Order - Deposit')
 @ApiSecurityAuth()
-@Controller('order/deposit')
+@Controller({ path: 'order/deposit', version: '1' })
 export class DepositController {
   constructor(private readonly depositService: DepositService) {}
 

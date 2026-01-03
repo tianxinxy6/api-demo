@@ -20,7 +20,7 @@ import type { FastifyRequest } from 'fastify';
 
 @ApiTags('User - 用户管理')
 @ApiSecurityAuth()
-@Controller('user')
+@Controller({ path: 'user', version: '1' })
 export class UserController {
   constructor(private userService: UserService) {}
 

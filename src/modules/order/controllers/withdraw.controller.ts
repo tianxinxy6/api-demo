@@ -12,7 +12,7 @@ import { Idempotence } from '@/common/decorators/idempotence.decorator';
  */
 @ApiTags('Order - Withdraw')
 @ApiSecurityAuth()
-@Controller('order/withdraw')
+@Controller({ path: 'order/withdraw', version: '1' })
 export class WithdrawController {
   constructor(private readonly withdrawService: WithdrawService) {}
 
